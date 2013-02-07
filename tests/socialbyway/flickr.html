@@ -1,0 +1,71 @@
+<html>
+<head>
+  <!--<link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
+
+</head>
+<body>
+<div id="post-container">
+    <h4>Posting tool : </h4>
+
+    <div class="post-composer">
+
+        <textarea class="post-box">Add a post...</textarea>
+
+        <div class="post">
+            Post to &nbsp;
+            <input name="service" type="checkbox" value="flickr" checked/>flickr
+
+            <div id="flickr_post" class="flickr-post">
+            </div>
+        </div>
+    </div>
+    <div id="in-root"></div>
+    <form  onsubmit="upload()" action="javascript:void(0)" name="fileinfo">
+        <input type="file" name="source" multiple="multiple" > <!-- name must be file -->
+        <input type="submit" value="Submit"/>
+    </form>
+</div>
+<div id="statusDiv"></div>
+<script type="text/javascript">
+  $(document).ready(function(){
+  SBW.init('../config/test-config.json', function() {
+  });  })
+    function upload(){
+    var data=$('[name="source"]')[0].files;
+    var commentBox = document.getElementsByClassName('post-box')[0];
+    var serviceGrp = document.getElementsByClassName('post')[0];
+    var successCallback = function (response) {
+    console.log(response);
+    console.log('Successfully published message');
+    };
+    var failureCallback = function () {
+    console.log('Some problem occurred while publishing message');
+    };
+    var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+    var objectId = '8219507855';  <!--photo id of user kiranParvathaneni -->
+    var image = 'image.jpg';
+    var userId ='90090088@N04';
+    var galleryId = '90057949-72157632690477181';
+    var photoId = '8220512690';
+    var title = 'dummy title';
+    var description = 'dummy description';
+    var metadata = { 'title':title,'description':description,'location':'','file':data[0] };
+        console.log(metadata);
+    SBW.Singletons.serviceFactory.getService('flickr').uploadPhoto( [metadata],successCallback,failureCallback);
+    var commentBox = document.getElementsByClassName('post-box');
+    for (var j = 0; j < commentBox.length; j++) {
+    commentBox[j].addEventListener('focus', function (e) {
+    e.target.value = "";
+    });
+    commentBox[j].addEventListener('blur', function (e) {
+    if (e.target.value == "")
+    e.target.value = "Add a Post...";
+    });
+    }
+    }
+</script>
+</body>
+</html>

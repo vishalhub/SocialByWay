@@ -1,0 +1,34 @@
+{
+    "protocol": "http:",
+    "host": "www.example.com",
+    "env": "www",
+    "proxyURL": "/proxy/proxy.php",
+    "callbackDirectory": "/callback",
+    "debug": "false",
+    "services": {
+        "GooglePlus": {
+            "clientID": "GOOGLEPLUS_CLIENT_ID",
+            "apiKey": "GOOGLEPLUS_API_KEY"
+        },
+        "Picasa": {
+            "clientID": "PICASA_CLIENT_ID"
+        },
+        "Facebook": {
+            "appID": "FACEBOOK_APP_ID"
+        },
+        "Flickr": {
+            "apiKey": "FLICKR_API_KEY",
+            "secret": "FLICKR_SECRET"
+        },
+        "Twitter": {
+            "consumerKey": "TWITTER_CONSUMER_KEY",
+            "consumerSecret": "TWITTER_CONSUMER_SECRET"
+        },
+        "LinkedIn": {
+            "apiKey": "LINKEDIN_API_KEY"
+        },
+        "Instagram": {
+            "apiKey": "INSTAGRAM_API_KEY"
+        }
+    }
+}

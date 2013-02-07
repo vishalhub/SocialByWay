@@ -1,0 +1,34 @@
+{
+    "protocol": "http:",
+    "host": "www.socialbyway.com",
+    "env": "www",
+    "proxyURL": "/site/proxy/proxy.php",
+    "callbackDirectory": "/site/callback",
+    "debug": "true",
+    "services": {
+        "GooglePlus": {
+            "clientID": "429131127646.apps.googleusercontent.com",
+            "apiKey": "AIzaSyB-0FQEyVfaIXhBA6H6WOnmGIinWOA3nNk"
+        },
+        "Picasa": {
+            "clientID": "86902642297.apps.googleusercontent.com"
+        },
+        "Facebook": {
+            "appID": "428777790499040"
+        },
+        "Flickr": {
+            "apiKey": "a246932ba1b47c84aac1e29b57976737",
+            "secret": "39e214e55eaa83ca"
+        },
+        "Twitter": {
+            "consumerKey": "nNMf2GY54g0xijq7qE9aA",
+            "consumerSecret": "cEdofM4MFzG5nCzZXwLUCRYE366wWRNskQ053NW07g"
+        },
+        "LinkedIn": {
+            "apiKey": "cqcjipfm7z8h"
+        },
+        "Instagram": {
+            "apiKey": "348f647115a544cd9f98f8bcd69290d6"
+        }
+    }
+}

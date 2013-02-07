@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../site/style/default/socialbyway.ui.css"/>
+    <!--link rel="stylesheet" type="text/css" href="../../app/assets/stylesheets/default/share.css"/-->
+    <!--link rel="stylesheet" type="text/css" href="../../app/assets/stylesheets/default/follow.css"/-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
+    <!--script type="text/javascript" src="../../www/socialbyway/js/socialbyway.ui.min.js"></script-->
+    <script type="text/javascript" src="../../app/assets/javascripts/socialbyway-ui/share/shareWidget.js"></script>
+    <script type="text/javascript" src="../../app/assets/javascripts/socialbyway-ui/follow/followWidget.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            console.log('Like widget is: ',$('.like-widget-container'));
+            SBW.init('../config/test-config.json', function() {
+                //$('.like-widget-container').ShareWidget({url: 'http://google.co.in'});
+                $('.like-widget-container').FollowWidget({userDetails: {twitter: 'ndtv'}});
+            });
+
+           // $('.follow-widget-container').FollowWidget({networks: {twitter: 'timesofindia'}});
+        });
+    </script>
+</head>
+<body>
+<input type="image" id='twitter' name='twitter' src="twitter.png">
+<script type="text/javascript">
+    document.getElementById('twitter').onclick = function (event) {
+        SBW.Singletons.serviceFactory.getService("twitter").startActionHandler(function() {
+            console.log('authenticated');
+            console.log('authenticated object is: ',this);
+        });
+    };
+
+    function getHomeTimeline() {
+        SBW.Singletons.serviceFactory.getService("twitter").getHomeTimeLine({}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function getAccountSettings() {
+        SBW.Singletons.serviceFactory.getService("twitter").getAccountSettings(function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function getMentionsTimeline() {
+        SBW.Singletons.serviceFactory.getService("twitter").getMentionsTimeLine({}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function postTweet() {
+        SBW.Singletons.serviceFactory.getService("twitter").post({status: document.getElementById('twitterStatus').value}, function(successResponse) {
+           document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        }, function(response) { console.log(response); });
+    };
+
+    function retweetStatus() {
+        SBW.Singletons.serviceFactory.getService("twitter").share(document.getElementById('retweet-status-id').value, {}, function(successResponse) {
+           document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function searchTweet() {
+        SBW.Singletons.serviceFactory.getService("twitter").search({q: document.getElementById('SearchTweets').value}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function subscribe() {
+        SBW.Singletons.serviceFactory.getService("twitter").subscribe({screen_name: document.getElementById('subscribe-user-name').value}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function unSubscribe() {
+        SBW.Singletons.serviceFactory.getService("twitter").unSubscribe({screen_name: document.getElementById('unsubscribe-user-name').value}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function like() {
+        SBW.Singletons.serviceFactory.getService("twitter").like({id: document.getElementById('like-status-id').value}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function unlike() {
+        SBW.Singletons.serviceFactory.getService("twitter").unlike({id: document.getElementById('unlike-status-id').value}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function getUserTimeline() {
+        SBW.Singletons.serviceFactory.getService("twitter").getUserTimeline({}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+    function getProfile() {
+        SBW.Singletons.serviceFactory.getService("twitter").getProfile({screen_name: document.getElementById('get-profile-screen-name').value}, function(successResponse) {
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(successResponse);
+        });
+    };
+
+    function uploadMedia() {
+        var metadata = {
+            status: document.getElementById('status').value
+        };
+        var fileData =  document.getElementById('media[]').files[0];
+        SBW.Singletons.serviceFactory.getService("twitter").updateWithMedia(metadata, fileData, function(response){
+            document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(response);
+        }, function(response) { console.log(response); });
+        return false;
+    };
+</script>
+<div class="GetHomeTimeline">
+    <input type="button" value="GetHomeTimeline" onclick="getHomeTimeline()" />
+</div>
+<div class="GetProfile">
+    <input type="text" id="get-profile-screen-name" placeholder="Enter Screen name)" />
+    <input type="button" value="Get Profile" onclick="getProfile()" />
+</div>
+<div class="GetUserTimeline">
+    <input type="text" id="user-timeline-screen-name" placeholder="Enter Screen name)" />
+    <input type="button" value="Get User Timeline" onclick="getUserTimeline()" />
+</div>
+
+<div class="get-account-settings">
+    <input type="button" value="Get Account Settings" onclick="getAccountSettings()" />
+</div>
+<div class="GetMentionsTimeline">
+    <input type="button" value="GetMentionsTimeline" onclick="getMentionsTimeline()" />
+</div>
+<div class="SearchTweets">
+    <input type="text" id="SearchTweets" placeholder="Enter a search parameter" />
+    <input type="button" value="Search Tweet Request" onclick="searchTweet()" />
+</div>
+<div class="PostTweet">
+    <input type="text" id="twitterStatus" placeholder="Enter a Status" />
+    <input type="button" value="Post Tweet Request" onclick="postTweet()" />
+</div>
+<div class="retweet">
+    <input type="text" id="retweet-status-id" placeholder="Enter status Id" />
+    <input type="button" value="Retweet" onclick="retweetStatus()" />
+</div>
+<div class="subscribe">
+    <input type="text" id="subscribe-user-name" placeholder="Enter screen name" />
+    <input type="button" value="FOLLOW" onclick="subscribe()" />
+</div>
+<div class="unsubscribe">
+    <input type="text" id="unsubscribe-user-name" placeholder="Enter screen name" />
+    <input type="button" value="UN-FOLLOW" onclick="unSubscribe()" />
+</div>
+<div class="like">
+    <input type="text" id="like-status-id" placeholder="Enter screen name" />
+    <input type="button" value="LIKE" onclick="like()" />
+</div>
+<div class="unlike">
+    <input type="text" id="unlike-status-id" placeholder="Enter screen name" />
+    <input type="button" value="UN-LIKE" onclick="unlike()" />
+</div>
+<div class="Upload media">
+    <div>
+        <input type="text" id="status" placeholder="Enter Status" />
+        <input type="file" id="media[]" text="Upload file" />
+        <input type="button" value="Submit" onclick="uploadMedia()">
+    </div>
+</div>
+<div class="like-widget-container" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em">
+
+</div>
+<div class="follow-widget-container" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em">
+
+</div>
+<div class="content-container">
+
+</div>
+</body>
+</html>

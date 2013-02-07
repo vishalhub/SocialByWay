@@ -1,0 +1,58 @@
+.sbw-widget {
+    .linkedin {
+        background-position: 30px -163px;
+        &:hover {
+            background-position: 0px -163px;
+        }
+    }
+
+    .facebook {
+        background-position: 30px 0px;
+        &:hover {
+            background-position: 0px 0px;
+        }
+    }
+
+    .twitter {
+        background-position: 30px -37px;
+        &:hover {
+            background-position: 0px -37px;
+        }
+    }
+
+    .instagram {
+        background-position: 30px -238px;
+        &:hover {
+            background-position: 0px -238px;
+        }
+    }
+
+    .flickr {
+        background-position: 30px -81px;
+        &:hover {
+            background-position: 0px -81px;
+        }
+    }
+
+    .bing {
+        background-position: 30px -275px;
+        &:hover {
+            background-position: 0px -275px;
+        }
+    }
+
+    .googlePlus {
+        background-position: 30px -123px;
+        &:hover {
+            background-position: 0px -123px;
+        }
+    }
+
+
+    .pinterest {
+        background-position: 30px -203px;
+        &:hover {
+            background-position: 0px -203px;
+        }
+    }
+}

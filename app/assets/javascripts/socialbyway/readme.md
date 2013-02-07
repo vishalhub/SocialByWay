@@ -1,0 +1,2 @@
+  SocialByWay Core APIs are the functional apis to connect to the social site like Facebook, Twitter,LinkedIn, Flickr, Picasa.
+  These apis have interface to connect to the social sites and exposes interface to communicate with the service through the common methods.

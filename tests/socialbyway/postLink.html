@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.min.js"></script>
+    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.ui.min.js"></script>
+</head>
+<body>
+<div id="post-container">
+    <h4>Posting Link tool : </h4>
+
+    <div class="post-link-composer">
+
+        <form action="" name="form-link">
+            <table id="table-link">
+                <tbody>
+                <tr>
+                    <td>Type</td>
+                    <td>:</td>
+                    <td><select id="link-type-select">
+                        <option value="link">Link</option>
+                        <option value="photo">Photo</option>
+                        <option value="video">Video</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>:</td>
+                    <td><input id="link-name" type="text" value=""/></td>
+                </tr>
+                <tr>
+                    <td>Caption</td>
+                    <td>:</td>
+                    <td><input id="link-caption" type="text" value=""/></td>
+                </tr>
+                <tr>
+                    <td>Message</td>
+                    <td>:</td>
+                    <td><input id="link-message" type="text" value=""/></td>
+                </tr>
+                <tr>
+                    <td>Link</td>
+                    <td>:</td>
+                    <td><input id="link-link" type="text" value=""/></td>
+                </tr>
+
+                <tr>
+                    <td>Icon</td>
+                    <td>:</td>
+                    <td><input id="link-icon" type="text" value=""/></td>
+                </tr>
+
+                <tr>
+                    <td>Picture</td>
+                    <td>:</td>
+                    <td><input id="link-picture" type="text" value=""/></td>
+                </tr>
+
+                <tr>
+                    <td>Description</td>
+                    <td>:</td>
+                    <td><textarea id="link-desc" cols="20" rows="5"></textarea></td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+
+        <div class="post">
+            Post to &nbsp;
+            <input name="service" type="checkbox" value="facebook" checked/>facebook
+            <div id="facebook_post" class="facebook-post"></div>
+        </div>
+    </div>
+    <div id="fb-root"></div>
+
+</div>
+<script type="text/javascript">
+    document.getElementById("facebook_post").onclick = function (event) {
+
+        var type = document.getElementById("link-type-select").value;
+        var name = document.getElementById("link-name").value;
+        var caption = document.getElementById("link-caption").value;
+        var link = document.getElementById("link-link").value;
+        var icon = document.getElementById("link-icon").value;
+        var picture = document.getElementById("link-picture").value;
+        var description = document.getElementById("link-desc").value;
+        var message = document.getElementById("link-message").value;
+
+        var serviceGrp = document.getElementsByClassName('post')[0];
+
+        var successCallback = function () {
+            alert('Successfully published link');
+        };
+        var failureCallback = function () {
+            alert('Some problem occurred while publishing link');
+        };
+        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+        SBW.Singletons.serviceFactory.getService("controller")
+                .publishLink(serviceArr, type, name, caption, message, link, description, picture, icon, successCallback, failureCallback);
+    };
+</script>
+</body>
+</html>

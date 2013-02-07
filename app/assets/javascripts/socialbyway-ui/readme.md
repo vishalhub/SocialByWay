@@ -1,0 +1,1 @@
+The SocialByWay widgets are the demonstration of usage of SocialByWay APIs. The UI Developers can write their interaction using the SocialByWay APIs.

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>SBW - Get Actions</title>
+  <link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.min.js"></script>
+    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.ui.min.js"></script>
+</head>
+<body>
+<table>
+    <tr>
+        <td>Choose Service</td>
+        <td>
+            <select id="service">
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Choose Action</td>
+        <td>
+            <select id="action">
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>ID</td>
+        <td>
+            <input type="id" id="id"/>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <input type="button" id="doAction" value="Do action"/>
+        </td>
+    </tr>
+</table>
+</body>
+<script type="text/javascript">
+    var obj = {facebook:[
+        {action:'getPosts', id:'me'},
+        {action:'getComments', id:'100003494545915_219456018180881'},
+        {action:'getEvents', id:'me'},
+        {action:'getFriends', id:'me'},
+        {action:'getProfilePic', id:'me'},
+        {action:'getNotes', id:'me'}
+    ],
+        googleplus:[
+            {action:'getProfile', id:'116855270162647582913'},
+            {action:'getPosts', id:'116855270162647582913'},
+            {action:'getComments', id:'z13asxsrfprlund3522hfxqiswjwvreec'},
+            {action:'getPostByID', id:'z13asxsrfprlund3522hfxqiswjwvreec'},
+            {action:'getCommentByID', id:'GkQ1Km8QDkvZS3v0ef5HeliSbcPy12wTFbQN36RnEJOOc4n7fM2zKooju5W-7aX_RCaoSlAfmJw'}
+        ]};
+
+    var serviceBox = document.getElementById("service");
+    var actionBox = document.getElementById("action");
+    var idBox = document.getElementById("id");
+
+    var addOption = function (element, text, value) {
+        var option = document.createElement("option");
+        option.text = text;
+        option.value = value;
+        try {
+            element.add(option, null); //Standard
+        } catch (error) {
+            element.add(option); // IE only
+        }
+    };
+
+    var clearOptions = function (element) {
+        element.options.length = 0;
+    }
+
+    document.getElementsByTagName("body")[0].onload = function (event) {
+        addOption(serviceBox, "Choose a service", "Choose a service");
+        for (var service in obj) {
+            addOption(serviceBox, service, service);
+        }
+    };
+
+    serviceBox.onchange = function (event) {
+        var selectedService = serviceBox.options[serviceBox.selectedIndex].value;
+        var actions = obj[selectedService];
+        clearOptions(actionBox);
+        addOption(actionBox, "Choose an action", "");
+        for (var i = 0, len = actions.length; i < len; i++) {
+            addOption(actionBox, actions[i].action, actions[i].id);
+        }
+    };
+
+    actionBox.onchange = function (event) {
+        idBox.value = actionBox.options[actionBox.selectedIndex].value;
+    };
+
+    document.getElementById("doAction").onclick = function (event) {
+        var selectedService = serviceBox.options[serviceBox.selectedIndex].text;
+        var selectedAction = actionBox.options[actionBox.selectedIndex].text;
+        var id = idBox.value;
+
+        var successCallBack = function (response) {
+            alert('Successful! see console for data.');
+            console.log(response);
+        };
+        var failureCallBack = function (reponse) {
+            alert('Oops! some problem occurred while publishing, See console for error.');
+            console.log(reponse);
+        };
+
+        var controller = SBW.Singletons.serviceFactory.getService("controller");
+
+        switch (selectedAction) {
+            case "new":
+                break;
+            default:
+                controller[selectedAction](selectedService, id, successCallBack, failureCallBack);
+                break;
+        }
+
+    };
+</script>
+</html>

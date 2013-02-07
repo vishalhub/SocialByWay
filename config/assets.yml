@@ -1,0 +1,22 @@
+# for more info, see http://documentcloud.github.com/jammit/
+
+# compressor_options:
+#  compilation_level: "ADVANCED_OPTIMIZATIONS"
+package_path: bundle
+compress_assets: on
+javascript_compressor: yui
+package_assets: on
+
+javascripts:
+  'socialbyway':
+  'comment':
+  'feed':
+  'like':
+
+stylesheets:
+  'socialbyway':
+  'comment':
+  'feed':
+  'like':
+  
+  

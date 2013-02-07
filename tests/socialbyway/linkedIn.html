@@ -1,0 +1,62 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../site/style/default/socialbyway.ui.css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.ui.js"></script>
+</head>
+<body>
+<div id="post-container">
+    <h4>Posting tool : </h4>
+
+    <div class="post-composer">
+
+        <textarea class="post-box">Add a post...</textarea>
+
+        <div class="post">
+            Post to &nbsp;
+            <input name="service" type="checkbox" value="linkedIn" checked/>Linkedin
+
+            <div id="linkedin_post" >
+              <button class="linkedin-post" > Post </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="statusDiv"></div>
+<script type="text/javascript">
+  $(document).ready(function(){
+  SBW.init('../config/test-config.json', function() {
+  });  });
+    document.getElementsByClassName("linkedin-post")[0].onclick = function (event) {
+        console.log('fdsfsd');
+        var commentBox = document.getElementsByClassName('post-box')[0];
+        var serviceGrp = document.getElementsByClassName('post')[0];
+        var successCallback = function (response) {
+            console.log(response);
+            <!--alert('Successfully published message');-->
+        };
+        var failureCallback = function () {
+            alert('Some problem occurred while publishing message');
+        };
+        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+        var objectId = 'UNIU-214108097-5681285247195418624-SHARE';
+        var companyId = '13084';
+        <!--SBW.Singletons.serviceFactory.getService("linkedIn").publishUpdate(commentBox.value, successCallback, failureCallback);-->
+        SBW.Singletons.serviceFactory.getService("linkedin").follow(companyId, successCallback,failureCallback);
+        var comments = document.getElementsByClassName('post-box');
+        for (var j = 0; j < comments.length; j++) {
+            comments[j].addEventListener('focus', function (e) {
+                e.target.value = "";
+            });
+            comments[j].addEventListener('blur', function (e) {
+                if (e.target.value == "")
+                e.target.value = "Add a Post...";
+            });
+        }
+    };
+
+</script>
+</body>
+</html>

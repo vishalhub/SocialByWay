@@ -36,7 +36,9 @@
 			});
 			self.postTabDiv.insertAfter(self.tabsUl);
 
-			self.containerDiv = $('<div/>', {'class' : 'sbw-post-container'});
+			self.containerDiv = $('<div/>', {
+				'class' : 'sbw-post-container'
+			});
 			self.postTabDiv.append(self.containerDiv);
 
 			self.input = $('<textarea/>').attr({
@@ -65,22 +67,16 @@
 			self.options.services.forEach(function(value) {
 				var temp = $('<div/>', {
 					"class" : "checkbox " + value
-				}).append($('<input/>', {
-					'type' : 'checkbox',
-					'name' : 'service',
-					'value' : value
-				})).append($('<div/>', {
-					'class' : 'userimage'
-				}).append($('<div/>', {
-					'class' : 'service-container ' + value
-				})));
+				}).append("<input type='checkbox' name='service' value='" + value + "'/><div class='userimage'></div><div class='service-container " + value + "'></div>");
 				self.checkBoxesDiv.append(temp);
 			});
-			
-			self.checkBoxesDiv.append(self.postBtn).append(self.charsleft).append($('<div/>', {'class' : 'clear'}));
+
+			self.checkBoxesDiv.append(self.postBtn).append(self.charsleft).append($('<div/>', {
+				'class' : 'clear'
+			}));
 			self.checkBoxesDiv.insertAfter(self.input);
 			self.postBtn.on("click", this, this._addPost);
-			
+
 			$('#tabs ul li:first').addClass('active selected');
 			$("#post-widget div.sbw-post-container div.checkbox-container").on('click', 'div.checkbox input', function() {
 				var value = this.value;
@@ -147,7 +143,7 @@
 				serviceArr.push(this.value);
 			});
 			$("#post-widget div.sbw-post-container .sbw-success-message").remove();
-			
+
 			SBW.Singletons.serviceFactory.getService("controller").publishMessage(serviceArr, postText, successCallback, failureCallback);
 
 		}

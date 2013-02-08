@@ -1,61 +1,44 @@
 .sbw-like-widget-default{
+  position: relative;
+  .like-container{
+    background: url("../../site/style/default/images/widget_icons.png") no-repeat 9px -19px transparent;
+    padding: 1px;
+    border-radius:2em ;
+    border: 1px solid #999;
+    box-shadow: 3px 3px 1px #999;
+    width: 36px;
+    height: 36px;
     display: inline-block;
-    color: #fff;
-    .service-container {
-        position: relative;
-        width: 6em;
-        height: 6em;
-        padding: 0.7em;
-        border-radius: 50%;
-        margin:-2.5em 0 -2em -2.5em;
+    & :hover {
+      background-position: -21px -19px;
     }
-    .service-count-container {
-        position: absolute;
-        margin-top: 4px;
-        font-size: 1em;
-        padding-left: 5px;
-        margin-left: 26px;
-        background-color: #999;
-        color: #fff;
-        border-radius: 13px;
-        width: auto;
-        position: absolute;
-        padding-right: 8px;
+  }
+  .liked{
+    background-position: -21px -19px;
+  }
+  .count-container {
+    background-color: #999;
+    border-radius: 13px;
+    height: 24px;
+    width: 38px;
+    color: white;
+    text-align: center;
+    position: absolute;
+    top: 11px;
+    left: 50px;
+    padding-top: 2px;
+  }
+  .user-images{
+    list-style: none;
+    width: 100px;
+    .user-image{
+      float: left;
+      width: 30px;
+      height: 30px;
+      margin-left: 10px;
+      .user-image img{
+        border-radius:25px;
+      }
     }
-    div[data-service], label {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 2em;
-        height: 2em;
-        background-image:url("images/social_icons.png");
-    }
-    .count-container {
-        position: absolute;
-        margin-left: 80px;
-        margin-top: -30px;
-        background-color: #999;
-        border-radius: 13px;
-        padding-left: 3px;
-        padding-right: 5px;
-        height: 24px;
-    }
-    .service-count-container {
-        height: 24px;
-    }
-    .like-button {
-        border: 1px solid #999;
-        box-shadow: 3px 3px 1px #999;
-        width: 36px;
-        height: 36px;
-        border-radius: 18px;
-        background: url("images/widget_icons.png") no-repeat 8px -50px transparent;
-        display: block;
-        margin-top: 2.5em;
-        margin-left: 2.7em;
-        &:hover {
-            background-position:-22px -50px;
-        }
-    }
-
+  }
 }

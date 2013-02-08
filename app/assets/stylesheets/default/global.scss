@@ -47,7 +47,12 @@
             background-position: 0px -123px;
         }
     }
-
+    .picasa {
+      background-position: 30px -123px;
+      &:hover {
+        background-position: 0px -123px;
+      }
+    }
 
     .pinterest {
         background-position: 30px -203px;

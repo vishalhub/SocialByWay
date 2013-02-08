@@ -94,18 +94,18 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   /**
    * @method
    * @decs This function is called by serviceController to verify whether the user is logged in or not.This function creates a signed url for checking the auth token validation and makes an jsonp request.
-   * @param {Callback} callbackFnc Function that will be called with the flag of whether the user is logged in or not (true are false).
+   * @param {Callback} callback Function that will be called with the flag of whether the user is logged in or not (true are false).
    */
-  checkUserLoggedIn: function (callbackFnc) {
+  checkUserLoggedIn: function (callback) {
     var service = this;
     var access_token = service.accessObject.access_token;
     var url = "https://api.instagram.com/v1/users/self/?access_token=" + access_token;
     $.getJSON(url, 'callback=?', function (response) {
       if (response.meta.code === 200) {
-        callbackFnc(true);
+        callback(true);
       }
       else {
-        callbackFnc(false);
+        callback(false);
       }
     });
   },

@@ -227,6 +227,49 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
 
   /**
    * @method
+   * @desc  To unlike an object.
+   * @param {String} objectId
+   * @param successCallback
+   * @param errorCallback
+   */
+  unlike: function (objectId, successCallback, errorCallback) {
+    var service = this;
+    var removeLike = function (objectId, successCallback, errorCallback) {
+      var apiKey = service.accessObject.consumerKey;
+      var message = {
+        action: service.flickrApiUrl,
+        method: "POST",
+        parameters: {
+          method: 'flickr.favorites.remove',
+          perms: 'write',
+          format: 'json',
+          photo_id: objectId,
+          api_key: apiKey,
+          nojsoncallback: 1
+        }
+      };
+      var url = service.signAndReturnUrl(service.flickrApiUrl, message);
+      SBW.Singletons.utils.ajax({
+        url: url,
+        type: 'POST',
+        dataType: "json"
+      }, successCallback, errorCallback);
+    };
+    var callback = (function (service, objectId, successCallback, errorCallback) {
+      return function (isLoggedIn) {
+        if (isLoggedIn) {
+          removeLike(objectId, successCallback, errorCallback);
+        } else {
+          service.startActionHandler(function () {
+            removeLike(objectId, successCallback, errorCallback);
+          });
+        }
+      };
+    })(service, objectId, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
    * @desc To comment on a photo.
    * @param {String} objectId
    * @param {String} comment
@@ -311,7 +354,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           };
         var filedata = [
           {oauth_consumer_key: apiKey, oauth_token: service.accessObject.access_token, photo: fileData['file'], title: fileData['title'], description: fileData['description']}
-        ]
+        ];
         SBW.Singletons.serviceFactory.getService("controller").fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
       },
       callback = (function (fileData, successCallback, errorCallback) {

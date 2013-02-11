@@ -11,7 +11,7 @@
   $.widget("ui.FeedWidget", {
     _create: function () {
       var self = this;
-      self.tabsDiv = $('<div/>').attr('class', "tabs sbw-feed-widget");
+      self.tabsDiv = $('<div/>').attr('class', "tabs sbw-feed-widget-" + self.options.theme);
       self.tabsUl = $('<ul/>').attr("class", "tabs-ul");
       self.element.append(self.tabsDiv);
       self.tabsDiv.append(self.tabsUl);
@@ -22,15 +22,11 @@
       self.postTab.append(self.postTag);
       self.tabsUl.append(self.postTab);
       self.postTabDiv = $('<div/>').attr({
-        'class': "tab-content fragment-1"
+        'class': "tab-content"
       });
-
       self.postTabDiv.insertAfter(self.tabsUl);
-      $('#tabs .tab-content').hide();
-      $('#tabs div:first').show();
-
-      self.containerDiv = $('<div/>').attr('class', 'sbw-feed-div container-div');
-      self.commentsDiv = $('<div/>').attr('class', 'comment-div');
+      self.containerDiv = $('<div/>').attr('class', 'sbw-feed-container');
+      self.commentsDiv = $('<div/>').attr('class', 'comment-container');
       self.postTabDiv.append(self.containerDiv);
       self.postTabDiv.after(self.commentsDiv);
 
@@ -51,12 +47,12 @@
       self.postBtn = $('<button/>').attr({
         'class': 'post-btn'
       }).text("publish");
-      self.checkBoxesDiv = $('<div/>').attr('class', 'check-container');
+      self.checkBoxesDiv = $('<div/>').attr('class', 'checkbox-container');
 
       self.options.services.forEach(function (value) {
         var temp = $('<div/>').attr({
-          "class": "check-div " + value + "-checkbox"
-        }).append("<input type='checkbox' name='service' value='" + value + "'/>");
+          "class": "checkbox " + value
+        }).append("<input type='checkbox' name='service' value='" + value + "'/><div class='userimage'></div><div class='service-container " + value + "'></div>");
         self.checkBoxesDiv.append(temp);
       });
       self.checkBoxesDiv.append(self.postBtn).append(self.charsleft).append('<div class="clear"></div>');
@@ -67,7 +63,7 @@
           data.forEach(function (value) {
             date = new Date(value['createdTime']);
             text = date.toDateString();
-            temp = '<div class="comments"><img class="uimg" width="50" height="50" src="' + value['picUrl'] + '"/>' + '<p class="details"><span class="name">' + value['from_user'] + '</span><span class="time">' + text + '</span></p>' + '<p class="message">' + value['text'] + '</p>' + '<p class="likes">Like/Favorite  ' + value['like_count'] + '</p></div>';
+            temp = '<div class="comments"><img class="uimg" width="50" height="50" src="' + value['picUrl'] + '"/>' + '<p class="details"><span class="name">' + value['fromUser'] + '</span><span class="time">' + text + '</span></p>' + '<p class="message">' + value['text'] + '</p>' + '<p class="likes">Like/Favorite  ' + value['likeCount'] || "0" + '</p></div>';
             self.commentsDiv.append(temp);
           });
         },
@@ -80,7 +76,7 @@
       self.checkBoxesDiv.insertAfter(self.input);
       self.postBtn.on("click", this, this._addPost);
       $('#tabs ul li:first').addClass('active selected');
-      self.containerDiv.find(".checkbox-container").on('click', '.check-div input', function () {
+      self.containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
         var value = this.value;
         if ($(this).is(":checked")) {
           self.checkBoxesDiv.find(".service-container." + value).addClass('selected');
@@ -102,6 +98,7 @@
       services: ['facebook', 'twitter', 'linkedin'],
       limit: 10,
       offset: 0,
+      theme:"default",
       id:location.href
     },
     destroy: function () {
@@ -110,7 +107,7 @@
     },
     _addPost: function (e) {
       var self = e.data,
-        postText = location.href + " " + $(self.input).val(),
+        postText = self.input.val(),
         ServiceArr = [],
         successCallback = function (response) {
           var elem = self.containerDiv.find(".sbw-success-info");

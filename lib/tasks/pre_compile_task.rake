@@ -3,17 +3,17 @@ require 'erb'
 namespace  :socialbyway do 
 	desc "packaging socialbyway"
 
-	#execution: rake socialbyway:build[true, "1.1.0"] 
-	#version1 is the name of the folder that we want to package in
-	task :build, [:docs_flag, :dir_name, :site_path_arg] => :environment do |t,args|
+	#execution: rake socialbyway:build[true,"1.1.0","/home/site"] 
+	#socialbyway1.1.0 is the name of the folder that we want to package in
+	task :build, [:jsdocs_flag, :version_number, :site_destination_path] => :environment do |t,args|
 
 		
 		dir_name = "socialbyway"
 		version = ""
-		docs_flag = args[:docs_flag].blank? ?  true :  (args[:docs_flag] == "true")
-		if !args[:dir_name].blank?
-			dir_name = dir_name + args[:dir_name]
-			version = ".#{args[:dir_name]}"
+		docs_flag = args[:jsdocs_flag].blank? ?  true :  (args[:jsdocs_flag] == "true")
+		if !args[:version_number].blank?
+			dir_name = dir_name + args[:version_number]
+			version = ".#{args[:version_number]}"
 		end			
 
 		inner_folder = "default"
@@ -31,7 +31,7 @@ namespace  :socialbyway do
 		app_path =  Rails.root.to_s + "/app"
 		callbacks = Rails.root.to_s + "/serverAssets"
 	
-		site_path =  args[:site_path_arg].blank? ? (Rails.root.to_s + "/site") : args[:site_path_arg].gsub(/\/$/,"")		
+		site_path =  args[:site_destination_path].blank? ? (Rails.root.to_s + "/site") : args[:site_destination_path].gsub(/\/$/,"")		
 		puts site_path
 		jsdoc_path =  Rails.root.to_s + "/lib/jsdoc3"
 		zip_path = Rails.root.to_s + "/build"

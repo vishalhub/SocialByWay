@@ -48,7 +48,7 @@ SBW.Models.AssetCollection = SBW.Object.extend(/** @lends SBW.Models.AssetCollec
     assetCollectionId:null,
     serviceName:null,
     commentCount:null,
-    category:null,
+    type:null,
     tags:null,
     fileName:null,
     description:null,
@@ -75,7 +75,7 @@ SBW.Models.AssetCollection = SBW.Object.extend(/** @lends SBW.Models.AssetCollec
    */
   getID:function ()
   {
-    return this.type + Math.floor(Math.random() * 1000);
+    return 'collection' + Math.floor(Math.random() * 1000);
   }
 });
 

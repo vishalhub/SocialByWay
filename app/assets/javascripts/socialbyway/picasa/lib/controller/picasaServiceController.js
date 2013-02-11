@@ -12,6 +12,10 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
   /** @constant */
   title: 'Picasa',
   /**
+   * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for picasa.
+   */
+  content: [],
+  /**
    * @method
    * @desc Initialize method to setup require items
    */
@@ -144,7 +148,30 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
             parameters: {kind: 'album', access: 'all', alt: 'json', access_token: service.accessObject.access_token}
           },
           url = service.feedUrl + '?access_token=' + service.accessObject.access_token + '&alt=json';
-        SBW.Singletons.utils.ajax({url: url, crossDomain: false, type: "GET", dataType: "jsonp"}, successCallback, errorCallback);
+        SBW.Singletons.utils.ajax({url: url, crossDomain: false, type: "GET", dataType: "jsonp"}, function (response) {
+          var collection = null;
+          $.each(response.feed.entry, function (key, value){
+            collection = new SBW.Models.AssetCollection({
+              title: this.title.$t,
+              status: this.gphoto$access.$t,
+              metadata: {
+                dateUpdated: this.updated.$t,
+                dateUploaded: this.published.$t,
+                numAssets: this.gphoto$numphotos.$t,
+                assetCollectionId: this.gphoto$id.$t,
+                serviceName: 'picasa',
+                commentCount: this.gphoto$commentCount.$t,
+                //type: this.gphoto$albumType.$t, 
+                fileName: this.gphoto$name.$t,
+                description: this.summary.$t,
+                author: this.author[0].name.$t
+              }
+            });
+            collection.id = collection.getID();
+            service.content.push(collection);  
+          });
+          successCallback(service.content);
+        }, errorCallback);
       },
       callback = (function (successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -190,8 +217,12 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           reader = new FileReader();
         reader.onload = (function (mediaData) {
           return function (e) {
-            SBW.Singletons.utils.ajax({url: url, data: service._generateMultipart(mediaData.title, mediaData.description, e.target.result, mediaData.file.type), contentType: 'multipart/related; boundary="END_OF_PART"', crossDomain: false, type: "POST", dataType: "json"}, function (response) {
-              service._postUpload(service, response, successCallback);
+            SBW.Singletons.utils.ajax({url: url, data: service._generateMultipart(mediaData.title, mediaData.description, e.target.result, mediaData.file.type), contentType: 'multipart/related; boundary="END_OF_PART"', crossDomain: false, type: "POST", dataType: "json", processData: false}, function (response) {
+              successCallback(new SBW.Models.UploadStatus({
+                serviceName : 'picasa', 
+                id : response.entry.gphoto$id.$t, 
+                rawData : response
+              }));
             }, errorCallback);
           };
         })(mediaData);
@@ -212,20 +243,6 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
       })(mediaData, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
-  },
-
-  /**
-   * @method
-   * @desc Handle response after photo upload.
-   * Format the response after uploading the photo.
-   * @param  {String}    response  Response received from picasa api after successful upload.
-   * @param  {Callback}  callback  callback function to be called with formatted response and original response received from server.
-   * @ignore
-   */
-  _postUpload: function (service, response, callback) {
-    var uploadedAsset = service._formatMedia(response.entry);
-    uploadedAsset.rawData = response;
-    callback(uploadedAsset);
   },
 
   /**
@@ -255,7 +272,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
         var feedUrl = service.feedUrl + '/albumid/' + albumId + '/photoid/' + photoId + '?access_token=' + service.accessObject.access_token + '&alt=json',
           url = SBW.Singletons.config.proxyURL + '?url=' + encodeURIComponent(feedUrl),
           data = "<?xml version='1.0' encoding='UTF-8'?> <entry xmlns='http://www.w3.org/2005/Atom'><content>" + comment + "</content><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/photos/2007#comment' /></entry>";
-        SBW.Singletons.utils.ajax({url: url, data: data, contentType: 'application/atom+xml', crossDomain: false, type: "POST"}, successCallback, errorCallback);
+        SBW.Singletons.utils.ajax({url: url, data: data, contentType: 'application/atom+xml', crossDomain: false, type: "POST", processData: false}, successCallback, errorCallback);
       },
       callback = (function (comment, albumId, photoId, successCallback, errorCallback) {
         return function (isLoggedIn) {

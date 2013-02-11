@@ -28,13 +28,13 @@
     document.getElementById('getUserAlbums').onclick = function (event) {
                 SBW.Singletons.serviceFactory.getService("picasa").getAlbums(function (response) {
                     console.log(response);
-                    $('table#result tbody').html("<tr><td> No of Albums </td><td>" + response.feed.entry.length + "</td></tr>");
+                    /*$('table#result tbody').html("<tr><td> No of Albums </td><td>" + response.feed.entry.length + "</td></tr>");
 					$.each(response.feed.entry, function () {
 					  $('table#result tbody').append("<tr><td> ****** </td><td> ****** </td></tr>");
 					  $('table#result tbody').append("<tr><td> Album Id </td><td>" + this.gphoto$id.$t + "</td></tr>");
 					  $('table#result tbody').append("<tr><td> Album Name </td><td>" + this.gphoto$name.$t + "</td></tr>");
 					  $('table#result tbody').append("<tr><td> No of Photots </td><td>" + this.gphoto$numphotos.$t + "</td></tr>");
-					});
+					});*/
                 },
                 function (response) {
                      console.log(response);

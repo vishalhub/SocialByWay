@@ -1,4 +1,8 @@
 (function ($) {
+  /*jslint nomen: true*/
+  /*jslint plusplus: true */
+  /*global console, SBW*/
+  /**
   /**
    * @class PostWidget
    * @namespace PostWidget

@@ -1,14 +1,17 @@
-/**
- * @class FeedWidget
- * @classdesc This is Feed Widget
- * @constructor
- */
 (function ($) {
+  /**
+   * @class FeedWidget
+   * @namespace FeedWidget
+   * @classdesc SocialByWay Feed Widget to get feed and  Post messages on to social sites
+   * @augments JQuery.Widget
+   * @alias FeedtWidget
+   * @constructor
+   */
   "use strict";
-  $.widget("ui.FeedWidget", /** @lends FeedWidget.prototype */{
+  $.widget("ui.FeedWidget", {
     _create: function () {
       var self = this;
-      self.tabsDiv = $('<div/>').attr('class', "tabs sbw-post-widget");
+      self.tabsDiv = $('<div/>').attr('class', "tabs sbw-feed-widget");
       self.tabsUl = $('<ul/>').attr("class", "tabs-ul");
       self.element.append(self.tabsDiv);
       self.tabsDiv.append(self.tabsUl);
@@ -19,14 +22,14 @@
       self.postTab.append(self.postTag);
       self.tabsUl.append(self.postTab);
       self.postTabDiv = $('<div/>').attr({
-        'class': "tab-content"
+        'class': "tab-content fragment-1"
       });
 
       self.postTabDiv.insertAfter(self.tabsUl);
       $('#tabs .tab-content').hide();
       $('#tabs div:first').show();
 
-      self.containerDiv = $('<div/>').attr('class', 'sbw-post-div container-div');
+      self.containerDiv = $('<div/>').attr('class', 'sbw-feed-div container-div');
       self.commentsDiv = $('<div/>').attr('class', 'comment-div');
       self.postTabDiv.append(self.containerDiv);
       self.postTabDiv.after(self.commentsDiv);
@@ -39,8 +42,8 @@
         rows: 8,
         placeholder: 'Write here....'
       }).on('keyup', this, function () {
-          self.charsleft.html(this.value.length);
-        });
+        self.charsleft.html(this.value.length);
+      });
       self.charsleft = $("<p/>").attr({
         'class': 'chars-left'
       }).text('0');
@@ -69,38 +72,38 @@
           });
         },
         failureCallback = function () {};
-
+      SBW.Singletons.serviceFactory.getService('controller').getCommentsForUrl(self.options.services, {
+        url: self.options.id,
+        limit: self.options.limit,
+        offset: self.options.offset
+      }, successCallback, failureCallback);
       self.checkBoxesDiv.insertAfter(self.input);
-
-
       self.postBtn.on("click", this, this._addPost);
       $('#tabs ul li:first').addClass('active selected');
-      $(".sbw-post-div .check-container").on('click', '.check-div input', function () {
+      self.containerDiv.find(".checkbox-container").on('click', '.check-div input', function () {
+        var value = this.value;
         if ($(this).is(":checked")) {
-          SBW.Singletons.serviceFactory.getService(this.value).startActionHandler(function () {});
+          self.checkBoxesDiv.find(".service-container." + value).addClass('selected');
+          SBW.Singletons.serviceFactory.getService(value).startActionHandler(function () {
+            SBW.Singletons.serviceFactory.getService("controller").getProfilePic([value], null, function (response) {
+              if (response) {
+                $('.' + value + " .userimage").css('background', 'url(' + response + ')');
+              }
+            }, function (error) {});
+          });
+        } else {
+          self.checkBoxesDiv.find(".service-container." + value).removeClass('selected');
         }
       });
 
     },
-     /**
-     * @desc Options for the widget.
-     * @inner
-     * @type {Object}
-     * @property {String} successMessage The success message to be displayed
-     * @property {String[]} services Name of the registered services
-     * @property {Number} limit The widget post limit
-     * @property {Number} offset The offset for the widget
-     */
     options: {
       successMessage: '',
       services: ['facebook', 'twitter', 'linkedin'],
       limit: 10,
-      offset: 0
+      offset: 0,
+      id:location.href
     },
-    /**
-     * @method
-     * @desc Removes the widget from display 
-     */
     destroy: function () {
       this.tabsDiv.remove();
       $.Widget.prototype.destroy.call(this);
@@ -110,7 +113,7 @@
         postText = location.href + " " + $(self.input).val(),
         ServiceArr = [],
         successCallback = function (response) {
-          var elem = $(".sbw-post-div .sbw-success-info");
+          var elem = self.containerDiv.find(".sbw-success-info");
           if (elem.length !== 0) {
             elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.service + ".");
           } else {
@@ -118,12 +121,13 @@
           }
         },
         failureCallback = function (response) {
-          self.containerDiv.append('<span class="sbw-success-info">Some problem in posting.</span>');
+          self.containerDiv.append('<span class="sbw-success-info">Some problem in posting with '+(response.service) +'.</span>');
         };
       self.checkBoxesDiv.find("input:checked").each(function () {
         ServiceArr.push(this.value);
       });
-      $(".sbw-post-div .sbw-success-info").remove();
+      self.containerDiv.find(".sbw-success-message").remove();
+      self.containerDiv.find(".sbw-error-message").remove();
 
       SBW.Singletons.serviceFactory.getService("controller").publishMessage(ServiceArr, postText, successCallback, failureCallback);
 

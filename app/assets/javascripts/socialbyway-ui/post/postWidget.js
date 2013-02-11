@@ -2,7 +2,7 @@
   /**
    * @class PostWidget
    * @namespace PostWidget
-   * @classdesc SocialByWay Like Widget to get the Like count and functionality to like a page
+   * @classdesc SocialByWay Post Widget to  Post messages on to social sites
    * @augments JQuery.Widget
    * @alias PostWidget
    * @constructor
@@ -55,10 +55,10 @@
       self.checkBoxesDiv.insertAfter(self.input);
       self.postBtn.on("click", this, this._addPost);
       $('#tabs ul li:first').addClass('active selected');
-      $(".sbw-post-container .checkbox-container").on('click', '.checkbox input', function () {
+      self.containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
         var value = this.value;
         if ($(this).is(":checked")) {
-          $(".service-container." + value).addClass('selected');
+          self.checkBoxesDiv.find(".service-container." + value).addClass('selected');
           SBW.Singletons.serviceFactory.getService(value).startActionHandler(function () {
             SBW.Singletons.serviceFactory.getService("controller").getProfilePic([value], null, function (response) {
               if (response) {
@@ -69,7 +69,7 @@
             });
           });
         } else {
-          $(".service-container." + value).removeClass('selected');
+          self.checkBoxesDiv.find(".service-container." + value).removeClass('selected');
         }
       });
 
@@ -110,7 +110,7 @@
         postText = $(self.input).val(),
         ServiceArr = [],
         successCallback = function (response) {
-          var elem = $(".sbw-post-container .sbw-success-message");
+          var elem = self.containerDiv.find(".sbw-success-message");
           if (elem.length !== 0) {
             elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.service + ".");
           } else {
@@ -118,12 +118,13 @@
           }
         },
         failureCallback = function (response) {
-          self.containerDiv.append('<span class="sbw-error-message">Some problem in posting.</span>');
+          self.containerDiv.append('<span class="sbw-error-message">Some problem in posting with '+response.service+'.</span>');
         };
       self.checkBoxesDiv.find("input:checked").each(function () {
         ServiceArr.push(this.value);
       });
-      $(".sbw-post-container .sbw-success-message").remove();
+      self.containerDiv.find(".sbw-success-message").remove();
+      self.containerDiv.find(".sbw-error-message").remove();
 
       SBW.Singletons.serviceFactory.getService("controller").publishMessage(ServiceArr, postText, successCallback, failureCallback);
 

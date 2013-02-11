@@ -44,7 +44,7 @@
         var objectId = 'UNIU-214108097-5681285247195418624-SHARE';
         var companyId = '13084';
         <!--SBW.Singletons.serviceFactory.getService("linkedIn").publishUpdate(commentBox.value, successCallback, failureCallback);-->
-        SBW.Singletons.serviceFactory.getService("linkedin").getlikes(objectId, successCallback,failureCallback);
+        SBW.Singletons.serviceFactory.getService("linkedin").getLikes(objectId, successCallback,failureCallback);
         var comments = document.getElementsByClassName('post-box');
         for (var j = 0; j < comments.length; j++) {
             comments[j].addEventListener('focus', function (e) {

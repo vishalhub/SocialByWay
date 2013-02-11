@@ -38,7 +38,7 @@
      * @desc Constructor for the widget.
      */
     _create: function () {
-      var self = this, serviceLikeCountContainer;
+      var self = this;
       var theme = self.options.theme;
       var containerDiv = $("<div />", {
         'class': 'sbw-widget sbw-pageLike-widget-' + theme
@@ -55,19 +55,7 @@
       var minAngle = 360 / this.options.services.length;
       $.each(this.options.services, function (index, service) {
         var serviceContainer = self.createServiceElement(service.serviceName, serviceDiv, (minAngle * index), self);
-//          SBW.Singletons.serviceFactory.getService(service).getLikeCount(self.options.url, function (response) {
-//            if (response && response.count) {
-//              self.count += response.count;
-//              console.log('response is: ', response);
-//              console.log('Count for service', service, ' is: ', response.count);
-              serviceLikeCountContainer = $("<div />", {
-                'class': 'service-count-container'
-              }).appendTo(serviceContainer);
-//              likeCountContainer.text(self.count);
-//            }
-//          });
       });
-
       $(serviceDiv).append(likeButton, likeCountContainer);
       $(containerDiv).append(serviceDiv);
       $(self.element).append(containerDiv);
@@ -84,7 +72,7 @@
      * @return {Object} The DOM element for the service.
      */
     createServiceElement: function (service, parentContainer, angle, context) {
-      var serviceContainer = $("<div></div>", {
+      return $("<div></div>", {
         'class': service,
         'data-service': service,
         'click': function (event) {
@@ -96,7 +84,6 @@
           '-o-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' +
           'transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg)'
       }).appendTo(parentContainer);
-      return serviceContainer;
     },
     /**
      * @method
@@ -129,26 +116,28 @@
 //          objectId = service['objectId'];
 //        };
 //      });
-      for(var key in context.options.services){
-        if(context.options.services[key]['serviceName']===serviceName){
+      for (var key in context.options.services) {
+        if (context.options.services[key]['serviceName'] === serviceName) {
           objectId = context.options.services[key]['objectId'];
-        };
-      };
+        }
+      }
       var likesSuccessCallback = function (response) {
         var count = response.length;
-        $(" .sbw-like-widget-default .count-container").html(count);
+        var serviceLikeCountContainer = $("<div />").addClass('service-count-container').html(count).appendTo(sourceElement);
+        context.count += count;
+        $(".sbw-pageLike-widget-default .count-container").html(context.count)
       };
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');
       };
       var likeSuccessCallback = function (response) {
-        SBW.Singletons.serviceFactory.getService("controller").getLikes(service, commentId, likesSuccessCallback,
+        SBW.Singletons.serviceFactory.getService("controller").getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.Singletons.serviceFactory.getService("controller").like(service, commentId, likeSuccessCallback,
+      SBW.Singletons.serviceFactory.getService("controller").like(serviceName, objectId, likeSuccessCallback,
         likeFailureCallback);
     },
     /**

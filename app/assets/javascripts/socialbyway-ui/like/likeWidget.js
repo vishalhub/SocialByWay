@@ -28,17 +28,10 @@
     _create: function () {
       var self = this;
       var theme = self.options.theme;
-      var container = $("<div />", {
-        'class': 'sbw-like-widget-' + theme
-      });
-      self.likeCountContainer = $("<div />", {
-        'class': 'count-container'
-      });
-      var likeContainer = $("<div />", {
-        'class': 'like-container'
-      });
-      container.append(likeContainer);
-      container.append(self.likeCountContainer);
+      var container = $("<div />").addClass('sbw-like-widget-' + theme);
+      var likeContainer = $("<div />").addClass('like-container');
+      self.likeCountContainer = $("<div />").addClass('count-container');
+      container.append(likeContainer).append(self.likeCountContainer);
       $(self.element).append(container);
       likeContainer.on('click', self, self.likeForService)
     },
@@ -66,19 +59,15 @@
       var self = this;
       var service = self.options.service;
       var postId = self.options.objectId;
-      var ul = $("<ul/>").addClass("user-images");
-      self.likeCountContainer.append(ul);
       var picSuccessCallback = function (response) {
-        var li = $("<li/>").addClass("user-image");
         var image = $("<img/>").attr("src", response);
-        $(li).append($(image));
-        $(ul).append($(li));
+        self.likeCountContainer.append($(image));
       };
       var picFailureCallback = function () {
       };
       var likesSuccessCallback = function (response) {
         for (var i = 0; i < response.length; i++) {
-          $(ul).empty();
+          self.likeCountContainer.empty();
           var userId = response[i].fromId;
           if (response[i].fromUrl) {
             picSuccessCallback(response[i].fromUrl);
@@ -112,6 +101,7 @@
       var service = self.options.service;
       var likesSuccessCallback = function (response) {
         var count = response.length;
+        self.likeCountContainer.addClass('comment');
         $(" .sbw-like-widget-default .count-container").html(count);
       };
       var likesFailureCallback = function () {

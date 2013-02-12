@@ -150,9 +150,11 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           url = service.feedUrl + '?access_token=' + service.accessObject.access_token + '&alt=json';
         SBW.Singletons.utils.ajax({url: url, crossDomain: false, type: "GET", dataType: "jsonp"}, function (response) {
           var collection = null;
+          service.content = [];
           $.each(response.feed.entry, function (key, value){
             collection = new SBW.Models.AssetCollection({
               title: this.title.$t,
+              createdTime: new Date().getTime(),
               status: this.gphoto$access.$t,
               metadata: {
                 dateUpdated: this.updated.$t,
@@ -202,8 +204,8 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc Upload photo to the user's dropbox album.
    * @param  {SBW.Models.UploadFileMetaData} mediaData Object containing media's file object and other metadata.
-   * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-successCallback} callback function to be called with the xml response after successfully uploading the image.
-   * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback} callback function to be called in case of error while uploading the image.
+   * @param  {Callback} successCallback {@link SBW.Controllers.Services.ServiceController~uploadPhoto-successCallback Callback} to be executed on successful photo upload.
+   * @param  {Callback} errorCallback {@link SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback Callback} to be executed on photo upload error.
   */
   uploadPhoto: function (mediaData, successCallback, errorCallback) {
     var service = this,
@@ -254,7 +256,29 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
      * @ignore
      */
   _formatMedia: function (media) {
-    return new SBW.Models.ImageAsset({serviceName : 'picasa', id : media.gphoto$id.$t, src : media.content.src, title : media.title.$t, createdTime : media.published.$t});
+    var asset = new SBW.Models.ImageAsset({
+      src : media.content.src, 
+      title : media.title.$t, 
+      createdTime : media.gphoto$timestamp.$t,
+      rawData : media,
+      metadata : {
+        serviceName : 'picasa',
+        dateUpdated: media.updated.$t,
+        dateUploaded: media.published.$t,
+        size: media.gphoto$size.$t,
+        assetId : media.gphoto$id.$t, 
+        assetCollectionId : media.gphoto$albumid.$t, 
+        height: media.gphoto$height.$t,
+        width: media.gphoto$width.$t,
+        commentCount: media.gphoto$commentCount.$t,
+        originalFormat: media.content.type,
+        version: media.gphoto$imageVersion.$t,
+        description: media.summary.$t,
+        author: media.media$group.media$credit[0].$t
+      }
+    });
+    asset.id = asset.getID();
+    return asset; 
   },
 
   /**
@@ -263,8 +287,8 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @param  {String}   comment         Comment text to be posted.
    * @param  {String}   albumId         Album Id of the photo.
    * @param  {String}   photoId         Photo Id of the photo.
-   * @param  {SBW.Controllers.Services.Picasa~postComment-successCallback} successCallback callback function to be called after posting the comment successfully.
-   * @param  {SBW.Controllers.Services.Picasa~postComment-errorCallback} errorCallback callback function to be called in case of error while posting comment.
+   * @param  {Callback} successCallback  {@link SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} to be executed on successful comment posting.
+   * @param  {Callback} errorCallback  {@link SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} to be executed on comment posting error.
    */
   postComment: function (comment, albumId, photoId, successCallback, errorCallback) {
     var service = this,
@@ -288,24 +312,14 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
 
     service.checkUserLoggedIn(callback);
   },
-  /**
-   * Success Callback for postComment method.
-   * @callback SBW.Controllers.Services.Picasa~postComment-successCallback
-   * @param {Object} response Formatted JSON response from the service
-   **/
-  /**
-   * Error Callback for postComment method.
-   * @callback SBW.Controllers.Services.Picasa~postComment-errorCallback
-   * @param {Object} response JSON response from the service
-   **/
 
   /**
    * @method
    * @desc Fetch comments for the given photo from the given album
    * @param {String}   photoId          photo Id of the photo.
    * @param {String}   albumId          Album Id of the photo.
-   * @param {SBW.Controllers.Services.Picasa~getComments-successCallback} successCallback  callback function to be called with json response after fetching the comments successfully.
-   * @param {SBW.Controllers.Services.Picasa~getComments-errorCallback} errorCallback  callback function to be called in case of error while fetching comments.
+   * @param {Callback} successCallback  {@link SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} to be executed on successful comments retrieving.
+   * @param {Callback} errorCallback  {@link SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} to be executed on retrieving comments error.
    */
   getComments: function (photoId, albumId, successCallback, errorCallback) {
     var service = this,
@@ -337,16 +351,6 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
 
     service.checkUserLoggedIn(callback);
   },
-  /**
-   * Success Callback for getComments method.
-   * @callback SBW.Controllers.Services.Picasa~getComments-successCallback
-   * @param {Array} response Array of comments {@Link SBW.Models.Comment} from the service
-   **/
-  /**
-   * Error Callback for getComments method.
-   * @callback SBW.Controllers.Services.Picasa~getComments-errorCallback
-   * @param {Object} response JSON response from the service
-   **/
 
   /**
    * @method
@@ -364,6 +368,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           $.each(response.feed.entry, function (key, value) {
             photoArray.push(service._formatMedia(value));
           });
+          service._populateAssets(response.feed.gphoto$id.$t, photoArray);
           successCallback(photoArray);
         }, errorCallback);
       },
@@ -475,8 +480,8 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
   /**
    * @method
    * @desc Get profile picture of logged in user.
-   * @param {Callback} successCallback callback function to be called with the url of the profile picture after successfully fetching the user details.
-   * @param {Callback} errorCallback callback function to be called in case of error while fetching the user details.
+   * @param {Callback} successCallback  {@link SBW.Controllers.Services.ServiceController~getProfilePic-successCallback Callback} to be executed on successful profile picture retrieval.
+   * @param {Callback} errorCallback  {@link SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} to be executed on profile picture retrieving error.
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;
@@ -488,15 +493,22 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           errorCallback();
         }
       }, errorCallback);
-  }
-  /**
-   * Success Callback for getProfilePic method.
-   * @callback SBW.Controllers.Services.Picasa~getProfilePic-successCallback
-   * @param {String} response profile picture url.
-   **/
-  /**
-   * Error Callback for getProfilePic method.
-   * @callback SBW.Controllers.Services.Picasa~getProfilePic-errorCallback
-   * @param {Object} response JSON response from the service
-   **/
+  },
+
+   /**
+    * @method
+    * @desc Populate assets into asset collections.
+    * @param {String} assetCollectionId Id of the asset collection
+    * @param {Array} assets Array of {@link SBW.Models.Asset Assets}
+    * @ignore
+    */
+   _populateAssets: function (assetcollectionId, assets) {
+     var service = this;
+     $.each (service.content, function () {
+       if(this.metadata.assetCollectionId === assetcollectionId) {
+        this.assets = assets;
+        return false;
+       } 
+     });
+   }
 });

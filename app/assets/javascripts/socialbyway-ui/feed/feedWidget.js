@@ -18,7 +18,7 @@
       self.element.append(self.$tabsDiv);
       self.$tabsDiv.append(self.$tabsUl);
       self.$postTab = $('<li/>');
-      self.$postTag = $('<a/>').addClass('tab-1').html("<span>Post</span>");
+      self.$postTag = $('<a/>').addClass('tab-1').html("<span>Feed</span>");
       self.$postTab.append(self.$postTag);
       self.$tabsUl.append(self.$postTab);
       //
@@ -27,7 +27,7 @@
       self.$containerDiv = $('<div/>').addClass('sbw-feed-container');
       self.$commentsDiv = $('<div/>').addClass('comment-container');
       self.$postTabDiv.append(self.$containerDiv);
-      self.$tabsUl.before(self.$commentsDiv);
+      self.$tabsUl.after(self.$commentsDiv);
 
       self.$input = $('<textarea/>', {
         name: 'comment',
@@ -57,16 +57,18 @@
       append('<div class="clear"></div>');
 
       var successCallback = function (data) {
-          var temp = '',
+          var htmlElArr = [],
             date = '',
             text = '';
           data.forEach(function (value) {
             date = new Date(value['createdTime']);
             text = date.toDateString();
-            temp = '<div class="comments"><img class="uimg" width="50" height="50" src="' + value['picUrl'] + '"/>' + 
-                   '<p class="details"><span class="name">' + value['fromUser'] + '</span><span class="time">' + text + '</span></p>' +
-                   '<p class="message">' + value['text'] + '</p>' + '<p class="likes">Like/Favorite  ' + value['likeCount'] || "0" + '</p></div>';
-            self.$commentsDiv.append(temp);
+            htmlElArr = [];
+            htmlElArr.push('<div class="comments"><img class="uimg" width="50" height="50" src="' + value['picUrl'] + '"/>');
+             htmlElArr.push('<p class="details"><span class="name">' + value['fromUser'] + '</span><span class="time">' + text + '</span></p>');
+             htmlElArr.push('<p class="message">' + value['text'] + '</p>');
+             htmlElArr.push('<p class="likes">Like/Favorite  ' + value['likeCount'] || "0" + '</p></div>');
+            self.$commentsDiv.append(htmlElArr.join(''));
           });
         },
         failureCallback = function () {};

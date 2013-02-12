@@ -4,7 +4,7 @@
    * @namespace FeedWidget
    * @classdesc SocialByWay Feed Widget to get feed and  Post messages on to social sites
    * @augments JQuery.Widget
-   * @alias FeedtWidget
+   * @alias FeedWidget
    * @constructor
    */
   "use strict";

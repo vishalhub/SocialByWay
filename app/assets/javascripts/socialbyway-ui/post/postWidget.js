@@ -1,8 +1,6 @@
-(function ($) {
-  /*jslint nomen: true*/
+(function ($) { /*jslint nomen: true*/
   /*jslint plusplus: true */
   /*global console, SBW*/
-  /**
   /**
    * @class PostWidget
    * @namespace PostWidget
@@ -58,7 +56,6 @@
       self.checkBoxesDiv.append(self.postBtn).append(self.charsleft).append('<div class="clear"></div>');
       self.checkBoxesDiv.insertAfter(self.input);
       self.postBtn.on("click", this, this._addPost);
-      $('#tabs ul li:first').addClass('active selected');
       self.containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
         var value = this.value;
         if ($(this).is(":checked")) {
@@ -66,7 +63,7 @@
           SBW.Singletons.serviceFactory.getService(value).startActionHandler(function () {
             SBW.Singletons.serviceFactory.getService("controller").getProfilePic([value], null, function (response) {
               if (response) {
-                $('.' + value + " .userimage").css('background', 'url(' + response + ')');
+                self.checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
               }
             }, function (error) {
 
@@ -95,9 +92,9 @@
       offset: 0,
       theme: "default"
     },
-	/**
+    /**
      * @method
-     * @desc Removes the widget from display 
+     * @desc Removes the widget from display
      */
     destroy: function () {
       this.tabsDiv.remove();
@@ -122,7 +119,7 @@
           }
         },
         failureCallback = function (response) {
-          self.containerDiv.append('<span class="sbw-error-message">Some problem in posting with '+response.service+'.</span>');
+          self.containerDiv.append('<span class="sbw-error-message">Some problem in posting with ' + response.service + '.</span>');
         };
       self.checkBoxesDiv.find("input:checked").each(function () {
         ServiceArr.push(this.value);

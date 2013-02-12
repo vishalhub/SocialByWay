@@ -16,6 +16,12 @@
     cursor:pointer;
   }
 
+  .comment-container{
+    overflow-x:visible;
+    overflow-y:auto;
+    max-height:450px;
+    margin-bottom: 10px;
+  }
 
   .sbw-feed-container{
     background: #F8F8F8;

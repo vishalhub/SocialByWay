@@ -207,30 +207,42 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @param  {Callback} successCallback {@link SBW.Controllers.Services.ServiceController~uploadPhoto-successCallback Callback} to be executed on successful photo upload.
    * @param  {Callback} errorCallback {@link SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback Callback} to be executed on photo upload error.
   */
-  uploadPhoto: function (mediaData, successCallback, errorCallback) {
+ uploadPhoto: function (mediaData, successCallback, errorCallback) {
     var service = this,
-      mediaData = mediaData[0] || mediaData,
+      mediaDataLength = mediaData.length,
       upload = function (mediaData, successCallback, errorCallback) {
         var feedUrl = service.feedUrl + '/albumid/default?access_token=' + service.accessObject.access_token + '&alt=json',
           url = SBW.Singletons.config.proxyURL + '?url=' + encodeURIComponent(feedUrl),
-          data,
-          i,
-          f,
-          reader = new FileReader();
-        reader.onload = (function (mediaData) {
-          return function (e) {
-            SBW.Singletons.utils.ajax({url: url, data: service._generateMultipart(mediaData.title, mediaData.description, e.target.result, mediaData.file.type), contentType: 'multipart/related; boundary="END_OF_PART"', crossDomain: false, type: "POST", dataType: "json", processData: false}, function (response) {
-              successCallback(new SBW.Models.UploadStatus({
-                serviceName : 'picasa', 
-                id : response.entry.gphoto$id.$t, 
-                rawData : response
-              }));
-            }, errorCallback);
-          };
-        })(mediaData);
-
-        // Read in the image file as a data URL.
-        reader.readAsArrayBuffer(mediaData.file);
+          uploadStatus = [];
+        $.each(mediaData, function () {
+          var filedata = this,
+            reader = new FileReader();
+          reader.onload = (function (mediaData) {
+            return function (e) {
+              SBW.Singletons.utils.ajax({url: url, data: service._generateMultipart(mediaData.title, mediaData.description, e.target.result, mediaData.file.type), contentType: 'multipart/related; boundary="END_OF_PART"', crossDomain: false, type: "POST", dataType: "json", processData: false}, function (response) {
+                uploadStatus.push(new SBW.Models.UploadStatus({
+                  serviceName : 'picasa', 
+                  id : response.entry.gphoto$id.$t, 
+                  rawData : response
+                }));
+                if(uploadStatus.length === mediaDataLength) {
+                  successCallback(uploadStatus);
+                }
+              }, function () {
+                uploadStatus.push(new SBW.Models.ErrorObject({
+                  serviceName: 'picasa',
+                  rawData: value
+                }));
+                if(uploadStatus.length === mediaData.length) {
+                  errorCallback(uploadStatus);
+                }
+              });
+            };
+          })(filedata);
+          
+          // Read in the image file as a data URL.
+          reader.readAsArrayBuffer(filedata.file);         
+        });
       },
       callback = (function (mediaData, successCallback, errorCallback) {
         return function (isLoggedIn) {

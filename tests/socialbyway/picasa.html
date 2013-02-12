@@ -7,7 +7,7 @@
 <div class="table">
   <h1>Picasa API Test Page</h1>
   <div class="tableRow"><input type="text" id="getAlbumsInput" placeholder="User Id"/><button id="getUserAlbums">Get User Albums</button></div>
-  <div class="tableRow>"><input type="file" id="photoUploader" placeholder="Select Photos"><button id="upload">upload</button></div>
+  <div class="tableRow>"><input type="file" multiple="true" id="photoUploader" placeholder="Select Photos"><button id="upload">upload</button></div>
   <div class="tableRow"><input type="text" id="getPhotosFromAlbumInput" placeholder="Album Id"/><button id="getPhotosFromAlbum">Get photos from album</button></div>
   <div class="tableRow"><input type="text" placeholder="Enter Comment" id="commentInput" /><button id="postComment">Post Comment</button></div>
   <div class="tableRow"><input type="text" placeholder="Enter Album Id" id="commentAlbumInput" /><input type="text" placeholder="Enter Photo Id" id="commentPhotoInput" /><button id="getComment">Get Comments</button></div>
@@ -41,7 +41,7 @@
                 });
     };
     document.getElementById('upload').onclick = function (event) {
-        SBW.Singletons.serviceFactory.getService("picasa").uploadPhoto({"file" : document.getElementById('photoUploader').files[0],"title":"penguin", "description":"Photo description"}, function (response) {
+        SBW.Singletons.serviceFactory.getService("picasa").uploadPhoto([{"file" : document.getElementById('photoUploader').files[0],"title":"penguin", "description":"Photo description"} , {"file" : document.getElementById('photoUploader').files[1], "title":"img2" , "description":"Image two desc"}], function (response) {
             console.log(response);
         }, function (response) {
             console.log(response);

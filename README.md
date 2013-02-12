@@ -32,19 +32,22 @@ Run the command to install dependencies
 
 Building the SocialByWay Library. It can take 3 arguments
 
-    rake socialbyway:build["GENERATE_DOCS | True","VERSION","PATH_TO_SITE"]
+    rake socialbyway:build  VERSION="<version number>" BUILD_PATH="<build path>" DOCS=true|false
 
-To run the build without documentation
+    Example:
+    rake socialbyway:build  VERSION="1.1" BUILD_PATH="/home/site" DOCS=true		
 
-    rake socialbyway:build[false]
+To run the build without documentation, version number and with default build path
+
+    rake socialbyway:build
 
 To have both docs and version number as part of build
 
-    rake socialbyway:build[true,"1.1"]
+    rake socialbyway:build VERSION="1.1"  DOCS=true	
 
 To build and deploy the library on the site
 
-    rake socialbyway:build[true,"1.1","/home/site/"]
+    rake socialbyway:build  VERSION="1.1" BUILD_PATH="/home/site" DOCS=true	
 
 
 Once the packaging is done,

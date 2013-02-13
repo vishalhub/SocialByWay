@@ -122,7 +122,6 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
           successCallback(response);
         },
         error: function (response) {
-          console.log(response);
           errorCallback(response);
         }
       });

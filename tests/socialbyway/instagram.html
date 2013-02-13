@@ -2,11 +2,11 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.min.js"></script>
-    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../site/style/default/socialbyway.ui.css"/>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.ui.min.js"></script>
 </head>
 <body>
 <div id="post-container">
@@ -14,20 +14,24 @@
 
     <div class="post-composer">
 
-        <textarea class="post-box">Add a post...</textarea>
+        <textarea rows='4' cols='30' class="post-box">Add a post...</textarea>
 
         <div class="post">
             Post to &nbsp;
-            <input name="service" type="checkbox" value="instagram" checked="true"/>instagram
+            <label for='instagram'>instagram</label>
+            <input name="service" id='instagram' type="checkbox" value="instagram" checked="checked"/>
             <!-- <input name="service" type="checkbox" value="twitter"/>twitter
          <input name="service" type="checkbox" value="google"/>google-->
-            <div id="instagram_post" class="instagram-post"></div>
+            <button id="instagram_post" class="instagram-post">post</button>
         </div>
     </div>
 </div>
 <div id="fb-root"></div>
 <script type="text/javascript">
-
+    $(document).ready(function () {
+        SBW.init('../config/test-config.json', function () {
+        });
+    });
     document.getElementById("instagram_post").onclick = function (event) {
         var commentBox = document.getElementsByClassName('post-box')[0];
         var serviceGrp = document.getElementsByClassName('post')[0];
@@ -38,8 +42,9 @@
             alert('Some problem occurred while publishing message');
         };
         var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+        var objectId = '341040070801031572_264679415';
         SBW.Singletons.serviceFactory.getService("instagram")
-                .getMedia('264679415',successCallback,failureCallback);
+                .getLikes(objectId,successCallback,failureCallback);
     };
 
     var commentBox = document.getElementsByClassName('post-box');

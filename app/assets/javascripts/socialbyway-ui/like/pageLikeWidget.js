@@ -49,17 +49,17 @@
       var likeButton = $('<span />', {
         'class': 'like-button'
       });
-      var likeCountContainer = $("<div />", {
+      self.likeCountContainer = $("<div />", {
         'class': 'count-container'
       });
       var minAngle = 360 / this.options.services.length;
       $.each(this.options.services, function (index, service) {
         var serviceContainer = self.createServiceElement(service.serviceName, serviceDiv, (minAngle * index), self);
       });
-      $(serviceDiv).append(likeButton, likeCountContainer);
+      $(serviceDiv).append(likeButton, self.likeCountContainer);
       $(containerDiv).append(serviceDiv);
       $(self.element).append(containerDiv);
-      self.hideServices();
+      serviceDiv.children('div').hide();
       $(containerDiv).hover(self.showServices, self.hideServices);
     },
     /**
@@ -89,17 +89,19 @@
      * @method
      * @desc Function to show services on mouse hover.
      */
-    showServices: function () {
-      $('.service-container div').show();
-      $('.service-container div.count-container').hide();
+    showServices: function (e) {
+      var self = this;
+      $(self).find('.count-container').hide();
+      $(self).find('.service-container div').show();
     },
     /**
      * @method
      * @desc Function to hide services when the widget loses focus.
      */
     hideServices: function () {
-      $('.service-container div').hide();
-      $('.service-container div.count-container').show();
+      var self = this;
+      $(self).find('.count-container').show();
+      $(self).find('.service-container div').hide();
     },
     /**
      * @method
@@ -125,7 +127,7 @@
         var count = response.length;
         var serviceLikeCountContainer = $("<div />").addClass('service-count-container').html(count).appendTo(sourceElement);
         context.count += count;
-        $(".sbw-pageLike-widget-default .count-container").html(context.count)
+        context.likeCountContainer.addClass('liked').html(context.count)
       };
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');

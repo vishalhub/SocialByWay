@@ -101,8 +101,7 @@
       var service = self.options.service;
       var likesSuccessCallback = function (response) {
         var count = response.length;
-        self.likeCountContainer.addClass('comment');
-        $(" .sbw-like-widget-default .count-container").html(count);
+        self.likeCountContainer.addClass('comment').html(count);
       };
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');

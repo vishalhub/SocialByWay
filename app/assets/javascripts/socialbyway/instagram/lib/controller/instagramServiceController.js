@@ -32,7 +32,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   /**
    * @method
    * @decs This function is called by serviceController on Click of start of button instagram service's authorize view page. gets the accessTokenUrl, forms the authentication url, opens the popup with signed url and calls for auth token listener.
-   * @params {Callback} callback function to be called after successful authentication
+   * @param {Callback} callback function to be called after successful authentication
    */
   startActionHandler: function (callback) {
     var service = this;
@@ -120,13 +120,6 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
         crossDomain: true,
         success: function (response) {
           successCallback(response);
-          if (response && response.meta && response.meta.code == "200") {
-            var user = {name: response.data.username};
-            service.accessObject.mediaCount = parseInt(response.data.counts.media);
-            successCallback(user);
-          } else {
-            service.failureLoginHandler.call(service, null);
-          }
         },
         error: function (response) {
           console.log(response);
@@ -151,20 +144,13 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
     var service = this;
     var publish = function (mediaId, successCallback, errorCallback) {
       $.ajax({
-        url: service.apiUrl + mediaId + '/comments',
+        url: service.apiUrl +'/media/' + mediaId + '/comments',
         data: {access_token: service.accessObject.access_token},
         type: 'GET',
         dataType: 'jsonp',
         crossDomain: true,
         success: function (response) {
           successCallback(response);
-          if (response && response.meta && response.meta.code == "200") {
-            var user = {name: response.data.username};
-            service.accessObject.mediaCount = parseInt(response.data.counts.media);
-            successCallback(user);
-          } else {
-            service.failureLoginHandler.call(service, null);
-          }
         },
         error: function (response) {
           errorCallback(response);
@@ -189,20 +175,13 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
     var service = this;
     var publish = function (mediaId, successCallback, errorCallback) {
       $.ajax({
-        url: service.apiUrl + mediaId + '/likes',
-        data: {url: url, access_token: service.accessObject.access_token},
+        url: service.apiUrl +'/media/' + mediaId + '/likes',
+        data: {access_token: service.accessObject.access_token},
         type: 'GET',
         dataType: 'jsonp',
         crossDomain: true,
         success: function (response) {
           successCallback(response);
-          if (response && response.meta && response.meta.code == "200") {
-            var user = {name: response.data.username};
-            service.accessObject.mediaCount = parseInt(response.data.counts.media);
-            successCallback(user);
-          } else {
-            service.failureLoginHandler.call(service, null);
-          }
         },
         error: function (response) {
           errorCallback(response);
@@ -233,13 +212,6 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
         crossDomain: true,
         success: function (response) {
           successCallback(response);
-          if (response && response.meta && response.meta.code == "200") {
-            var user = {name: response.data.username};
-            service.accessObject.mediaCount = parseInt(response.data.counts.media);
-            successCallback(user);
-          } else {
-            service.failureLoginHandler.call(service, null);
-          }
         },
         error: function (response) {
           errorCallback(response);
@@ -323,7 +295,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   /**
    * @method
    * @desc This function is used for converting instagram's raw photo into.
-   * @param {Object} photo photo response object
+   * @param {Object} media photo response object
    * @return {Object} photo object
    *
    */
@@ -367,7 +339,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   /**
    * @method
    * @desc Method for populating the response to a  object.
-   * @param {Object} fmedia formated media after doing doing formatting by each service.
+   * @param {Object} fMedia formated media after doing doing formatting by each service.
    */
   populateAdditionalMediaMetaData: function (fMedia) {
     var height = fMedia.rawData.images.standard_resolution.height;
@@ -402,8 +374,8 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
    * @method
    * @desc Utility method used for signing urls.
    * @param link url link to be signed
-   * @returns url signed url
-   * @returns msg hash object used for signing the request.
+   * @param msg hash object used for signing the request.
+   * @returns link signed url
    */
   signAndReturnUrl: function (link, msg) {
     var service = this;

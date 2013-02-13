@@ -92,6 +92,9 @@
 			 * @param {Function} failureCallBack Callback to be executed on failure. The ajax response will be passed as argument to the callback.
 			 */
 			ajax : function(options, successCallback, failureCallback) {
+			    //-- Start Fix for jQuery CORS issue in IE ("No Transport" error)
+			    $.support.cors = true;
+			    //-- End Fix for jQuery CORS issue in IE
 				$.ajax({
 					url : options.url,
 					data : options.data,

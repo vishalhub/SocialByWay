@@ -59,8 +59,11 @@ See Also
 --------
 
 Project Site: <http://www.socialbyway.com/>
+
 Project Documentation: <https://www.socialbyway.com/document.html>
+
 JSDoc User's Group: <http://groups.google.com/group/socialbyway-users>
+
 Project Announcements: <http://twitter.com/socialbyway>
 
 

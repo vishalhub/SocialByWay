@@ -2,11 +2,11 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>
+    <link rel="stylesheet" type="text/css" href="../../site/style/default/socialbyway.ui.css"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.min.js"></script>
-    <script type="text/javascript" src="../../www/socialbyway/js/socialbyway.ui.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.ui.min.js"></script>
 </head>
 <body>
 <div id="post-container">
@@ -21,12 +21,16 @@
             <input name="service" type="checkbox" value="facebook" checked="true"/>facebook
             <!-- <input name="service" type="checkbox" value="twitter"/>twitter
          <input name="service" type="checkbox" value="google"/>google-->
-            <div id="facebook_post" class="facebook-post"></div>
+            <button id="facebook_post" class="facebook-post"></button>
         </div>
     </div>
 </div>
 <div id="fb-root"></div>
 <script type="text/javascript">
+    $(document).ready(function () {
+        SBW.init('../config/test-config.json', function () {
+        });
+    });
     document.getElementById("facebook_post").onclick = function (event) {
         var commentBox = document.getElementsByClassName('post-box')[0];
         var serviceGrp = document.getElementsByClassName('post')[0];
@@ -36,9 +40,9 @@
         var failureCallback = function () {
             alert('Some problem occurred while publishing message');
         };
-        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
-        SBW.Singletons.serviceFactory.getService("controller")
-                .publishMessage(serviceArr, commentBox.value, successCallback, failureCallback);
+//        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+        SBW.Singletons.serviceFactory.getService("facebook")
+                .publishMessage(commentBox.value, successCallback, failureCallback);
     };
 
     var commentBox = document.getElementsByClassName('post-box');

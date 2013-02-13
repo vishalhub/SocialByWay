@@ -135,7 +135,6 @@ SBW.Controllers.Services.GooglePlus = SBW.Controllers.Services.ServiceController
             }
           }
         } else {
-          console.log(response.error);
           if (errorCallback) {
             errorCallback(response);
           }

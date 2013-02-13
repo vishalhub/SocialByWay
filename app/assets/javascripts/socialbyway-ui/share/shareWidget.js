@@ -56,8 +56,6 @@
 				SBW.Singletons.serviceFactory.getService(service).getShareCount(self.options.url, function(response) {
 					if (response && response.count) {
 						self.count += response.count;
-						console.log('response is: ', response);
-						console.log('Count for service', service, ' is: ', response.count);
 						serviceShareCountContainer = $("<div />", {
 							'class' : 'service-count-container'
 						}).text(response.count).appendTo(serviceContainer);
@@ -120,15 +118,11 @@
 			var sourceElement = event.srcElement || event.target, service = sourceElement.dataset.service;
 			SBW.Singletons.serviceFactory.getService(service).checkUserLoggedIn(function(isLoggedIn) {
 				if (isLoggedIn) {
-					console.log("Url is: ", context.options.url);
 					SBW.Singletons.serviceFactory.getService(service).publishMessage((context.options.url || document.url), function(response) {
-						console.log('Post Uploaded Successfully', response);
 					}, function(error) {
-						console.log('error while posting: ', error);
 					});
 				} else {
 					SBW.Singletons.serviceFactory.getService(service).startActionHandler(function() {
-						console.log('User authenticated for service: ', service);
 					});
 				}
 			});

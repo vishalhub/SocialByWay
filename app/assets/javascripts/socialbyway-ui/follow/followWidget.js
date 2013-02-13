@@ -149,7 +149,6 @@
 					}
 					SBW.Singletons.serviceFactory.getService(service).followUser(context.options.userDetails[service], function(response) {
 					}, function(error) {
-						console.log('error while posting: ', error);
 					});
 				} else {
 					self.authenticateAndUpdate(service);

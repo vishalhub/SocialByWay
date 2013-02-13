@@ -109,7 +109,6 @@
 							$(self.checkBoxContainer).find('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
 						};
 						picFailure = function(error) {
-							console.log(error);
 						};
 						SBW.Singletons.serviceFactory.getService(self.service).getProfilePic(userId, picSuccess, picFailure);
 					};

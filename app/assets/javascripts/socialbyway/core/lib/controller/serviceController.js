@@ -681,6 +681,7 @@
 			 * @param {Object} options The service options to upload the file e.g url, upload type, dataType etc...
 			 * @param {Function} successCallback  Callback to be executed on successful file uploading.
 			 * @param {Function} errorCallback  Callback to be executed on file uploading error.
+			 * @ignore
 			 */
 			fileUpload : function(serviceName, fileData, options, successCallback, errorCallback) {
 				var i = 0, j = 0, processData = options.processData || false, queueLength, fileLength = fileData.length, returnValue = [], service = this;

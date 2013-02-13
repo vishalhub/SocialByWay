@@ -94,31 +94,27 @@
 			self.checkBoxContainer.insertAfter(self.description);
 			self.uploadButton.insertAfter(self.checkBoxContainer);
 			self.uploadButton.on("click", this, this._publishPhoto);
-
-			$('#upload-widget div.tab-container ul li:first').addClass('selected');
-			$('#upload-widget div.tab-container ul li').click(function() {
+			$(self.imageTab).addClass('selected');
+			$(self.tabs).children().click(function() {
 				$(this).toggleClass('selected');
 				$(this).siblings().toggleClass('selected');
 			});
-
-			$("#upload-widget div.media-container  div.checkBox-container").on('click', 'div.check-container input', function() {
+			$(self.checkBoxContainer).on('click', 'div.check-container input', function() {
 				self.service = this.value;
 				$(this).siblings('div.service-container').toggleClass('selected');
 				if ($(this).is("input:checked")) {
 					var loginSuccessHandler = function(response) {
 						var userId = (response === undefined) ? undefined : response.id, picSuccess, picFailure;
 						picSuccess = function(profilePicUrl) {
-							$('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
+							$(self.checkBoxContainer).find('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
 						};
 						picFailure = function(error) {
-							console.log(error);
 						};
 						SBW.Singletons.serviceFactory.getService(self.service).getProfilePic(userId, picSuccess, picFailure);
 					};
 					self.authenticate(self.service, loginSuccessHandler);
 				}
 			});
-
 		},
 		/**
 		 * @desc Options for the widget.
@@ -173,7 +169,7 @@
 				serviceArr.push(this.value);
 			});
 			if (self.options.display === 'stand-alone') {
-				if ($('#upload-widget div.tab-container ul li.selected').html() === self.imageTab.html()) {
+				if ($(self.tabs).children('.selected').html() === self.imageTab.html()) {
 					SBW.Singletons.serviceFactory.getService("controller").uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
 				} else {
 					SBW.Singletons.serviceFactory.getService("controller").uploadVideo(serviceArr, [fileData], successCallback, errorCallback);

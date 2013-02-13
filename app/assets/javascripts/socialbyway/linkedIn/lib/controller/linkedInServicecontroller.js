@@ -82,7 +82,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    **/
   startActionHandler: function (callback) {
     var service = this;
-    if (service.linkedInInit) {
+    if (service.linkedInInit && IN.User) {
       if (IN.User.isAuthorized()) {
         callback();
       } else {
@@ -104,7 +104,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    **/
   checkUserLoggedIn: function (callback) {
     var service = this;
-    if (service.linkedInInit) {
+    if (service.linkedInInit && IN.User) {
       if (IN.User.isAuthorized()) {
         callback(true);
       } else {

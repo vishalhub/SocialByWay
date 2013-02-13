@@ -7,7 +7,7 @@
  * @property {String} createdTime  Created time of the Asset Collection
  * @property {Object} rawData  Raw data of the Asset Collection
  * @property {String} status  Status of the Asset Collection
- * @property {Array} AssetArray Array of {@link SBW.Models.Asset Assets} in the Asset Collection
+ * @property {Array}  assets Array of {@link SBW.Models.Asset Assets} in the Asset Collection
  * @property {Object} metadata Metadata object of the Asset Collection
  *
  * @classdesc This is Asset Collection Model Class
@@ -19,6 +19,7 @@ SBW.Models.AssetCollection = SBW.Object.extend(/** @lends SBW.Models.AssetCollec
   createdTime:'',
   rawData:[],
   status:'private',
+  assets: [],
   /**
    * @inner
    * @type {Object}
@@ -30,7 +31,7 @@ SBW.Models.AssetCollection = SBW.Object.extend(/** @lends SBW.Models.AssetCollec
    * @property {String} assetCollectionId Id of the Asset Collection from the service
    * @property {String} serviceName Service name of the Asset Collection
    * @property {Number} commentCount Comment count of the Asset Collection
-   * @property {String} Category Category of the Asset Collection
+   * @property {String} Type type of the Asset Collection
    * @property {String} tags Tags of the Asset Collection
    * @property {String} fileName File name of the Asset Collection
    * @property {String} description Description of the Asset Collection
@@ -48,7 +49,7 @@ SBW.Models.AssetCollection = SBW.Object.extend(/** @lends SBW.Models.AssetCollec
     assetCollectionId:null,
     serviceName:null,
     commentCount:null,
-    category:null,
+    type:null,
     tags:null,
     fileName:null,
     description:null,
@@ -75,7 +76,7 @@ SBW.Models.AssetCollection = SBW.Object.extend(/** @lends SBW.Models.AssetCollec
    */
   getID:function ()
   {
-    return this.type + Math.floor(Math.random() * 1000);
+    return 'collection' + Math.floor(Math.random() * 1000);
   }
 });
 

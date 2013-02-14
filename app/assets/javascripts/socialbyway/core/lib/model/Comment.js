@@ -9,6 +9,7 @@
  * @property {String} likeCount Number of likes for the comment
  * @property {String} profilePic Url of the porfile picture of the user
  * @property {Object} rawData Raw data from the serivce(eg. facebook, twitter)
+ * @property {String} serviceName  Name of the service(eg. facebook, twitter)
  * @constructor
  */
 SBW.Models.Comment = SBW.Object.extend(/** @lends SBW.Models.Comment# */ {
@@ -17,5 +18,6 @@ SBW.Models.Comment = SBW.Object.extend(/** @lends SBW.Models.Comment# */ {
   fromUser: "",
   likeCount: null,
   profilePic:"",
-  rawData:null
+  rawData:null,
+  serviceName:''
 });

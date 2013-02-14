@@ -15,12 +15,12 @@
       var self = this;
       self.serviceFactory = SBW.Singletons.serviceFactory;
       // Tabs UI
-      self.$tabsDiv = $('<div/>').attr('class', "tabs sbw-post-widget-" + self.options.theme);
+      self.$tabsDiv = $('<div/>').attr('class', "tabs sbw-widget sbw-post-widget-" + self.options.theme);
       self.$tabsUl = $('<ul/>').attr("class", "tabs-ul");
       self.element.append(self.$tabsDiv);
       self.$tabsDiv.append(self.$tabsUl);
       self.$postTab = $('<li/>');
-      self.postTag = $('<a/>').addClass('tab-1').html("<span>Post</span>");
+      self.postTag = $('<a/>').addClass('tab-1').html("<span>" + self.options.title + "</span>");
       self.$postTab.append(self.postTag);
       self.$tabsUl.append(self.$postTab);
       // Container
@@ -35,14 +35,14 @@
         maxlength: 5000,
         cols: 62,
         rows: 8,
-        placeholder: 'Write here....'
+        placeholder: self.options.labelPlaceholder
       }).on('keyup', this, function () {
         self.$charsleft.html(this.value.length);
       });
 
       self.$charsleft = $("<p/>").addClass('chars-count').text('0');
       self.$containerDiv.append(self.$input);
-      self.$postBtn = $('<button/>').addClass('post-btn').text("publish");
+      self.$postBtn = $('<button/>').addClass('post-btn').text(self.options.buttonText);
       self.$checkBoxesDiv = $('<div/>').addClass('checkbox-container');
 
       self.options.services.forEach(function (value) {
@@ -87,13 +87,19 @@
      * @property {Number} limit The widget post limit.
      * @property {Number} offset The offset for the widget.
      * @property {String} theme The theme for the widget.
+     * @property {String} labelPlaceholder Text for the Input placeholder.
+     * @property {String} buttonText Text for post button.
+     * @property {String} title Header for the widget.
      */
     options: {
       successMessage: '',
       services: ['facebook', 'twitter', 'linkedin'],
       limit: 10,
       offset: 0,
-      theme: "default"
+      theme: "default",
+      labelPlaceholder: "Enter text..",
+      buttonText: "Publish",
+      title: "Feed"
     },
     /**
      * @method
@@ -111,7 +117,7 @@
      */
     _addPost: function (e) {
       var self = e.data,
-        postText = $(self.$input).val(),
+        postText = self.$input.val(),
         serviceArr = [],
         successCallback = function (response) {
           var elem = self.$containerDiv.find(".sbw-success-message");
@@ -126,6 +132,9 @@
         };
       self.$checkBoxesDiv.find("input:checked").each(function () {
         serviceArr.push(this.value);
+        if (this.value === 'twitter') {
+          postText = postText.substring(0, 140); //twitter character limit
+        }
       });
       self.$containerDiv.find(".sbw-success-message").remove();
       self.$containerDiv.find(".sbw-error-message").remove();

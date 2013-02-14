@@ -214,7 +214,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         data: data.parameters || '',
         customHeaders: headers,
         contentType: data.contentType,
-        processData: (data.processData === false) ? false : true
+        processData: data.processData
       };
       SBW.Singletons.utils.ajax(options, successCallback, errorCallback);
     },
@@ -600,7 +600,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
                 fromUser: tweet.from_user,
                 likeCount: 0,
                 text: tweet.text,
-                picUrl: tweet.profile_image_url
+                picUrl: tweet.profile_image_url,
+                serviceName:"twitter"
               });
               sbwObject.push(sbwTweetObject);
             }

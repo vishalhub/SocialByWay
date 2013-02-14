@@ -19,19 +19,19 @@ function getPostFields() {
 
 function generateMultipartFormRequest() {
     // form field separator
-	$req = getallheaders();
-	$delimiter = substr($req['Content-Type'],30);
+    $req = getallheaders();
+    $delimiter = substr($req['Content-Type'],30);
     $data = '';
 
     // populate normal fields first (simpler)
     foreach ($_POST as $name => $content) {
        $data .= "--" . $delimiter . "\r\n\r\n";
        $data .= 'Content-Disposition: form-data; name="' . $name . '"' . "\r\n" . $content;
-	   // note: double endline
+       // note: double endline
        $data .= "\r\n\r\n";
      }
 
-	 // populate file fields
+     // populate file fields
      $data .= "--" . $delimiter . "\r\n";
      $data .= 'Content-Disposition: form-data; name="media[]";' .
              ' filename="' . $_FILES['media']['name'][0] . '"' . "\r\n";
@@ -45,7 +45,7 @@ function generateMultipartFormRequest() {
      // last delimiter
      $data .= "--" . $delimiter . "--\r\n";
 
-	 return $data;
+     return $data;
 }
 
 $handle = curl_init($url);
@@ -60,10 +60,10 @@ switch ($request_method)
     case 'post':
         curl_setopt($handle, CURLOPT_POST, true);
         if($_POST) {
-		    if($_FILES)
+            if($_FILES)
                curl_setopt($handle, CURLOPT_POSTFIELDS, generateMultipartFormRequest());
-			else
-			   curl_setopt($handle, CURLOPT_POSTFIELDS, getPostFields());
+            else
+               curl_setopt($handle, CURLOPT_POSTFIELDS, getPostFields());
         }
         else
             curl_setopt($handle, CURLOPT_POSTFIELDS, $HTTP_RAW_POST_DATA);
@@ -76,10 +76,13 @@ switch ($request_method)
 //curl_setopt($handle, CURLOPT_PROXY, '127.0.0.1:8888');
 curl_setopt($handle, CURLOPT_HTTPHEADER , buildRequestHeaders());
 curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 
 //execute post
 $result = curl_exec($handle);
 $status = curl_getinfo($handle);
+
+header($result, true, curl_getinfo ( $handle, CURLINFO_HTTP_CODE ));
 
 if($result === false) {
     echo 'Curl error: ' . curl_error($handle);

@@ -82,11 +82,8 @@ curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 $result = curl_exec($handle);
 $status = curl_getinfo ( $handle, CURLINFO_HTTP_CODE );
 
-if ($status == 200) {
-  echo $result;
-} else {
-  header($result, true, $status);
-}
+header($result, true, $status);
+echo $result;
 
 if($result === false) {
     echo 'Curl error: ' . curl_error($handle);

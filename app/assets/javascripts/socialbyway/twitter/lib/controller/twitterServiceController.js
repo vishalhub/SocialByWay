@@ -309,19 +309,22 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     searchTweets: function (parameters, successCallback, errorCallback) {
-      var key;
+      var key,
+        querystring = '';
       if (parameters) {
         for (key in parameters) {
           if (parameters.hasOwnProperty(key)) {
             parameters[key] = encodeURIComponent(parameters[key]);
+            querystring += key + '=' + parameters[key] + '&';
           }
         }
+        querystring = querystring.slice(0, querystring.lastIndexOf('&'));
       }
       var data = {
-        url: 'https://search.twitter.com/search.json',
+        url: 'https://search.twitter.com/search.json' + '?' + querystring,
         type: 'GET',
         header: '',
-        parameters: parameters
+        parameters: ''
       };
       this.sendTwitterRequest(data, successCallback, errorCallback);
     },

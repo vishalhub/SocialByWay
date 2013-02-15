@@ -1,15 +1,33 @@
 <?PHP
+/**
+* A PHP proxy to handle the requests
+*
+*/
+
 // The URL to fetch is the hostname + path
 $url = $_GET['url'];
 
+/**
+ * Function buildRequestHeaders 
+ * Builds the header for a request
+ * @return (array)
+ */
+
 function buildRequestHeaders() {
     $headers = array();
+    $headerKeys = array('Host', 'Accept', 'Accept-Encoding', 'Accept-Language', 'Content-Length' );
     foreach(getallheaders() as $key => $value) {
-        if($key != 'Host' && $key != 'Accept' && $key != 'Accept-Encoding' && $key != 'Accept-Language' && $key != 'Content-Length')
+        if(!in_array($key, $headerKeys))
             array_push($headers, "$key: $value");
     }
     return $headers;
 }
+
+/**
+ * Function getPostFields
+ * Builds the postfiles as url encoded params
+ * @return (string)
+ */
 
 function getPostFields() {
     $post_fields = "";
@@ -17,6 +35,11 @@ function getPostFields() {
     return rtrim($post_fields, '&');
 }
 
+/**
+ * Function generateMultipartFormRequest
+ * Builds the multipart form data of a POST request
+ * @return (string)
+ */
 function generateMultipartFormRequest() {
     // form field separator
     $req = getallheaders();
@@ -48,6 +71,21 @@ function generateMultipartFormRequest() {
      return $data;
 }
 
+/**
+ * Function fetchPostContent
+ * Fetches the post content based on the request type
+ * @return (string)
+ */
+function fetchPostContent(){
+    global $HTTP_RAW_POST_DATA;
+    if($_POST){
+        return $_FILES ?  generateMultipartFormRequest() :  getPostFields();
+    }
+    else{
+        return $HTTP_RAW_POST_DATA;
+    }
+}
+
 $handle = curl_init($url);
 $contentType = $_SERVER["CONTENT_TYPE"];
 
@@ -59,21 +97,14 @@ switch ($request_method)
 
     case 'post':
         curl_setopt($handle, CURLOPT_POST, true);
-        if($_POST) {
-            if($_FILES)
-               curl_setopt($handle, CURLOPT_POSTFIELDS, generateMultipartFormRequest());
-            else
-               curl_setopt($handle, CURLOPT_POSTFIELDS, getPostFields());
-        }
-        else
-            curl_setopt($handle, CURLOPT_POSTFIELDS, $HTTP_RAW_POST_DATA);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, fetchPostContent());
         break;
 
     case 'delete':
         curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'DELETE');
         break;
 }
-//curl_setopt($handle, CURLOPT_PROXY, '127.0.0.1:8888');
+
 curl_setopt($handle, CURLOPT_HTTPHEADER , buildRequestHeaders());
 curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
@@ -87,10 +118,8 @@ echo $result;
 
 if($result === false) {
     echo 'Curl error: ' . curl_error($handle);
-} else {
-    //echo $status['http_code'];
-}
-
+} 
 
 curl_close($handle);
+
 ?>

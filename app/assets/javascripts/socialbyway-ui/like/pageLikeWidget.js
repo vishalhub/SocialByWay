@@ -25,8 +25,8 @@
     options: {
       services: [
         {serviceName: 'linkedin', objectId: 'UNIU-214108097-5681285247195418624-SHARE'},
-        {serviceName: 'twitter', objectId: ''},
-        {serviceName: 'facebook', objectId: '100004739166981_133948596773112'},
+        {serviceName: 'twitter', objectId: '302413460564762624'},
+        {serviceName: 'facebook', objectId: '100004207443785_161177570699157'},
         {serviceName: 'flickr', objectId: '8443995831'},
         {serviceName: 'picasa', objectId: ''}
       ],
@@ -116,7 +116,7 @@
         }
       }
       var likesSuccessCallback = function (response) {
-        var count = response['like_count'];
+        var count = response['likeCount'];
         var serviceLikeCountContainer = $("<span />").addClass('service-count-container').html(count).appendTo(sourceElement);
         context.count += count;
         context.$likeCountContainer.addClass('liked').html(context.count)

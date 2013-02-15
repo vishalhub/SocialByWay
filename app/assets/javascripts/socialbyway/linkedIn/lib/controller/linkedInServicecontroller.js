@@ -368,14 +368,23 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
           var likesData = [];
           var likes = response.values;
           for (var i = 0; i < likes.length; i++) {
-            likesData[i] =  new SBW.Models.Like({
-              fromUser: likes[i].person.firstName + ' ' + likes[i].person.lastName,
-              fromId: likes[i].person.id,
-              profilePic: likes[i].person.pictureUrl,
-              rawData:likes[i]
+            var user = new SBW.Models.User({
+              name: likes[i].person.firstName + ' ' + likes[i].person.lastName,
+              id: likes[i].person.id,
+              userImage: likes[i].person.pictureUrl
+            });
+            likesData[i] = new SBW.Models.Like({
+              user: user,
+              rawData: likes[i]
             });
           }
-          var likesObject = {likes : likesData, like_count :likesData.length, rawData: response}
+          var likesObject = {
+            serviceName: 'linkedin',
+            likes: likesData,
+            likeCount: likesData.length,
+            rawData: response
+          };
+          // Todo Populating the asset object with the like and user objects
           successCallback(likesObject);
         })
         .error(function (error) {

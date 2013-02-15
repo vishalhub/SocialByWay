@@ -20,15 +20,40 @@
       self.element.append(self.$tabsDiv);
       self.$tabsDiv.append(self.$tabsUl);
       self.$postTab = $('<li/>');
-      self.postTag = $('<a/>').addClass('tab-1').html("<span>" + self.options.title + "</span>");
+      self.postTag = $('<a/>').addClass('tab-1 selected').html("<span>" + self.options.title + "</span>");
       self.$postTab.append(self.postTag);
       self.$tabsUl.append(self.$postTab);
+      self.$uploadPhotoTab = $('<li/>');
+      self.uploadPhotoTag = $('<a/>').addClass('tab-2').html("<span>Upload Photo</span>");
+      self.$uploadPhotoTab.append(self.uploadPhotoTag);
+      self.$tabsUl.append(self.$uploadPhotoTab);
+      self.$uploadVideoTab = $('<li/>');
+      self.uploadVideoTag = $('<a/>').addClass('tab-2').html("<span>Upload Video</span>");
+      self.$uploadVideoTab.append(self.uploadVideoTag);
+      self.$tabsUl.append(self.$uploadVideoTab);
       // Container
       self.$postTabDiv = $('<div/>').addClass('tab-content');
       self.$postTabDiv.insertAfter(self.$tabsUl);
-      self.$containerDiv = $('<div/>').addClass('sbw-post-container');
+      self.$containerDiv = $('<div/>').addClass('tab-1 sbw-post-container');
+      self.$photocontainerDiv = $('<div/>').addClass('tab-2 hide').UploadWidget({
+        display: 'embedded',
+        functionality: 'image'
+      });
+      self.$videocontainerDiv = $('<div/>').addClass('tab-3 hide').UploadWidget({
+        display: 'embedded',
+        functionality: 'video'
+      });
       self.$postTabDiv.append(self.$containerDiv);
-
+      self.$postTabDiv.append(self.$photocontainerDiv);
+      self.$postTabDiv.append(self.$videocontainerDiv);
+      self.$tabsUl.on('click', 'li a', function () {
+        if (!$(this).hasClass('selected')) {
+          self.$tabsDiv.find('.tab-content>div').addClass('hide');
+          self.$postTabDiv.find('.' + $(this).attr('class')).removeClass('hide');
+          self.$tabsUl.find('li a').removeClass('selected');
+          $(this).addClass('selected');
+        }
+      });
       self.$input = $('<textarea/>', {
         name: 'comment',
         'class': 'post-box',
@@ -99,7 +124,7 @@
       theme: "default",
       labelPlaceholder: "Enter text..",
       buttonText: "Publish",
-      title: "Feed"
+      title: "Post"
     },
     /**
      * @method

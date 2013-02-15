@@ -18,13 +18,17 @@
 
   .sbw-post-container{
     background: #F8F8F8;
-    width: 100%;
-    padding:0 0 10px 0;
+    padding:10px;
     position: relative;
     .profile-pic{
       position: absolute;
       top: 25px;
       left: -23px;
+    }
+  }
+  .tab-content{
+    .hide{
+      display:none;
     }
   }
   textarea{
@@ -39,14 +43,12 @@
     margin: 19px 0 20px 34px;
   }
   .post-box{
-    margin: 20px 0 20px 16px;
+    margin: 0 0 20px 0;
     width: 95%;
   }
 
   .checkbox-container{
-    padding-bottom: 34px;
     margin: 0px 15px 0 15px;
-    width:100%;
     input{
     height: 30px;
     width: 30px;
@@ -178,7 +180,9 @@
         color:white;
         display:block;
         padding: 5px 30px;
+        &.selected{
         background:#FF417E;
+        }
       }
     }
   }

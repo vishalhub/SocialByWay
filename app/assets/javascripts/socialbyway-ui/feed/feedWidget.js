@@ -81,8 +81,9 @@
       self.$checkBoxesDiv.insertAfter(self.$input);
       self.$postBtn.on("click", this, this._addPost);
       self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
-        var value = this.value;
-        if ($(this).is(":checked")) {
+        var that = this,
+          value = that.value;
+        if ($(that).is(":checked")) {
           self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
           self.serviceFactory.getService(value).startActionHandler(function () {
             self.serviceFactory.getService("controller").getProfilePic([value], null, function (response) {
@@ -156,7 +157,7 @@
       self.$checkBoxesDiv.find("input:checked").each(function () {
         serviceArr.push(this.value);
         if (this.value === 'twitter') {
-          postText = postText.substring(0, 117);//twitter character limit
+          postText = postText.substring(0, 117); //twitter character limit
         }
       });
       postText = window.location.href + " " + postText;

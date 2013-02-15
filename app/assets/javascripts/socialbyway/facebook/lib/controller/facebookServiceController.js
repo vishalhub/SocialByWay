@@ -216,7 +216,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             if (successCallback) {
               successCallback({
                 id: response.id,
-                service: 'facebook'
+                serviceName:"facebook"
               }, response);
             }
           } else {
@@ -741,7 +741,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   likeCount: result[i].like_count,
                   text: result[i].message,
                   rawData: result[i],
-                  service: 'facebook'
+                  serviceName:"facebook"
                 });
               }
               successCallback(commentsData);
@@ -1073,8 +1073,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc publishPhoto method uploads photo to facebook user account with FB API service
    * @param  {String} description     description about the photo
    * @param  {String} imageUrl        url pointing to the image
-   * @param {Callback} successCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-successCallback Callback} will be called if data is fetched successfully
-   * @param {Callback} errorCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback Callback} will be called in case of any error while fetching data
+   * @param {Callback} successCallback  {@link  SBW.Controllers.Services.ServiceController~publishPhoto-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback  {@link  SBW.Controllers.Services.ServiceController~publishPhoto-errorCallback Callback} will be called in case of any error while fetching data
    * @ignore
    */
   publishPhoto: function (description, imageUrl, successCallback, errorCallback) {
@@ -1137,7 +1137,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               text: value['message'],
               picUrl: picResponse,
               rawData: value,
-              service: 'facebook'
+              serviceName:"facebook"
             });
             data[index] = (temp);
             i++;
@@ -1151,7 +1151,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               likeCount: value['like_count'],
               text: value['message'],
               rawData: value,
-              service: 'facebook'
+              serviceName:"facebook"
             });
             data[index] = (temp);
             i++;

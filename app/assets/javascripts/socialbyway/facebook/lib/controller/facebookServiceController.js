@@ -655,16 +655,30 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     var service = this,
       callback = (function (successCallback, errorCallback) {
         return function (isLoggedIn) {
-          var likeSuccess = function (result) {
-              var likesData = [];
-              for (var i = 0; i < result.length; i++) {
-                likesData[i] = {
-                  "fromName": result[i].name,
-                  "fromId": result[i].id
-                };
+          var likeSuccess = function (response) {
+            var likesData = [];
+            for (var i = 0; i < response.length; i++) {
+              var user = new SBW.Models.User({
+                name: response[i].name,
+                id: response[i].id
+              });
+              likesData[i] = new SBW.Models.Like({
+                user: user,
+                rawData: response[i]
+              });
+            }
+            var likesObject = new SBW.Models.Asset({
+              type: '',
+              id: objectId,
+              serviceName: 'facebook',
+              rawData: response,
+              metaData: {
+                likes: likesData,
+                likeCount: likesData.length
               }
-              successCallback(likesData);
-            };
+            })
+            successCallback(likesObject);
+          };
           if (isLoggedIn) {
             service._getAllData({
               type: 'likes',

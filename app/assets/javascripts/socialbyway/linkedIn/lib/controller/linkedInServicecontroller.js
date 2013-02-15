@@ -364,13 +364,19 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
     var service = this;
     var likes = function (objectId, successCallback, errorCallback) {
       IN.API.Raw("/people/~/network/updates/key=" + objectId + "/likes")
-        .result(function (result) {
+        .result(function (response) {
           var likesData = [];
-          var likes = result.values;
+          var likes = response.values;
           for (var i = 0; i < likes.length; i++) {
-            likesData[i] = {"fromName": likes[i].person.firstName + ' ' + likes[i].person.lastName, "fromId": likes[i].person.id, "fromUrl": likes[i].person.pictureUrl };
+            likesData[i] =  new SBW.Models.Like({
+              fromUser: likes[i].person.firstName + ' ' + likes[i].person.lastName,
+              fromId: likes[i].person.id,
+              profilePic: likes[i].person.pictureUrl,
+              rawData:likes[i]
+            });
           }
-          successCallback(likesData);
+          var likesObject = {likes : likesData, like_count :likesData.length, rawData: response}
+          successCallback(likesObject);
         })
         .error(function (error) {
           errorCallback(error);

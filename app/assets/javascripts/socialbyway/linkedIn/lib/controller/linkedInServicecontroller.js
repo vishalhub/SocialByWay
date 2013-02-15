@@ -613,5 +613,41 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
       };
     })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
+  },
+
+  /**
+   * @method
+   * @desc To get profile data from a LinkedIn user through its API service
+   * @param {String} userId The Id of the user
+   * @param {callback} successCallback - success callback will get called if data is fetched successfully
+   * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
+   */
+  getProfilePic: function (userId, successCallback, errorCallback) {
+    var service = this;
+    userId = ((userId !== undefined) ? userId : 'me');
+    var profilePic = function (successCallback, errorCallback) {
+      IN.API.Profile(userId)
+        .fields(["pictureUrl"])
+        .result(function (result) {
+          var profile = result.values[0];
+          var profileData = {"photoUrl": profile.pictureUrl };
+          successCallback(profileData);
+        })
+        .error(function (error) {
+          errorCallback(error);
+        });
+    };
+    var callback = (function (successCallback, errorCallback) {
+      return function (isLoggedIn) {
+        if (isLoggedIn) {
+          profilePic(successCallback, errorCallback);
+        } else {
+          service.startActionHandler(function () {
+            profilePic(successCallback, errorCallback);
+          });
+        }
+      };
+    })(successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   }
 });

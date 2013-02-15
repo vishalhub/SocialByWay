@@ -8,12 +8,16 @@
     <script type="text/javascript" src="../js/<%= @sbwuiminjs %>"></script>
 </head>
 <body>
+<!-- Define the parent element on which the post widget must be initialized. -->
 <div id="post-widget"></div>
-    <script type='text/javascript'>
-        $(function(){
-            SBW.init('../config/config.json');
-            $('#post-widget').PostWidget();
-        });
-    </script>
+<script type='text/javascript'>
+    $(function(){
+        /* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
+        SBW.init('../config/config.json', function () {
+        /* Initialize post widget in the callback. */
+          $('#post-widget').PostWidget();    
+        });            
+    });
+</script>
 </body>
 </html>

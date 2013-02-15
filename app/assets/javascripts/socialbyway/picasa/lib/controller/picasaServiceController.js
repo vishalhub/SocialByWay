@@ -15,6 +15,10 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for picasa.
    */
   content: [],
+  /** @property {Object} collectionSetRawData Holds raw data response of the collection set from picasa.
+   *  @ignore
+   */
+  collectionSetRawData: null,
   /**
    * @method
    * @desc Initialize method to setup require items
@@ -170,7 +174,8 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
               }
             });
             collection.id = collection.getID();
-            service.content.push(collection);  
+            service.content.push(collection); 
+            service.collectionSetRawData = response; 
           });
           successCallback(service.content);
         }, errorCallback);
@@ -496,15 +501,22 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback  {@link SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} to be executed on profile picture retrieving error.
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
-    var service = this;
-      service.getAlbums(function (response) {
-        var responseFeed = response.feed;
+    var service = this,
+      getProfilePicCallback = function (successCallback, errorCallback) {
+        var responseFeed = service.collectionSetRawData.feed;
         if(responseFeed.gphoto$thumbnail.$t) {
           successCallback(responseFeed.gphoto$thumbnail.$t);
         } else{
           errorCallback();
         }
-      }, errorCallback);
+      };
+      if(service.collectionSetRawData) {
+        getProfilePicCallback(successCallback, errorCallback);
+      } else {
+        service.getAlbums(function (response) {
+          getProfilePicCallback(successCallback, errorCallback);
+        }, errorCallback);  
+      }      
   },
 
    /**

@@ -106,10 +106,10 @@
 
     function uploadMedia() {
         var metadata = {
-            status: document.getElementById('status').value
+            status: document.getElementById('status').value,
+            file : document.getElementById('media[]').files[0]
         };
-        var fileData =  document.getElementById('media[]').files[0];
-        SBW.Singletons.serviceFactory.getService("twitter").updateWithMedia(metadata, fileData, function(response){
+        SBW.Singletons.serviceFactory.getService("twitter").updateWithMedia([metadata], function(response){
             document.getElementsByClassName('content-container')[0].innerText = JSON.stringify(response);
         }, function(response) { console.log(response); });
         return false;

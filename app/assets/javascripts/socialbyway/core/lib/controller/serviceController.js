@@ -17,6 +17,12 @@
 			 * @type {String}
 			 */
 			name : null,
+      /**
+			 * @private
+			 * @desc User logged in the service.
+			 * @type {Object}
+			 */
+			user : null,
 			/**
 			 * @private
 			 * @desc Icon for the service.
@@ -89,6 +95,14 @@
 			 */
 			checkUserLoggedIn : function(callbackFn) {
 			},
+      /**
+       * @method
+       * @desc Update the user object in the service
+       * @param {Object} userObject  Object of logged in user
+       */
+      populateUserInformation:function(userObject){
+        this.set(user, userObject);
+      },
 			/**
 			 * @method
 			 * @desc Triggers the authentication process.

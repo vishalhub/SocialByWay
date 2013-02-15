@@ -6,6 +6,7 @@
  * @property {String} id  Id of an asset
  * @property {String} title  Title of an asset
  * @property {String} createdTime  Created time for an asset
+ * @property {String} serviceName Service name of the asset
  * @property {Object} rawData  Raw data of an asset
  * @property {String} status  Status of an asset
  * @property {Object} imgSizes Image size object
@@ -19,6 +20,7 @@ SBW.Models.Asset = SBW.Object.extend(/** @lends SBW.Models.Asset# */{
   id:'',
   title:'',
   createdTime:'',
+  serviceName:null,
   rawData:[],
   status:'private',
   /**
@@ -44,7 +46,6 @@ SBW.Models.Asset = SBW.Object.extend(/** @lends SBW.Models.Asset# */{
    * @property {String} size Size of an asset
    * @property {String} assetId Id of an asset from the service
    * @property {String} assetCollectionId Collection id of the of asset from service
-   * @property {String} serviceName Service name of the asset
    * @property {Number} height Height of an asset
    * @property {Number} width Width of an asset
    * @property {Number} commentCount Comment count
@@ -63,6 +64,8 @@ SBW.Models.Asset = SBW.Object.extend(/** @lends SBW.Models.Asset# */{
    * @property {String} previewUrl Preview url of the asset
    * @property {String} author Author of the asset
    * @property {String} authorAvatar Author avatar of the asset
+   * @property {Number} likeCount like count of an asset
+   * @property {Array} likes like object of an asset
    *
    **/
   metadata:{
@@ -75,7 +78,6 @@ SBW.Models.Asset = SBW.Object.extend(/** @lends SBW.Models.Asset# */{
     size:null,
     assetId:null,
     assetCollectionId:null,
-    serviceName:null,
     height:null,
     width:null,
     commentCount:null,
@@ -93,7 +95,9 @@ SBW.Models.Asset = SBW.Object.extend(/** @lends SBW.Models.Asset# */{
     thumbnail:null,
     previewUrl:null,
     author:null,
-    authorAvatar:null
+    authorAvatar:null,
+    likeCount:0,
+    likes:null
   },
   /**
    * @method

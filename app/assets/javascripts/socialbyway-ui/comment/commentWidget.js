@@ -199,7 +199,7 @@
           if (response.photoUrl) {
             ProfilepicSuccessCallback(response.photoUrl);
           } else {
-            SBW.Singletons.serviceFactory.getService("controller").getProfilePic(ServiceArr, userId,
+            SBW.api.getProfilePic(ServiceArr, userId,
               ProfilepicSuccessCallback, ProfilepicFailureCallback);
           }
         };
@@ -219,7 +219,7 @@
             //setting the postid helps in identifying to which post a comment should be added in case of multiple posts on page
             $(self.displayElement).attr("id", responseId);
             //we have the userId from response of publishMessage call the getProfile to get profile information from userId
-            SBW.Singletons.serviceFactory.getService("controller").getProfile(ServiceArr, userId,
+            SBW.api.getProfile(ServiceArr, userId,
               ProfileSuccessCallback, ProfileFailureCallback);
             $(self.clickLink).bind("click", function ()
             {
@@ -251,7 +251,7 @@
         /**
          * call to publishMessage
          **/
-        SBW.Singletons.serviceFactory.getService("controller").publishMessage(ServiceArr, commentText, successCallback,
+        SBW.api.publishMessage(ServiceArr, commentText, successCallback,
           failureCallback);
       }
       /**
@@ -357,7 +357,7 @@
                 if (response[j].fromUrl) {
                   displayComments(j);
                 } else {
-                  SBW.Singletons.serviceFactory.getService("controller").getProfilePic(ServiceArr, userId,
+                  SBW.api.getProfilePic(ServiceArr, userId,
                     picSuccessCallback, picFailureCallback);
                 }
               })(j);
@@ -371,14 +371,14 @@
         //postcommentSuccessCallback gets called once comment is successfully posted
         var postcommentSuccessCallback = function (response)
         {
-          SBW.Singletons.serviceFactory.getService("controller").getComments(ServiceArr, self.options.id,
+          SBW.api.getComments(ServiceArr, self.options.id,
             successCallback, failureCallback);
         };
         var postcommentFailureCallback = function (response)
         {
           alert('Some problem occurred while publishing comment');
         };
-        SBW.Singletons.serviceFactory.getService("controller").postComment(ServiceArr, self.options.id, commentText,
+        SBW.api.postComment(ServiceArr, self.options.id, commentText,
           postcommentSuccessCallback, postcommentFailureCallback);
         self.displayElement = $(document.createElement("div")).attr("class", "comment");
       }

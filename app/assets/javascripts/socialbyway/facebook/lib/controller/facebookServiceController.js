@@ -1020,7 +1020,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           dataType: 'json',
           contentType:false
         };
-        SBW.Singletons.serviceFactory.getService("controller").fileUpload('facebook', fileData, options, successCallback, errorCallback);
+        SBW.api.fileUpload('facebook', fileData, options, successCallback, errorCallback);
       },
       callback = (function (fileData, successCallback, errorCallback, context) {
         return function (isLoggedIn) {

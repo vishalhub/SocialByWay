@@ -125,13 +125,13 @@
         alert('Some problem occurred while getting likes');
       };
       var likeSuccessCallback = function (response) {
-        SBW.Singletons.serviceFactory.getService("controller").getLikes(serviceName, objectId, likesSuccessCallback,
+        SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.Singletons.serviceFactory.getService("controller").like(serviceName, objectId, likeSuccessCallback,
+      SBW.api.like(serviceName, objectId, likeSuccessCallback,
         likeFailureCallback);
     },
     /**

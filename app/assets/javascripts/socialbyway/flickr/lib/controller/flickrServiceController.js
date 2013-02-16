@@ -355,7 +355,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         var filedata = [
           {oauth_consumer_key: apiKey, oauth_token: service.accessObject.access_token, photo: fileData['file'], title: fileData['title'], description: fileData['description'],is_public:1}
         ];
-        SBW.Singletons.serviceFactory.getService("controller").fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
+        SBW.api.fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
       },
       callback = (function (fileData, successCallback, errorCallback) {
         return function (isLoggedIn) {

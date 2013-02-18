@@ -215,7 +215,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         data: data.parameters || '',
         customHeaders: headers,
         contentType: data.contentType,
-        processData: (data.processData === false) ? false : true
+        processData: data.processData
       };
       SBW.Singletons.utils.ajax(options, successCallback, errorCallback);
     },
@@ -309,19 +309,22 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     searchTweets: function (parameters, successCallback, errorCallback) {
-      var key;
+      var key,
+        querystring = '';
       if (parameters) {
         for (key in parameters) {
           if (parameters.hasOwnProperty(key)) {
             parameters[key] = encodeURIComponent(parameters[key]);
+            querystring += key + '=' + parameters[key] + '&';
           }
         }
+        querystring = querystring.slice(0, querystring.lastIndexOf('&'));
       }
       var data = {
-        url: 'https://search.twitter.com/search.json',
+        url: 'https://search.twitter.com/search.json' + '?' + querystring,
         type: 'GET',
         header: '',
-        parameters: parameters
+        parameters: ''
       };
       this.sendTwitterRequest(data, successCallback, errorCallback);
     },
@@ -639,7 +642,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
                 fromUser: tweet.from_user,
                 likeCount: 0,
                 text: tweet.text,
-                picUrl: tweet.profile_image_url
+                picUrl: tweet.profile_image_url,
+                serviceName:"twitter"
               });
               sbwObject.push(sbwTweetObject);
             }

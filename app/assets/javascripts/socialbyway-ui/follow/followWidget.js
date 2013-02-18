@@ -36,22 +36,22 @@
 				'class' : 'follow-button'
 			}), followCountContainer = $("<div />", {
 				'class' : 'count-container'
-			}).text('nil'), minAngle = 360 / this.options.services.length;
+			}).text('0'), minAngle = 360 / this.options.services.length;
 
-			this.serviceCount = {};
+			self.serviceCount = {};
 
 			$.each(this.options.services, function(index, service) {
 				var serviceContainer = self.createServiceElement(service, serviceDiv, (minAngle * index), self);
 				serviceFollowCountContainer = $("<div />", {
 					'class' : service + '-count service-count-container'
-				}).text('nil').appendTo(serviceContainer);
+				}).text('0').appendTo(serviceContainer);
 
 				SBW.Singletons.serviceFactory.getService(service).checkUserLoggedIn(function(isLoggedIn) {
 					if (isLoggedIn) {
 						SBW.Singletons.serviceFactory.getService(service).getFollowCount(self.options.userDetails[service], function(response) {
 							if (response && response.count) {
 								self.count += response.count;
-								this.serviceCount[service] = response.count;
+								self.serviceCount[service] = response.count;
 								serviceFollowCountContainer.text(response.count);
 								followCountContainer.text(self.count);
 							}

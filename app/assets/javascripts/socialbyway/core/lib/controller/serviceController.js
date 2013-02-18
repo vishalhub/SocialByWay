@@ -136,12 +136,12 @@
 			 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~publishMessage-errorCallback Callback} to be executed on message publishing error
 			 * @example
 			 * Usage:
-			 * SBW.Singletons.serviceFactory.getService("controller")
-			 *             .publishMessage(['Facebook','Flickr'], "Sample Message", function(response) {
-			 *              // Success callback logic...
-			 *             }, function(response) {
-			 *              // Error callback logic...
-			 *            });
+			 * SBW.api
+			 *        .publishMessage(['Facebook','Flickr'], "Sample Message", function(response) {
+			 *        // Success callback logic...
+			 *        }, function(response) {
+			 *         // Error callback logic...
+			 *        });
 			 */
 			publishMessage : function(serviceArr, message, successCallback, errorCallback) {
 				if (!( serviceArr instanceof Array)) {
@@ -754,7 +754,7 @@
 			 * @param {Function} errorCallback  Callback to be executed on post uploading error.
 			 * @example
 			 * Usage:
-			 *   SBW.Singletons.serviceFactory.getService("controller")
+			 *   SBW.api
 			 *        .postUpload(['Facebook','Twitter'], , function(response) {
 			 *          // Success callback logic..
 			 *    }, function(response) {

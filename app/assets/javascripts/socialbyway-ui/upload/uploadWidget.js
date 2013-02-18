@@ -161,15 +161,15 @@
         });
         if (self.options.display === 'stand-alone') {
           if ($(self.$tabs).children('.selected').html() === self.$imageTab.html()) {
-            SBW.Singletons.serviceFactory.getService("controller").uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
+            SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
           } else {
-            SBW.Singletons.serviceFactory.getService("controller").uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
+            SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
           }
         } else {
           if (self.options.functionality === 'image') {
-            SBW.Singletons.serviceFactory.getService("controller").uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
+            SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
           } else {
-            SBW.Singletons.serviceFactory.getService("controller").uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
+            SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
           }
         }
       }

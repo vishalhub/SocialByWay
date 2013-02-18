@@ -72,7 +72,7 @@
           if (response[i].fromUrl) {
             picSuccessCallback(response[i].fromUrl);
           } else {
-            SBW.Singletons.serviceFactory.getService("controller").getProfilePic(service, userId,
+            SBW.api.getProfilePic(service, userId,
               picSuccessCallback, picFailureCallback);
           }
         }
@@ -81,13 +81,13 @@
         alert('Some problem occurred while getting likes');
       };
       var likeSuccessCallback = function (response) {
-        SBW.Singletons.serviceFactory.getService("controller").getLikes(service, postId, likesSuccessCallback,
+        SBW.api.getLikes(service, postId, likesSuccessCallback,
           likesFailureCallback);
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.Singletons.serviceFactory.getService("controller").like(service, postId, likeSuccessCallback,
+      SBW.api.like(service, postId, likeSuccessCallback,
         likeFailureCallback);
     },
 
@@ -107,13 +107,13 @@
         alert('Some problem occurred while getting likes');
       };
       var likeSuccessCallback = function (response) {
-        SBW.Singletons.serviceFactory.getService("controller").getLikes(service, commentId, likesSuccessCallback,
+        SBW.api.getLikes(service, commentId, likesSuccessCallback,
           likesFailureCallback);
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.Singletons.serviceFactory.getService("controller").like(service, commentId, likeSuccessCallback,
+      SBW.api.like(service, commentId, likeSuccessCallback,
         likeFailureCallback);
     },
 

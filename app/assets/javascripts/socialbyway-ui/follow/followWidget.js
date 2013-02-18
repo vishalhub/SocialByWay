@@ -46,19 +46,18 @@
 					'class' : service + '-count service-count-container'
 				}).text('0').appendTo(serviceContainer);
 
-				SBW.Singletons.serviceFactory.getService(service).checkUserLoggedIn(function(isLoggedIn) {
-					if (isLoggedIn) {
-						SBW.Singletons.serviceFactory.getService(service).getFollowCount(self.options.userDetails[service], function(response) {
-							if (response && response.count) {
-								self.count += response.count;
-								self.serviceCount[service] = response.count;
-								serviceFollowCountContainer.text(response.count);
-								followCountContainer.text(self.count);
-							}
-						});
-					}
-				});
 			});
+			
+			SBW.api.getFollowCount(self.options.services, self.options.userDetails, function(response) {
+				  if (response && response.count) {
+					self.count += response.count;
+					self.serviceCount[response.serviceName] = response.count;
+					serviceDiv.find('.'+response.serviceName+"-count").text(response.count);
+					followCountContainer.text(self.count);
+				  }
+		    }, function (response) {
+            	SBW.logger.error("Could not get Follow count from " + response.serviceName);
+		    });
 
 			$(serviceDiv).append(followButton, followCountContainer);
 			$(containerDiv).append(serviceDiv);

@@ -89,12 +89,15 @@
           $(this).toggleClass('selected');
           $(this).siblings().toggleClass('selected');
         });
-        $(self.$checkBoxContainer).on('click', 'div.check-container input', function () {
+        $(self.$checkBoxContainer).on('click', 'div.check-container input', function (e) {
+          var that=this;
           self.service = this.value;
-          $(this).siblings('div.service-container').toggleClass('selected');
           if ($(this).is("input:checked")) {
+            e.preventDefault();
             var loginSuccessHandler = function (response) {
               var userId = (response === undefined) ? undefined : response.id, picSuccess, picFailure;
+              $(that).siblings('div.service-container').toggleClass('selected');
+              $(that).prop('checked', true);
               picSuccess = function (profilePicUrl) {
                 $(self.$checkBoxContainer).find('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
               };

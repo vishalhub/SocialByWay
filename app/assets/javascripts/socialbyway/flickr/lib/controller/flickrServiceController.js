@@ -324,51 +324,52 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param successCallback
    * @param errorCallback
    */
-  uploadPhoto: function (fileDataArray, successCallback, errorCallback) {
-    var service = this;
-      fileDataArray.forEach(function(fileData){
-         var apiKey = service.accessObject.consumerKey,
-          upload = function (fileData, successCallback, errorCallback) {
-            var message = {
-                action: service.flickrUploadApiUrl,
-                method: "POST",
-                parameters: {
-                  oauth_consumer_key: apiKey,
-                  oauth_token: service.accessObject.access_token,
-                  oauth_token_secret: service.accessObject.tokenSecret,
-                  oauth_callback: service.callbackUrl,
-                  title: fileData['title'],
-                  description: fileData['description'],
-                  is_public:1
-                }
-              },
-              url = service.signAndReturnUrl(service.flickrUploadApiUrl, message),
-              options = {
-                url: url,
-                type: 'POST',
-                dataType: 'xml',
-                processData: false,
-                fileType: 'photo'
-              };
-            var filedata = [
-              {oauth_consumer_key: apiKey, oauth_token: service.accessObject.access_token, photo: fileData['file'], title: fileData['title'], description: fileData['description'],is_public:1}
-            ];
-            SBW.Singletons.serviceFactory.getService("controller").fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
+  uploadPhoto: function (fileData, successCallback, errorCallback) {
+    if (fileData.length >= 1) {
+      fileData = fileData[0];
+    }
+    var service = this,
+      apiKey = service.accessObject.consumerKey,
+      upload = function (fileData, successCallback, errorCallback) {
+        var message = {
+            action: service.flickrUploadApiUrl,
+            method: "POST",
+            parameters: {
+              oauth_consumer_key: apiKey,
+              oauth_token: service.accessObject.access_token,
+              oauth_token_secret: service.accessObject.tokenSecret,
+              oauth_callback: service.callbackUrl,
+              title: fileData['title'],
+              description: fileData['description'],
+              is_public:1
+            }
           },
-          callback = (function (fileData, successCallback, errorCallback) {
-            return function (isLoggedIn) {
-              if (isLoggedIn) {
-                upload(fileData, successCallback, errorCallback);
-              } else {
-                service.startActionHandler(function () {
-                  upload(fileData, successCallback, errorCallback);
-                });
-              }
-            };
-          })(fileData, successCallback, errorCallback);
+          url = service.signAndReturnUrl(service.flickrUploadApiUrl, message),
+          options = {
+            url: url,
+            type: 'POST',
+            dataType: 'xml',
+            processData: false,
+            fileType: 'photo'
+          };
+        var filedata = [
+          {oauth_consumer_key: apiKey, oauth_token: service.accessObject.access_token, photo: fileData['file'], title: fileData['title'], description: fileData['description'],is_public:1}
+        ];
+        SBW.Singletons.serviceFactory.getService("controller").fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
+      },
+      callback = (function (fileData, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            upload(fileData, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              upload(fileData, successCallback, errorCallback);
+            });
+          }
+        };
+      })(fileData, successCallback, errorCallback);
 
-        service.checkUserLoggedIn(callback);
-    })
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
@@ -475,14 +476,12 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     var likeSuccess = function(response){
       var likesData = [];
       for (var i = 0; i < response.photo.person.length; i++) {
-        likesData[i] =  new SBW.Models.Like({
-          fromUser: response.photo.person[i].username,
-          fromId: response.photo.person[i].nsid,
-          rawData:response.photo.person[i]
-        });
+        likesData[i] = {
+          "fromName": response.photo.person[i].username,
+          "fromId": response.photo.person[i].nsid
+        };
       }
-      var likesObject = {likes : likesData, like_count :likesData.length, rawData: response}
-      successCallback(likesObject);
+      successCallback(likesData);
     };
     SBW.Singletons.utils.ajax({
       url: url,

@@ -49,12 +49,12 @@
     var image = 'image.jpg';
     var userId ='90090088@N04';
     var galleryId = '90057949-72157632690477181';
-    var photoId = '8443995831';
+    var photoId = '8220512690';
     var title = 'dummy title';
     var description = 'dummy description';
     var metadata = { 'title':title,'description':description,'location':'','file':data[0] };
         console.log(metadata);
-    SBW.Singletons.serviceFactory.getService('flickr').getPhotos(successCallback,failureCallback);
+    SBW.Singletons.serviceFactory.getService('flickr').uploadPhoto( [metadata],successCallback,failureCallback);
     var commentBox = document.getElementsByClassName('post-box');
     for (var j = 0; j < commentBox.length; j++) {
     commentBox[j].addEventListener('focus', function (e) {

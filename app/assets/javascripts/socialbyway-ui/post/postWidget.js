@@ -37,11 +37,13 @@
       self.$containerDiv = $('<div/>').addClass('tab-1 sbw-post-container');
       self.$photocontainerDiv = $('<div/>').addClass('tab-2 hide').UploadWidget({
         display: 'embedded',
-        functionality: 'image'
+        functionality: 'image',
+        services:self.options.services
       });
       self.$videocontainerDiv = $('<div/>').addClass('tab-3 hide').UploadWidget({
         display: 'embedded',
-        functionality: 'video'
+        functionality: 'video',
+        services:self.options.services
       });
       self.$postTabDiv.append(self.$containerDiv);
       self.$postTabDiv.append(self.$photocontainerDiv);

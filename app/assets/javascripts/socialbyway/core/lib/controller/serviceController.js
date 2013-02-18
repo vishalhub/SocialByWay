@@ -96,7 +96,7 @@
 		 * @param {Object} userObject  Object of logged in user
 		 */
 		populateUserInformation: function (userObject) {
-			this.set(user, userObject);
+			this.user = userObject;
 		},
 		/**
 		 * @method
@@ -167,7 +167,6 @@
 				user.set('name', unescape(user.get('name')));
 			}
 			this.set('user', user);
-
 		},
 		/**
 		 * @method
@@ -370,10 +369,11 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~getFollowCount-successCallback Callback} to be executed on successful retrieval of follow count.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getFollowCount-errorCallback Callback} to be executed on error while retrieving follow count.
 		 */
-		getFollowCount: function(serviceArr, options, successCallback, errorCallback) {
+		getFollowCount: function (serviceArr, options, successCallback, errorCallback) {
 			var serviceFactory = SBW.Singletons.serviceFactory;
-			if(serviceArr instanceof Array) {
-				serviceArr.forEach(function(value, index, serviceArr) { /*TODO - Check for method implementation in service being called*/
+			if (serviceArr instanceof Array) {
+				serviceArr.forEach(function (value, index, serviceArr) { 
+					/*TODO - Check for method implementation in service being called*/
 					//if(serviceFactory.getService(value).hasOwnProperty('getFollowCount')) {
 					serviceFactory.getService(value).getFollowCount(options[value], successCallback, errorCallback);
 					//}                  

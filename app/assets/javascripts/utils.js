@@ -100,7 +100,7 @@
 					data : options.data,
           cache : options.cache,
 					contentType : options.contentType,
-					processData : (options.processData === undefined ? true : false),
+					processData : options.processData,
 					crossDomain : options.crossDomain || true,
 					type : options.type || 'GET',
 					dataType : options.dataType,

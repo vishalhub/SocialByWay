@@ -1,5 +1,6 @@
 .sbw-upload-widget-default{
-  width:645px;
+  min-width:600px;
+  max-width:700px ;
   textarea{
     resize:none;
     -webkit-appearance: none;
@@ -58,7 +59,7 @@
   }
   .media-container{
       height: 18em;
-      padding: 0 0 8px 8px;
+      padding: 10px;
       background: #F8F8F8;
       border: 1px solid #c3c3c3;
    }

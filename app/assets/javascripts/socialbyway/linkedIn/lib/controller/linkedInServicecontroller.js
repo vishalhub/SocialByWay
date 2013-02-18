@@ -555,10 +555,12 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
       IN.API.Raw()
         .url(url)
         .result(function (result) {
-          successCallback({count: result.numFollowers});
+          successCallback({count: result.numFollowers, serviceName: 'linkedin'});
         })
         .error(function (error) {
-          errorCallback(error);
+          errorCallback(new SBW.Models.Error({
+            serviceName : 'linkedin'
+          }));
         });
     } else {
       setTimeout(function () {

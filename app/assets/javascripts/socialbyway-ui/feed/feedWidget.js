@@ -80,12 +80,14 @@
       }, successCallback, failureCallback);
       self.$checkBoxesDiv.insertAfter(self.$input);
       self.$postBtn.on("click", this, this._addPost);
-      self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
+      self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function (e) {
         var that = this,
           value = that.value;
         if ($(that).is(":checked")) {
-          self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
+          e.preventDefault();
           self.serviceFactory.getService(value).startActionHandler(function () {
+            $(that).prop('checked', true);
+            self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
             SBW.api.getProfilePic([value], null, function (response) {
               if (response) {
                 self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');

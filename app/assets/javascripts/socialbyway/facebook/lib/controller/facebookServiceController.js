@@ -125,7 +125,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           // the user isn't even logged in to Facebook.
           FB.login(function (response) {
             if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
-              service.getAccessToken.call(service, response, callback);
+              service.user = service.user || new SBW.Models.User();
+              service.getAccessToken.call(service, response, function (response) {
+                service.user.name = response.name;
+                service.user.id = response.id;
+                service.getProfilePic(null, function (response) {
+                  service.user.userImage = response;
+                }, function (error) {
+                  SBW.logger.debug("Could not fetch image url");
+                });
+                callback();
+              });
             } else {
 
               service.isUserLoggingIn = false;
@@ -216,7 +226,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             if (successCallback) {
               successCallback({
                 id: response.id,
-                serviceName:"facebook"
+                serviceName: "facebook"
               }, response);
             }
           } else {
@@ -752,7 +762,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   likeCount: result[i].like_count,
                   text: result[i].message,
                   rawData: result[i],
-                  serviceName:"facebook"
+                  serviceName: "facebook"
                 });
               }
               successCallback(commentsData);
@@ -1024,12 +1034,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   _uploadMedia: function (fileData, successCallback, errorCallback, context) {
     var service = this,
       upload = function (fileData, successCallback, errorCallback, context) {
-        var url = service.apiUrl + '/me/'+context+'?access_token=' + service.accessObject['token'];
+        var url = service.apiUrl + '/me/' + context + '?access_token=' + service.accessObject['token'];
         var options = {
           url: url,
           type: 'POST',
           dataType: 'json',
-          contentType:false
+          contentType: false
         };
         SBW.api.fileUpload('facebook', fileData, options, successCallback, errorCallback);
       },
@@ -1059,7 +1069,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
       callBack = successCallback;
     response.forEach(function (value) {
       if (value && !value.error) {
-        uploadStatus.push( new SBW.Models.UploadStatus({
+        uploadStatus.push(new SBW.Models.UploadStatus({
           id: value.id,
           postId: value.post_id,
           serviceName: 'facebook',
@@ -1148,7 +1158,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               text: value['message'],
               picUrl: picResponse,
               rawData: value,
-              serviceName:"facebook"
+              serviceName: "facebook"
             });
             data[index] = (temp);
             i++;
@@ -1162,7 +1172,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               likeCount: value['like_count'],
               text: value['message'],
               rawData: value,
-              serviceName:"facebook"
+              serviceName: "facebook"
             });
             data[index] = (temp);
             i++;

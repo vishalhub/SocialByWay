@@ -456,7 +456,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @desc Likes an object on facebook through FB API service
-   * @param {String} objectId of the object to be liked.
+   * @param {String} Id of the object to be liked.
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
@@ -667,13 +667,16 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                 rawData: response[i]
               });
             }
-            var likesObject = {
+            var likesObject = new SBW.Models.Asset({
+              type: '',
+              id: objectId,
               serviceName: 'facebook',
               rawData: response,
-              likes: likesData,
-              likeCount: likesData.length
-            };
-            // Todo Populating the asset object with the like and user objects
+              metaData: {
+                likes: likesData,
+                likeCount: likesData.length
+              }
+            })
             successCallback(likesObject);
           };
           if (isLoggedIn) {

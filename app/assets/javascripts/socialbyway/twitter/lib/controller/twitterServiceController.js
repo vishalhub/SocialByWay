@@ -215,7 +215,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         data: data.parameters || '',
         customHeaders: headers,
         contentType: data.contentType,
-        processData: data.processData
+        processData: (data.processData === false) ? false : true
       };
       SBW.Singletons.utils.ajax(options, successCallback, errorCallback);
     },
@@ -371,42 +371,19 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     /**
      * @method
      * @desc Function to get a post corresponding to an id.
-     * @param {String} objectId Id of the object.
+     * @param {Object} parameters An object that contains the parameters for the request.
      * @param {callback} successCallback Function to be executed in case of success response from twitter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
-    getLikes: function (objectId, successCallback, errorCallback) {
-      var service = this;
-      var likes = function (objectId, successCallback, errorCallback) {
-        service.getPost({id: objectId}, function (response) {
-          if(response) {
-            var jsonResponse = JSON.parse(response);
-            var likesObject = {
-              serviceName: 'twitter',
-              likes: null,
-              likeCount:jsonResponse.favourites_count,
-              rawData: jsonResponse
-            };
-            // Todo Populating the asset object with the like and user objects
-            successCallback(likesObject);
-          } else {
-            errorCallback();
-          }
-        }, errorCallback());
-      };
-      var callback = (function (objectId, successCallback, errorCallback) {
-        return function (isLoggedIn) {
-          if (isLoggedIn) {
-            likes(objectId, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function () {
-              likes(objectId, successCallback, errorCallback);
-            });
-          }
-        };
-      })(objectId, successCallback, errorCallback);
-
-      service.checkUserLoggedIn(callback);
+    getLikes: function (id, successCallback, errorCallback) {
+      this.getPost({id: id}, function (response) {
+        if(response) {
+          var jsonResponse = JSON.parse(response);
+          (jsonResponse.favourites_count) ? successCallback(jsonResponse.favourites_count) : successCallback(0);
+        } else {
+          errorCallback();
+        }
+      }, errorCallback());
     },
     /**
      * @method
@@ -437,56 +414,43 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     /**
      * @method
      * @desc Function to post a tweet with an image on twitter.
-     * @param {Array} parameterArray An array that contains the parameters for the request.
+     * @param {Object} parameters An object that contains the parameters for the request.
+     * @param {Object} file The image file that must be posted.
      * @param {callback} successCallback Function to be executed in case of success response from twitter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     updateWithMedia: function (parameterArray, successCallback, errorCallback) {
-      var service = this;
-      parameterArray.forEach(function(parameters){
-        var formData = new FormData(), key;
-        var file = parameters.file;
-        delete parameters.file;
-        formData.append('media[]', file);
-        var requestParameters = [];
-        for (key in parameters) {
-          if (parameters.hasOwnProperty(key)) {
-            requestParameters.push([key, parameters[key]]);
-            formData.append(key, parameters[key]);
+      for(var parameters in parameterArray) {
+        if(parameterArray.hasOwnProperty(parameters)) {
+          var formData = new FormData(), key;
+          var file = parameters.file;
+          delete parameters.file;
+          formData.append('media[]', file);
+          var requestParameters = [];
+          for (key in parameters) {
+            if (parameters.hasOwnProperty(key)) {
+              requestParameters.push([key, parameters[key]]);
+              formData.append(key, parameters[key]);
+            }
           }
+          var message = {
+            action: 'https://api.twitter.com/1.1/statuses/update_with_media.json',
+            method: "POST",
+            parameters: requestParameters
+          };
+          var authorizationHeader = this.getAuthorizationHeader(message);
+          var queryString = OAuth.formEncode(parameters);
+          var data = {
+            url: 'https://api.twitter.com/1.1/statuses/update_with_media.json?' + queryString,
+            header: [authorizationHeader],
+            type: 'POST',
+            parameters: formData,
+            processData: false,
+            contentType: false
+          };
+          this.sendTwitterRequest(data, successCallback, errorCallback);
         }
-        var message = {
-          action: 'https://api.twitter.com/1.1/statuses/update_with_media.json',
-          method: "POST",
-          parameters: requestParameters
-        };
-        var authorizationHeader = service.getAuthorizationHeader(message);
-        var queryString = OAuth.formEncode(parameters);
-        var data = {
-          url: 'https://api.twitter.com/1.1/statuses/update_with_media.json?' + queryString,
-          header: [authorizationHeader],
-          type: 'POST',
-          parameters: formData,
-          processData: false,
-          contentType: false
-        };
-        var success = function(response){
-          var jsonResponse = JSON.parse(response);
-          console.log(jsonResponse);
-          var uploadStatus = new Array();
-          uploadStatus.push(new SBW.Models.UploadStatus({
-            id: jsonResponse.id,
-            serviceName: 'twitter',
-            status: 'success',
-            rawData: response
-          }));
-          successCallback(uploadStatus)
-        };
-        service.sendTwitterRequest(data, success, errorCallback);
-      })
-    },
-    uploadPhoto: function (parameterArray, successCallback, errorCallback) {
-      this.updateWithMedia(parameterArray, successCallback, errorCallback);
+      }
     },
     /**
      * @method
@@ -631,29 +595,13 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     /**
      * @method
      * @desc Function to favourite a twitter post.
-     * @param {Object} ObjectId Id of the object.
+     * @param {Object} parameters An object that contains the parameters for the request.
      * @param {callback} successCallback Function to be executed in case of success response from twitter. Contains a count object as parameter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
-    like: function (ObjectId, successCallback, errorCallback) {
-      var parameters ={id:ObjectId}
-      var service = this,
-        postLike = function (parameters, successCallback, errorCallback) {
-          var data = service.getDataForRequest(service.likeUrl, parameters, 'POST');
-          service.sendTwitterRequest(data, successCallback, errorCallback);
-        },
-        callback = (function (parameters, successCallback, errorCallback) {
-          return function (isLoggedIn) {
-            if (isLoggedIn) {
-              postLike(parameters, successCallback, errorCallback);
-            } else {
-              service.startActionHandler(function () {
-                postLike(parameters, successCallback, errorCallback);
-              });
-            }
-          };
-        })(parameters, successCallback, errorCallback);
-      service.checkUserLoggedIn(callback);
+    like: function (parameters, successCallback, errorCallback) {
+      var data = this.getDataForRequest(this.likeUrl, parameters, 'POST');
+      this.sendTwitterRequest(data, successCallback, errorCallback);
     },
     /**
      * @method

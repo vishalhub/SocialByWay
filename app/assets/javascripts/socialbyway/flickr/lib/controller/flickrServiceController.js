@@ -172,11 +172,6 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           service.accessObject.id = decodeURIComponent(jsonResp.user_nsid);
           service.accessObject.access_token = jsonResp.oauth_token;
           service.accessObject.tokenSecret = jsonResp.oauth_token_secret;
-          var user = new SBW.Models.User({
-            name:jsonResp.username,
-            id:decodeURIComponent(jsonResp.user_nsid)
-          });
-          service.populateUserInformation(user);
           callback(response);
         }
       });
@@ -480,22 +475,13 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     var likeSuccess = function(response){
       var likesData = [];
       for (var i = 0; i < response.photo.person.length; i++) {
-        var user = new SBW.Models.User({
-          name: response.photo.person[i].username,
-          id: response.photo.person[i].nsid
-        });
-        likesData[i] = new SBW.Models.Like({
-          user: user,
-          rawData: response.photo.person[i]
+        likesData[i] =  new SBW.Models.Like({
+          fromUser: response.photo.person[i].username,
+          fromId: response.photo.person[i].nsid,
+          rawData:response.photo.person[i]
         });
       }
-      var likesObject = {
-        serviceName: 'flickr',
-        likes: likesData,
-        likeCount: likesData.length,
-        rawData: response
-      }
-      // Todo Populating the asset object with the like and user objects
+      var likesObject = {likes : likesData, like_count :likesData.length, rawData: response}
       successCallback(likesObject);
     };
     SBW.Singletons.utils.ajax({

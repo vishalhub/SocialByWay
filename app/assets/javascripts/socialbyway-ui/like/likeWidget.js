@@ -16,7 +16,7 @@
       objectId: '100004207443785_161177570699157',
       service: 'facebook',
       theme: 'default',
-      objectType: 'POST',
+      objectType: 'Comment',
       displayImage: 'false'
     },
 
@@ -66,11 +66,11 @@
       var picFailureCallback = function () {
       };
       var likesSuccessCallback = function (response) {
-        for (var i = 0; i < response['likeCount']; i++) {
+        for (var i = 0; i < response['like_count']; i++) {
           self.$likeCountContainer.empty();
-          var userId = response['likes'][i]['user']['id'];
-          if (response['likes'][i]['user']['userImage']) {
-            picSuccessCallback(response['likes'][i]['user']['userImage']);
+          var userId = response['likes'][i]['fromId'];
+          if (response['likes'][i]['profilePic']) {
+            picSuccessCallback(response['likes'][i]['profilePic']);
           } else {
             SBW.Singletons.serviceFactory.getService("controller").getProfilePic(service, userId,
               picSuccessCallback, picFailureCallback);
@@ -100,7 +100,7 @@
       var commentId = self.options.objectId;
       var service = self.options.service;
       var likesSuccessCallback = function (response) {
-        var count = response['likeCount'];
+        var count = response['like_count'];
         self.$likeCountContainer.addClass('comment').html(count);
       };
       var likesFailureCallback = function () {

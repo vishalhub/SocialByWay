@@ -101,7 +101,7 @@
        * @param {Object} userObject  Object of logged in user
        */
       populateUserInformation:function(userObject){
-        this.set(user, userObject);
+        this.user = userObject;
       },
 			/**
 			 * @method

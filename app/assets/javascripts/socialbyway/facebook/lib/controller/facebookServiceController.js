@@ -456,7 +456,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @desc Likes an object on facebook through FB API service
-   * @param {String} Id of the object to be liked.
+   * @param {String} objectId of the object to be liked.
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
@@ -655,16 +655,27 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     var service = this,
       callback = (function (successCallback, errorCallback) {
         return function (isLoggedIn) {
-          var likeSuccess = function (result) {
-              var likesData = [];
-              for (var i = 0; i < result.length; i++) {
-                likesData[i] = {
-                  "fromName": result[i].name,
-                  "fromId": result[i].id
-                };
-              }
-              successCallback(likesData);
+          var likeSuccess = function (response) {
+            var likesData = [];
+            for (var i = 0; i < response.length; i++) {
+              var user = new SBW.Models.User({
+                name: response[i].name,
+                id: response[i].id
+              });
+              likesData[i] = new SBW.Models.Like({
+                user: user,
+                rawData: response[i]
+              });
+            }
+            var likesObject = {
+              serviceName: 'facebook',
+              rawData: response,
+              likes: likesData,
+              likeCount: likesData.length
             };
+            // Todo Populating the asset object with the like and user objects
+            successCallback(likesObject);
+          };
           if (isLoggedIn) {
             service._getAllData({
               type: 'likes',

@@ -43,7 +43,7 @@
         self.element.append(self.$widgetContainer);
 
         // Define content in the tab container...
-        self.$helpMessage = $("<p>").text("Select media from your computer for upload");
+        self.$helpMessage = $("<p>").text("Select media for upload");
         self.$browseButton = $('<input/>').attr("type", "file").html("Choose file");
         self.$mediaContainer = $('<div/>').addClass('media-container ');
         self.$mediaContainer.append(self.$helpMessage).append(self.$browseButton);
@@ -100,7 +100,7 @@
               };
               picFailure = function (error) {
               };
-              SBW.Singletons.serviceFactory.getService(self.service).getProfilePic(userId, picSuccess, picFailure);
+              SBW.api.getProfilePic(self.service,userId, picSuccess, picFailure);
             };
             self.authenticate(self.service, loginSuccessHandler);
           }

@@ -86,7 +86,7 @@
       self.$checkBoxesDiv.insertAfter(self.$input);
 
       self.$postBtn.on("click", this, this._addPost);
-      self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
+      self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function (e) {
         var that = this,
           value = that.value;
         if ($(that).is(":checked")) {

@@ -415,7 +415,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getPosts: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var updates = function (successCallback, errorCallback) {
       IN.API.MemberUpdates(userId)
         .result(function (result) {
@@ -449,7 +449,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getRecentPostId: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var updates = function (successCallback, errorCallback) {
       IN.API.MemberUpdates(userId)
         .result(function (result) {
@@ -605,7 +605,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getProfile: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var profile = function (successCallback, errorCallback) {
       IN.API.Profile(userId)
         .fields(["id", "firstName", "lastName", "pictureUrl"])
@@ -641,14 +641,13 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var profilePic = function (successCallback, errorCallback) {
       IN.API.Profile(userId)
         .fields(["pictureUrl"])
         .result(function (result) {
           var profile = result.values[0];
-          var profileData = {"photoUrl": profile.pictureUrl };
-          successCallback(profileData);
+          successCallback(profile.pictureUrl);
         })
         .error(function (error) {
           errorCallback(error);

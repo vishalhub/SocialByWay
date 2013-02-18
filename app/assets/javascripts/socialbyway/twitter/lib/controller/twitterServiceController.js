@@ -523,12 +523,31 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     getFollowCount: function (name, successCallback, errorCallback) {
-      this.getProfile({screen_name: name}, function (response) {
-        if (typeof response === 'string') {
-          response = JSON.parse(response);
-        }
-        successCallback({count: response['followers_count']});
-      }, errorCallback);
+      var service = this,
+        getFollowCountCallback = function (name, successCallback, errorCallback) {
+          service.getProfile({screen_name: name}, function (response) {
+            if (typeof response === 'string') {
+              response = JSON.parse(response);
+            }
+            successCallback({count: response['followers_count'], serviceName: 'twitter'});
+          }, function(error){
+            errorCallback(new SBW.Models.Error({
+              serviceName: 'twitter'
+            }));
+          }); 
+        },
+        callback = (function (name, successCallback, errorCallback) {
+          return function (isLoggedIn) {
+            if (isLoggedIn) {
+              getFollowCountCallback(name, successCallback, errorCallback);
+            } else {
+              service.startActionHandler(function () {
+                getFollowCountCallback(name, successCallback, errorCallback);
+              });
+            }
+          };
+        })(name, successCallback, errorCallback);
+      service.checkUserLoggedIn(callback);
     },
     /**
      * @method

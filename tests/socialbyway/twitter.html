@@ -16,7 +16,7 @@
             console.log('Like widget is: ',$('.like-widget-container'));
             SBW.init('../config/test-config.json', function() {
                 //$('.like-widget-container').ShareWidget({url: 'http://google.co.in'});
-                $('.like-widget-container').FollowWidget({userDetails: {twitter: 'ndtv'}});
+                $('.like-widget-container').FollowWidget({userDetails: {'twitter': 'socialbyway','linkedin':'13084'}, services: ['twitter', 'linkedin']});
             });
 
            // $('.follow-widget-container').FollowWidget({networks: {twitter: 'timesofindia'}});

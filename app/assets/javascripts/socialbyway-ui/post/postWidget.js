@@ -37,11 +37,13 @@
       self.$containerDiv = $('<div/>').addClass('tab-1 sbw-post-container');
       self.$photocontainerDiv = $('<div/>').addClass('tab-2 hide').UploadWidget({
         display: 'embedded',
-        functionality: 'image'
+        functionality: 'image',
+        services: self.options.services
       });
       self.$videocontainerDiv = $('<div/>').addClass('tab-3 hide').UploadWidget({
         display: 'embedded',
-        functionality: 'video'
+        functionality: 'video',
+        services: self.options.services
       });
       self.$postTabDiv.append(self.$containerDiv);
       self.$postTabDiv.append(self.$photocontainerDiv);
@@ -85,17 +87,18 @@
 
       self.$postBtn.on("click", this, this._addPost);
       self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function () {
-        var value = this.value;
-        if ($(this).is(":checked")) {
-          self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
+        var that = this,
+          value = that.value;
+        if ($(that).is(":checked")) {
+          e.preventDefault();
           self.serviceFactory.getService(value).startActionHandler(function () {
+            $(that).prop('checked', true);
+            self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
             SBW.api.getProfilePic([value], null, function (response) {
               if (response) {
                 self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
               }
-            }, function (error) {
-
-            });
+            }, function (error) {});
           });
         } else {
           self.$checkBoxesDiv.find(".service-container." + value).removeClass('selected');

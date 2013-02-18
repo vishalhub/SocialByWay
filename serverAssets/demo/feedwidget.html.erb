@@ -8,14 +8,14 @@
     <script type="text/javascript" src="../js/<%= @sbwuiminjs %>"></script>
 </head>
 <body>
-<!-- Define the parent element on which the upload widget must be initialized. -->
-<div id="upload-widget"></div>
+<!-- Define the parent element on which the feed widget must be initialized. -->
+<div id="feed-widget"></div>
 <script type='text/javascript'>
     $(function(){
         /* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
         SBW.init('../config/config.json', function () {
-          /* Initialize upload widget in the callback. */
-          $('#upload-widget').UploadWidget();
+          /* Initialize feed widget in the callback. */
+          $('#feed-widget').FeedWidget({id:"http://socialbyway.com"});
         });
     });
 </script>

@@ -9,7 +9,7 @@
 			SBW.Singletons.utils = new SBW.Utils();
 
 			if (SBW.Singletons.utils.isType(url, String) && SBW.Singletons.utils.isType(callback, Function)) {
-				SBW.Singletons.serviceFactory.registerService('controller', SBW.Controllers.Services.ServiceController);
+				SBW.api = new SBW.Controllers.Services.ServiceController();
 				SBW.Singletons.utils.ajax({
 					url : url,
 					dataType : 'json'

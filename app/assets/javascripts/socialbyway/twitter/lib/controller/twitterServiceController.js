@@ -49,6 +49,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       this.requestTokenUrl = "http://api.twitter.com/oauth/request_token";
       this.authorizeUrl = "http://api.twitter.com/oauth/authorize";
       this.accessTokenUrl = "http://api.twitter.com/oauth/access_token";
+      this.getPostUrl = "https://api.twitter.com/1.1/statuses/show/";
       this.accessObject = {
         consumerKey: SBW.Singletons.config.services.Twitter.consumerKey,
         consumerSecret: SBW.Singletons.config.services.Twitter.consumerSecret,
@@ -214,7 +215,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         data: data.parameters || '',
         customHeaders: headers,
         contentType: data.contentType,
-        processData: (data.processData === false) ? false : true
+        processData: data.processData
       };
       SBW.Singletons.utils.ajax(options, successCallback, errorCallback);
     },
@@ -308,19 +309,22 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     searchTweets: function (parameters, successCallback, errorCallback) {
-      var key;
+      var key,
+        querystring = '';
       if (parameters) {
         for (key in parameters) {
           if (parameters.hasOwnProperty(key)) {
             parameters[key] = encodeURIComponent(parameters[key]);
+            querystring += key + '=' + parameters[key] + '&';
           }
         }
+        querystring = querystring.slice(0, querystring.lastIndexOf('&'));
       }
       var data = {
-        url: 'https://search.twitter.com/search.json',
+        url: 'https://search.twitter.com/search.json' + '?' + querystring,
         type: 'GET',
         header: '',
-        parameters: parameters
+        parameters: ''
       };
       this.sendTwitterRequest(data, successCallback, errorCallback);
     },
@@ -369,6 +373,38 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     },
     /**
      * @method
+     * @desc Function to get a post corresponding to an id.
+     * @param {Object} parameters An object that contains the parameters for the request.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter.
+     */
+    getLikes: function (id, successCallback, errorCallback) {
+      this.getPost({id: id}, function (response) {
+        if(response) {
+          var jsonResponse = JSON.parse(response);
+          (jsonResponse.favourites_count) ? successCallback(jsonResponse.favourites_count) : successCallback(0);
+        } else {
+          errorCallback();
+        }
+      }, errorCallback());
+    },
+    /**
+     * @method
+     * @desc Function to get a post corresponding to an id.
+     * @param {Object} parameters An object that contains the parameters for the request.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter.
+     */
+    getPost: function (parameters, successCallback, errorCallback) {
+      if(parameters.id) {
+        var data = this.getDataForRequest(this.getPostUrl + parameters.id + '.json', parameters, 'GET');
+        this.sendTwitterRequest(data, successCallback, errorCallback);
+      } else {
+        errorCallback(null);
+      }
+    },
+    /**
+     * @method
      * @desc Function to post a tweet on twitter.
      * @param {Object} parameters An object that contains the parameters for the request.
      * @param {callback} successcallback Function to be executed in case of success response from twitter.
@@ -386,32 +422,38 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} successCallback Function to be executed in case of success response from twitter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
-    updateWithMedia: function (parameters, file, successCallback, errorCallback) {
-      var formData = new FormData(), key;
-      formData.append('media[]', file);
-      var requestParameters = [];
-      for (key in parameters) {
-        if (parameters.hasOwnProperty(key)) {
-          requestParameters.push([key, parameters[key]]);
-          formData.append(key, parameters[key]);
+    updateWithMedia: function (parameterArray, successCallback, errorCallback) {
+      for(var parameters in parameterArray) {
+        if(parameterArray.hasOwnProperty(parameters)) {
+          var formData = new FormData(), key;
+          var file = parameters.file;
+          delete parameters.file;
+          formData.append('media[]', file);
+          var requestParameters = [];
+          for (key in parameters) {
+            if (parameters.hasOwnProperty(key)) {
+              requestParameters.push([key, parameters[key]]);
+              formData.append(key, parameters[key]);
+            }
+          }
+          var message = {
+            action: 'https://api.twitter.com/1.1/statuses/update_with_media.json',
+            method: "POST",
+            parameters: requestParameters
+          };
+          var authorizationHeader = this.getAuthorizationHeader(message);
+          var queryString = OAuth.formEncode(parameters);
+          var data = {
+            url: 'https://api.twitter.com/1.1/statuses/update_with_media.json?' + queryString,
+            header: [authorizationHeader],
+            type: 'POST',
+            parameters: formData,
+            processData: false,
+            contentType: false
+          };
+          this.sendTwitterRequest(data, successCallback, errorCallback);
         }
       }
-      var message = {
-        action: 'https://api.twitter.com/1.1/statuses/update_with_media.json',
-        method: "POST",
-        parameters: requestParameters
-      };
-      var authorizationHeader = this.getAuthorizationHeader(message);
-      var queryString = OAuth.formEncode(parameters);
-      var data = {
-        url: 'https://api.twitter.com/1.1/statuses/update_with_media.json?' + queryString,
-        header: [authorizationHeader],
-        type: 'POST',
-        parameters: formData,
-        processData: false,
-        contentType: false
-      };
-      this.sendTwitterRequest(data, successCallback, errorCallback);
     },
     /**
      * @method
@@ -600,7 +642,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
                 fromUser: tweet.from_user,
                 likeCount: 0,
                 text: tweet.text,
-                picUrl: tweet.profile_image_url
+                picUrl: tweet.profile_image_url,
+                serviceName:"twitter"
               });
               sbwObject.push(sbwTweetObject);
             }

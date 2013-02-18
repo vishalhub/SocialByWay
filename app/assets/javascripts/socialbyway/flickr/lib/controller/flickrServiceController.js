@@ -321,7 +321,6 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * Flickr supports JPEGs, non-animated GIFs, and PNGs. Any other  format is automatically converted to and stored in JPEG format.
    * additional help for photo upload refer to URL: http://www.flickr.com/help/photos/
    * @param fileData
-   * @param {Object} metadata
    * @param successCallback
    * @param errorCallback
    */
@@ -341,7 +340,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               oauth_token_secret: service.accessObject.tokenSecret,
               oauth_callback: service.callbackUrl,
               title: fileData['title'],
-              description: fileData['description']
+              description: fileData['description'],
+              is_public:1
             }
           },
           url = service.signAndReturnUrl(service.flickrUploadApiUrl, message),
@@ -353,9 +353,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
             fileType: 'photo'
           };
         var filedata = [
-          {oauth_consumer_key: apiKey, oauth_token: service.accessObject.access_token, photo: fileData['file'], title: fileData['title'], description: fileData['description']}
+          {oauth_consumer_key: apiKey, oauth_token: service.accessObject.access_token, photo: fileData['file'], title: fileData['title'], description: fileData['description'],is_public:1}
         ];
-        SBW.Singletons.serviceFactory.getService("controller").fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
+        SBW.api.fileUpload(['flickr'], filedata, options, successCallback, errorCallback);
       },
       callback = (function (fileData, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -445,6 +445,50 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       dataType: "json"
     },
       successCallback,
+      errorCallback
+    );
+  },
+
+  /**
+  * @method
+  * @desc To get likes(favorites) for the photo given through flickr API service
+  * The method doesn't require any authentication
+  * @param {String} photoId
+  * @param {Callback} successCallback
+  * @param {Callback} errorCallback
+  */
+  getLikes: function (photoId, successCallback, errorCallback) {
+    var service = this;
+    var apiKey = service.accessObject.consumerKey;
+    var message = {
+      action: service.flickrApiUrl,
+      method: "GET",
+      parameters: {
+        method: 'flickr.photos.getFavorites',
+        perms: 'write',
+        format: 'json',
+        photo_id: photoId,
+        api_key: apiKey,
+        nojsoncallback: 1
+      }
+    };
+    var url = service.signAndReturnUrl(service.flickrApiUrl, message);
+    var likeSuccess = function(response){
+      var likesData = [];
+      for (var i = 0; i < response.photo.person.length; i++) {
+        likesData[i] = {
+          "fromName": response.photo.person[i].username,
+          "fromId": response.photo.person[i].nsid
+        };
+      }
+      successCallback(likesData);
+    };
+    SBW.Singletons.utils.ajax({
+      url: url,
+      type: 'GET',
+      dataType: "json"
+    },
+      likeSuccess,
       errorCallback
     );
   },

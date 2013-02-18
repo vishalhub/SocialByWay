@@ -234,7 +234,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
                   successCallback(uploadStatus);
                 }
               }, function () {
-                uploadStatus.push(new SBW.Models.ErrorObject({
+                uploadStatus.push(new SBW.Models.Error({
                   serviceName: 'picasa',
                   rawData: value
                 }));
@@ -263,6 +263,17 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
 
     service.checkUserLoggedIn(callback);
   },
+  /**
+   * @method
+   * @desc Upload video to the user's dropbox album.
+   * @param  {SBW.Models.UploadFileMetaData} mediaData Object containing media's file object and other metadata.
+   * @param  {Callback} successCallback {@link SBW.Controllers.Services.ServiceController~uploadVideo-successCallback Callback} to be executed on successful video upload.
+   * @param  {Callback} errorCallback {@link SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} to be executed on video upload error.
+  */
+ uploadVideo: function (mediaData, successCallback, errorCallback) {
+  var service = this;
+  service.uploadPhoto(mediaData, successCallback, errorCallback);
+ },
 
   /**
      * @method

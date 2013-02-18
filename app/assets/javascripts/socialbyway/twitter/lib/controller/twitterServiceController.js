@@ -364,12 +364,19 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @method
      * @desc Function to post a string on twitter.
      * @param {String} message The string that has to be posted on twitter.
-     * @param {callback} successcallback Function to be executed in case of success response from twitter.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
-    publishMessage: function (message, successcallback, errorCallback) {
-      var requestParameters = {status: message};
-      this.post(requestParameters, successcallback, errorCallback);
+    publishMessage: function (message, successCallback, errorCallback) {
+      var service = this,
+        requestParameters = {status: message};
+      service.post(requestParameters, function (response) {
+        var jsonResponse = $.parseJSON(response);
+        successCallback({
+          id: jsonResponse.id,
+          serviceName: "twitter"
+        }, response);
+      }, errorCallback);
     },
     /**
      * @method
@@ -488,7 +495,24 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         service.sendTwitterRequest(data, success, errorCallback);
       })
     },
+     /**
+     * @method
+     * @desc Function to post a tweet with an image on twitter.
+     * @param {Array} parameterArray An array that contains the parameters for the request.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter.
+     */
     uploadPhoto: function (parameterArray, successCallback, errorCallback) {
+      this.updateWithMedia(parameterArray, successCallback, errorCallback);
+    },
+     /**
+     * @method
+     * @desc Function to post a tweet with an image on twitter.
+     * @param {Array} parameterArray An array that contains the parameters for the request.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter.
+     */
+    uploadVideo: function (parameterArray, successCallback, errorCallback) {
       this.updateWithMedia(parameterArray, successCallback, errorCallback);
     },
     /**

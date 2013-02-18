@@ -361,7 +361,7 @@
 		 * @callback SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback
 		 * @param {SBW.Models.Error} response JSON response from the service
 		 **/
-		 /**
+		/**
 		 * @method
 		 * @desc Retrieves follow count for the user from the service
 		 * @param {String[]} serviceArr An array of registered services.
@@ -372,8 +372,7 @@
 		getFollowCount: function (serviceArr, options, successCallback, errorCallback) {
 			var serviceFactory = SBW.Singletons.serviceFactory;
 			if (serviceArr instanceof Array) {
-				serviceArr.forEach(function (value, index, serviceArr) { 
-					/*TODO - Check for method implementation in service being called*/
+				serviceArr.forEach(function (value, index, serviceArr) { /*TODO - Check for method implementation in service being called*/
 					//if(serviceFactory.getService(value).hasOwnProperty('getFollowCount')) {
 					serviceFactory.getService(value).getFollowCount(options[value], successCallback, errorCallback);
 					//}                  
@@ -645,7 +644,14 @@
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} to be executed on video upload error.
 		 */
 		uploadVideo: function (serviceName, fileData, successCallback, errorCallback) {
-			SBW.Singletons.serviceFactory.getService(serviceName).uploadVideo(fileData, successCallback, errorCallback);
+			if (!(serviceArr instanceof Array)) {
+				serviceArr = [];
+			} // create an empty array if not passed
+			var returnValue = {};
+			serviceArr.forEach(function (data, index, serviceArr) {
+				returnValue[data] = SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
+			});
+			return returnValue;		
 		},
 		/**
 		 * This callback is displayed as part of the uploadVideo method.

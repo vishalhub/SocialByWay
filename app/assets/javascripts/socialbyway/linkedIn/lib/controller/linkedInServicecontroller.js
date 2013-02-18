@@ -131,7 +131,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
         .method("PUT")
         .body(JSON.stringify(message))
         .result(function (result) {
-          successCallback({id: "n/a", service: "LinkedIn"}, result);
+          successCallback({id: "n/a", serviceName: "linkedin"}, result);
         })
         .error(function (error) {
           errorCallback(error);

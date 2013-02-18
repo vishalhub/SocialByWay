@@ -6,17 +6,17 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
     <script type="text/javascript" src="../../app/assets/javascripts/socialbyway-ui/like/likeWidget.js"></script>
-    <script type="text/javascript" src="../../app/assets/javascripts/socialbyway-ui/like/pageLikeWidget.js"></script>
+    <!--<script type="text/javascript" src="../../app/assets/javascripts/socialbyway-ui/like/pageLikeWidget.js"></script>-->
 </head>
 <body>
 <p> like widget implementation </p>
 <div id="like-widget"></div>
-<div id="like-widget2"></div>
+<!--<div id="like-widget2"></div>-->
 <script type='text/javascript'>
     $(document).ready(function () {
         SBW.init('../config/test-config.json', function () {
             $("#like-widget").LikeWidget();
-            $("#like-widget2").PageLikeWidget();
+//            $("#like-widget2").PageLikeWidget();
         });
     });
 </script>

@@ -40,26 +40,18 @@
     _create: function () {
       var self = this;
       var theme = self.options.theme;
-      var containerDiv = $("<div />", {
-        'class': 'sbw-widget sbw-pageLike-widget-' + theme
-      });
-      var serviceDiv = $("<div />", {
-        'class': 'service-container'
-      });
-      var likeButton = $('<span />', {
-        'class': 'like-button'
-      });
-      self.likeCountContainer = $("<div />", {
-        'class': 'count-container'
-      });
+      var containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
+      var $serviceContainer = $('<div />').addClass('service-container');
+      var $likeButton = $('<span />').addClass( 'like-button');
+      self.$likeCountContainer = $("<span />").addClass('count-container');
       var minAngle = 360 / this.options.services.length;
       $.each(this.options.services, function (index, service) {
-        var serviceContainer = self.createServiceElement(service.serviceName, serviceDiv, (minAngle * index), self);
+        var serviceView = self.createServiceElement(service.serviceName, $serviceContainer, (minAngle * index), self);
       });
-      $(serviceDiv).append(likeButton, self.likeCountContainer);
-      $(containerDiv).append(serviceDiv);
+      $($serviceContainer).append($likeButton, self.$likeCountContainer);
+      $(containerDiv).append($serviceContainer);
       $(self.element).append(containerDiv);
-      serviceDiv.children('div').hide();
+      $serviceContainer.children('div').hide();
       $(containerDiv).hover(self.showServices, self.hideServices);
     },
     /**
@@ -89,7 +81,7 @@
      * @method
      * @desc Function to show services on mouse hover.
      */
-    showServices: function (e) {
+    showServices: function () {
       var self = this;
       $(self).find('.count-container').hide();
       $(self).find('.service-container div').show();
@@ -125,21 +117,21 @@
       }
       var likesSuccessCallback = function (response) {
         var count = response.length;
-        var serviceLikeCountContainer = $("<div />").addClass('service-count-container').html(count).appendTo(sourceElement);
+        var serviceLikeCountContainer = $("<span />").addClass('service-count-container').html(count).appendTo(sourceElement);
         context.count += count;
-        context.likeCountContainer.addClass('liked').html(context.count)
+        context.$likeCountContainer.addClass('liked').html(context.count)
       };
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');
       };
       var likeSuccessCallback = function (response) {
-        SBW.Singletons.serviceFactory.getService("controller").getLikes(serviceName, objectId, likesSuccessCallback,
+        SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.Singletons.serviceFactory.getService("controller").like(serviceName, objectId, likeSuccessCallback,
+      SBW.api.like(serviceName, objectId, likeSuccessCallback,
         likeFailureCallback);
     },
     /**

@@ -73,7 +73,7 @@
         },
         failureCallback = function () {};
 
-      self.serviceFactory.getService('controller').getCommentsForUrl(self.options.services, {
+      SBW.api.getCommentsForUrl(self.options.services, {
         url: self.options.id,
         limit: self.options.limit,
         offset: self.options.offset
@@ -86,7 +86,7 @@
         if ($(that).is(":checked")) {
           self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
           self.serviceFactory.getService(value).startActionHandler(function () {
-            self.serviceFactory.getService("controller").getProfilePic([value], null, function (response) {
+            SBW.api.getProfilePic([value], null, function (response) {
               if (response) {
                 self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
               }
@@ -164,7 +164,7 @@
       self.$containerDiv.find(".sbw-success-message").remove();
       self.$containerDiv.find(".sbw-error-message").remove();
 
-      self.serviceFactory.getService("controller").publishMessage(serviceArr, postText, successCallback, failureCallback);
+      SBW.api.publishMessage(serviceArr, postText, successCallback, failureCallback);
 
     }
   });

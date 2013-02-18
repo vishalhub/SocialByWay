@@ -1,6 +1,6 @@
 {
     "protocol": "http:",
-    "host": "www.socialbyway.com",
+    "host": "www.socialbyway-test.com",
     "env": "www",
     "proxyURL": "/site/proxy/proxy.php",
     "callbackDirectory": "/site/callback",

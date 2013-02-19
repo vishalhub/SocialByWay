@@ -13,10 +13,10 @@
   $.widget("ui.LikeWidget", {
     isLiked: false,
     options: {
-      objectId: '100004207443785_161177570699157',
-      service: 'facebook',
+      objectId: '',
+      service: '',
       theme: 'default',
-      objectType: 'POST',
+      objectType: 'Comment',
       displayImage: 'false'
     },
 

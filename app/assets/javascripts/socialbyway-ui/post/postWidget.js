@@ -90,7 +90,7 @@
         var that = this,
           value = that.value;
         if ($(that).is(":checked")) {
-          e.preventDefault();
+          $(that).prop('checked', false);
           self.serviceFactory.getService(value).startActionHandler(function () {
             $(that).prop('checked', true);
             self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');

@@ -23,12 +23,7 @@
      * @property {String} theme The theme for the widget.
      */
     options: {
-      services: [
-        {serviceName: 'linkedin', objectId: 'UNIU-214108097-5681285247195418624-SHARE'},
-        {serviceName: 'twitter', objectId: '302413460564762624'},
-        {serviceName: 'facebook', objectId: '100004207443785_161177570699157'},
-        {serviceName: 'flickr', objectId: '8443995831'},
-      ],
+      services:'',
       theme: 'default'
     },
     /**
@@ -116,12 +111,16 @@
       }
       var likesSuccessCallback = function (response) {
         var count = response['likeCount'],totalCount = 0;
-        var serviceLikeCountContainer = $("<span />").addClass('service-count-container').html(count).appendTo(sourceElement);
+        if(count !== null){
+          var serviceLikeCountContainer = $("<span />").addClass('service-count-container').html(count).appendTo(sourceElement);
+        }
         context.count[response['serviceName']] = count;
         for(var key in context.count){
           totalCount = totalCount + context.count[key];
         }
-        context.$likeCountContainer.addClass('liked').html(totalCount)
+        if(totalCount != 0){
+          context.$likeCountContainer.addClass('liked').html(totalCount)
+        }
       };
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');

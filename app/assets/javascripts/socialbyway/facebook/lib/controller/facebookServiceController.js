@@ -513,8 +513,39 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
    */
   unlike: function (objectId, successCallback, errorCallback) {
-    successCallback();
-    // todo to be implemented
+    var service = this,
+      postUnlike = function (objectId, successCallback, errorCallback) {
+        FB.api('/' + objectId + '/likes?access_token=' + service.accessObject['token'], 'delete', function (response) {
+          if (response && !response.error) {
+            if (successCallback) {
+              successCallback(response);
+            }
+          } else {
+            if (errorCallback) {
+              var errorObject = new SBW.Models.Error({
+                message: response.error.message,
+                code: response.error.code,
+                serviceName: 'facebook',
+                rawData: response
+              });
+              errorCallback(errorObject);
+            }
+          }
+        });
+      },
+      callback = (function (objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            postUnlike(objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              postUnlike(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method

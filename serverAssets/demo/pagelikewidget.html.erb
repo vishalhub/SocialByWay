@@ -15,7 +15,12 @@
         /* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
         SBW.init('../config/config.json', function () {
         /* Initialize Page Like widget in the callback. */
-          $('#pagelike-widget').PageLikeWidget();
+          $('#pagelike-widget').PageLikeWidget({services:[
+                {serviceName: 'linkedin', objectId: 'UNIU-214108097-5681285247195418624-SHARE'},
+                {serviceName: 'twitter', objectId: '302413460564762624'},
+                {serviceName: 'facebook', objectId: '100004207443785_161177570699157'},
+                {serviceName: 'flickr', objectId: '8443995831'},
+            ]});
         });
     });
 </script>

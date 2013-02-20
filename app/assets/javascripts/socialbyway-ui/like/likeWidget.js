@@ -16,8 +16,7 @@
       objectId: '',
       service: '',
       theme: 'default',
-      objectType: 'Comment',
-      displayImage: 'false'
+      objectType: 'POST'
     },
 
     /**
@@ -66,8 +65,8 @@
       var picFailureCallback = function () {
       };
       var likesSuccessCallback = function (response) {
+        self.$likeCountContainer.empty();
         for (var i = 0; i < response['likeCount']; i++) {
-          self.$likeCountContainer.empty();
           var userId = response['likes'][i]['user']['id'];
           if (response['likes'][i]['user']['userImage']) {
             picSuccessCallback(response['likes'][i]['user']['userImage']);
@@ -80,16 +79,31 @@
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');
       };
+      var unLikeSuccessCallback = function (response) {
+        SBW.api.getLikes(service, postId, likesSuccessCallback,
+          likesFailureCallback);
+        self.$likeContainer.removeClass('liked');
+        self.isLiked = false;
+      };
+      var unLikeFailureCallback = function () {
+        alert('Some problem occurred while un liking post');
+      };
       var likeSuccessCallback = function (response) {
         SBW.api.getLikes(service, postId, likesSuccessCallback,
           likesFailureCallback);
         self.$likeContainer.addClass('liked');
+        self.isLiked = true;
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.api.like(service, postId, likeSuccessCallback,
-        likeFailureCallback);
+      if(self.isLiked){
+        SBW.api.unlike(service, postId, unLikeSuccessCallback,
+          unLikeFailureCallback);
+      }else{
+        SBW.api.like(service, postId, likeSuccessCallback,
+          likeFailureCallback);
+      }
     },
 
     /**

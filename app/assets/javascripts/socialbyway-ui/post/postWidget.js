@@ -90,7 +90,7 @@
         var that = this,
           value = that.value;
         if ($(that).is(":checked")) {
-          e.preventDefault();
+          $(that).prop('checked', false);
           self.serviceFactory.getService(value).startActionHandler(function () {
             $(that).prop('checked', true);
             self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
@@ -150,13 +150,13 @@
         successCallback = function (response) {
           var elem = self.$containerDiv.find(".sbw-success-message");
           if (elem.length !== 0) {
-            elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.service + ".");
+            elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.serviceName + ".");
           } else {
-            self.$containerDiv.append('<span class="sbw-success-message">Successfully posted on ' + response.service + '.</span>');
+            self.$containerDiv.append('<span class="sbw-success-message">Successfully posted on ' + response.serviceName + '.</span>');
           }
         },
         failureCallback = function (response) {
-          self.$containerDiv.append('<span class="sbw-error-message">Some problem in posting with ' + response.service + '.</span>');
+          self.$containerDiv.append('<span class="sbw-error-message">Some problem in posting with ' + response.serviceName + '.</span>');
         };
       self.$checkBoxesDiv.find("input:checked").each(function () {
         serviceArr.push(this.value);

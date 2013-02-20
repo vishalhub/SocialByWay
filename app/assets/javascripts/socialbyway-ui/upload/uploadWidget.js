@@ -52,7 +52,7 @@
         self.$description = $('<textarea/>').attr({
           'class': 'description-container',
           maxlength: 5000,
-          placeholder: 'Write your description/caption here....'
+          placeholder: 'Enter text....'
         });
 
         self.$titleInput = $('<textarea/>').attr({
@@ -93,19 +93,23 @@
           var that=this;
           self.service = this.value;
           if ($(this).is("input:checked")) {
-            e.preventDefault();
+            $(that).prop('checked', false);
             var loginSuccessHandler = function (response) {
               var userId = (response === undefined) ? undefined : response.id, picSuccess, picFailure;
               $(that).siblings('div.service-container').toggleClass('selected');
               $(that).prop('checked', true);
               picSuccess = function (profilePicUrl) {
-                $(self.$checkBoxContainer).find('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
+                if(profilePicUrl){
+                  $(self.$checkBoxContainer).find('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
+                }
               };
               picFailure = function (error) {
               };
               SBW.api.getProfilePic(self.service,userId, picSuccess, picFailure);
             };
             self.authenticate(self.service, loginSuccessHandler);
+          }else{
+            $(that).siblings('div.service-container').toggleClass('selected');
           }
         });
       },

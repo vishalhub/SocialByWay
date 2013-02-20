@@ -11,10 +11,10 @@
    * @constructor
    */
   $.widget("ui.LikeWidget", {
-    count: 0,
+    isLiked: false,
     options: {
-      objectId: '100004207443785_161177570699157',
-      service: 'facebook',
+      objectId: '',
+      service: '',
       theme: 'default',
       objectType: 'Comment',
       displayImage: 'false'
@@ -29,11 +29,11 @@
       var self = this;
       var theme = self.options.theme;
       var $container = $("<div />").addClass('sbw-like-widget-' + theme);
-      var $likeContainer = $("<div />").addClass('like-container');
+      self.$likeContainer = $("<div />").addClass('like-container');
       self.$likeCountContainer = $("<div />").addClass('count-container');
-      $container.append($likeContainer).append(self.$likeCountContainer);
+      $container.append(self.$likeContainer).append(self.$likeCountContainer);
       $(self.element).append($container);
-      $likeContainer.on('click', self, self.likeForService)
+      self.$likeContainer.on('click', self, self.likeForService)
     },
 
     /**
@@ -83,6 +83,7 @@
       var likeSuccessCallback = function (response) {
         SBW.api.getLikes(service, postId, likesSuccessCallback,
           likesFailureCallback);
+        self.$likeContainer.addClass('liked');
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
@@ -109,12 +110,28 @@
       var likeSuccessCallback = function (response) {
         SBW.api.getLikes(service, commentId, likesSuccessCallback,
           likesFailureCallback);
+        self.$likeContainer.addClass('liked');
+        self.isLiked = true;
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      SBW.api.like(service, commentId, likeSuccessCallback,
-        likeFailureCallback);
+      var unLikeSuccessCallback = function (response) {
+        SBW.api.getLikes(service, commentId, likesSuccessCallback,
+          likesFailureCallback);
+        self.$likeContainer.removeClass('liked');
+        self.isLiked = false;
+      };
+      var unLikeFailureCallback = function () {
+        alert('Some problem occurred while un liking post');
+      };
+      if(self.isLiked){
+        SBW.api.unlike(service, commentId, unLikeSuccessCallback,
+          unLikeFailureCallback);
+      }else{
+        SBW.api.like(service, commentId, likeSuccessCallback,
+          likeFailureCallback);
+      }
     },
 
     /**

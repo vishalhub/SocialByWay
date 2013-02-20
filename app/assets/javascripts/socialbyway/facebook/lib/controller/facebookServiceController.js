@@ -231,7 +231,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -275,7 +275,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -320,7 +320,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -389,7 +389,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -437,7 +437,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -480,7 +480,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -507,6 +507,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   },
   /**
    * @method
+   * @desc Un likes an object on facebook through FB API service
+   * @param {String} objectId of the object to be un liked.
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} will be called if unlike is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
+   */
+  unlike: function (objectId, successCallback, errorCallback) {
+    successCallback();
+    // todo to be implemented
+  },
+  /**
+   * @method
    * @desc Posts a comment to facebook through FB API service
    * @param objectId Id of the object on to which comment should be posted.
    * @param {String} comment
@@ -525,7 +536,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -614,7 +625,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               successCallback(posts);
             }
           } else {
-            var errorObject = new SBW.Models.ErrorObject({
+            var errorObject = new SBW.Models.Error({
               message: response.error.message,
               code: response.error.code,
               serviceName: 'facebook',
@@ -722,7 +733,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -886,7 +897,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -922,7 +933,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -1078,7 +1089,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         }));
       } else {
         callBack = errorCallback;
-        uploadStatus.push(new SBW.Models.ErrorObject({
+        uploadStatus.push(new SBW.Models.Error({
           message: value.error.message,
           code: value.error.code,
           serviceName: 'facebook',
@@ -1111,7 +1122,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             }
           } else {
             if (errorCallback) {
-              var errorObject = new SBW.Models.ErrorObject({
+              var errorObject = new SBW.Models.Error({
                 message: response.error.message,
                 code: response.error.code,
                 serviceName: 'facebook',
@@ -1186,7 +1197,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
 
       },
       error = function (response) {
-        var errorObject = new SBW.Models.ErrorObject({
+        var errorObject = new SBW.Models.Error({
           message: response.error.message,
           code: response.error.code,
           serviceName: 'facebook',

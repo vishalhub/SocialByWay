@@ -250,6 +250,27 @@
 		 * @callback SBW.Controllers.Services.ServiceController~like-errorCallback
 		 * @param {Object} response JSON response from the service
 		 **/
+		 /**
+	      * @method
+	      * @desc Un liking an object onto the specified service.
+	      * @param {String} serviceName  Name of the registered service.
+	      * @param {String} objectId  Id of the object un liked i.e. post,comment etc..
+	      * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} to be executed on object un liking in a service succeeds.
+	      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} to be executed on object un liking error.
+	      */
+	    unlike: function (serviceName, objectId, successCallback, errorCallback) {
+	      SBW.Singletons.serviceFactory.getService(serviceName).unlike(objectId, successCallback, errorCallback);
+	    },
+		/**
+		 * This callback is displayed as part of the unlike method.
+		 * @callback SBW.Controllers.Services.ServiceController~unlike-successCallback
+		 * @param {Object} response JSON response from the service
+		 **/
+		/**
+		 * This callback is displayed as part of the unlike method.
+		 * @callback SBW.Controllers.Services.ServiceController~unlike-errorCallback
+		 * @param {Object} response JSON response from the service
+		 **/
 		/**
 		 * @method
 		 * @desc Posting comment on an object in the specified service.
@@ -361,24 +382,45 @@
 		 * @callback SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback
 		 * @param {SBW.Models.Error} response JSON response from the service
 		 **/
-		 /**
+		/**
+		 * @method
+		 * @desc Follow a user(twitter)/company(linkedin).
+		 * @param {String} serviceName Name of the registered service.
+		 * @param {String} serviceOption screenName(twitter) / companyId(linkedin) to follow.
+		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~follow-successCallback Callback} to be executed after following user/company successfully.
+		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~follow-errorCallback Callback} to be executed on error while following.
+		 */
+		follow: function (serviceName, serviceOption, successCallback, errorCallback) {
+			var serviceFactory = SBW.Singletons.serviceFactory;
+			/*TODO - Check for method implementation in service being called*/
+			//if(serviceFactory.getService(value).hasOwnProperty('follow')) {
+			serviceFactory.getService(serviceName).follow(serviceOption, successCallback, errorCallback);
+			//}                  
+		},
+		/**
+		 * This callback is displayed as part of the follow method.
+		 * @callback SBW.Controllers.Services.ServiceController~follow-successCallback
+		 * @param {SBW.Object} response JSON response from the service
+		 **/
+		/**
+		 * This callback is displayed as part of the follow method.
+		 * @callback SBW.Controllers.Services.ServiceController~follow-errorCallback
+		 * @param {SBW.Models.Error} response JSON response from the service
+		 **/
+		/**
 		 * @method
 		 * @desc Retrieves follow count for the user from the service
-		 * @param {String[]} serviceArr An array of registered services.
-		 * @param {Object} options The service options to retrieve the follow count.
+		 * @param {String} serviceName Name of the registered service.
+		 * @param {String} serviceOption screenName(twitter) / companyid(linkedin) to get follow count.
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~getFollowCount-successCallback Callback} to be executed on successful retrieval of follow count.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getFollowCount-errorCallback Callback} to be executed on error while retrieving follow count.
 		 */
-		getFollowCount: function (serviceArr, options, successCallback, errorCallback) {
+		getFollowCount: function (serviceName, serviceOption, successCallback, errorCallback) {
 			var serviceFactory = SBW.Singletons.serviceFactory;
-			if (serviceArr instanceof Array) {
-				serviceArr.forEach(function (value, index, serviceArr) { 
-					/*TODO - Check for method implementation in service being called*/
-					//if(serviceFactory.getService(value).hasOwnProperty('getFollowCount')) {
-					serviceFactory.getService(value).getFollowCount(options[value], successCallback, errorCallback);
-					//}                  
-				});
-			}
+			/*TODO - Check for method implementation in service being called*/
+			//if(serviceFactory.getService(value).hasOwnProperty('getFollowCount')) {
+			serviceFactory.getService(serviceName).getFollowCount(serviceOption, successCallback, errorCallback);
+			//}                  
 		},
 		/**
 		 * This callback is displayed as part of the getFollowCount method.
@@ -645,7 +687,14 @@
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} to be executed on video upload error.
 		 */
 		uploadVideo: function (serviceName, fileData, successCallback, errorCallback) {
-			SBW.Singletons.serviceFactory.getService(serviceName).uploadVideo(fileData, successCallback, errorCallback);
+			if (!(serviceArr instanceof Array)) {
+				serviceArr = [];
+			} // create an empty array if not passed
+			var returnValue = {};
+			serviceArr.forEach(function (data, index, serviceArr) {
+				returnValue[data] = SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
+			});
+			return returnValue;		
 		},
 		/**
 		 * This callback is displayed as part of the uploadVideo method.

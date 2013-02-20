@@ -63,7 +63,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
             //  Network Updates	     	    rw_nus
             //  Group Discussions		      rw_groups
             //  Invitations and Messages	w_messages
-            scope: 'r_network rw_nus',
+            scope: 'r_network rw_nus r_fullprofile',
             authorize: true
           });
           // Handle memory leak in IE
@@ -131,7 +131,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
         .method("PUT")
         .body(JSON.stringify(message))
         .result(function (result) {
-          successCallback({id: "n/a", service: "LinkedIn"}, result);
+          successCallback({id: "n/a", serviceName: "linkedin"}, result);
         })
         .error(function (error) {
           errorCallback(error);
@@ -415,7 +415,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getPosts: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var updates = function (successCallback, errorCallback) {
       IN.API.MemberUpdates(userId)
         .result(function (result) {
@@ -449,7 +449,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getRecentPostId: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var updates = function (successCallback, errorCallback) {
       IN.API.MemberUpdates(userId)
         .result(function (result) {
@@ -515,13 +515,40 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
   follow: function (companyId, successCallback, errorCallback) {
     var service = this;
     var connections = function (successCallback, errorCallback) {
-      var url = '/people/~/following/companies', body = {"id": companyId};
+      var url = '/people/~/following/companies', body = {"id": companyId}, unfollowFlag = false;
       IN.API.Raw()
         .url(url)
-        .method('POST')
-        .body(JSON.stringify(body))
         .result(function (result) {
-          successCallback(result);
+          result.values.forEach(function (value) {
+            if (Number(companyId) === Number(value.id)) {
+              unfollowFlag = true;
+              IN.API.Raw()
+                .url(url + '/id=' + companyId)
+                .method('DELETE')
+                .result(function (result) {
+                  setTimeout(function () {
+                    successCallback(result);
+                   }, 1000);
+                })
+                .error(function (error) {
+                  errorCallback(error);
+                });              
+            }
+          });
+          if (!unfollowFlag) {
+            IN.API.Raw()
+              .url(url)
+              .method('POST')
+              .body(JSON.stringify(body))
+              .result(function (result) {
+                setTimeout(function () {
+                  successCallback(result);
+                }, 1000);
+              })
+              .error(function (error) {
+                errorCallback(error);
+              });
+          }
         })
         .error(function (error) {
           errorCallback(error);
@@ -605,7 +632,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getProfile: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var profile = function (successCallback, errorCallback) {
       IN.API.Profile(userId)
         .fields(["id", "firstName", "lastName", "pictureUrl"])
@@ -641,14 +668,13 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : 'me');
+    userId = userId || 'me';
     var profilePic = function (successCallback, errorCallback) {
       IN.API.Profile(userId)
         .fields(["pictureUrl"])
         .result(function (result) {
           var profile = result.values[0];
-          var profileData = {"photoUrl": profile.pictureUrl };
-          successCallback(profileData);
+          successCallback(profile.pictureUrl);
         })
         .error(function (error) {
           errorCallback(error);

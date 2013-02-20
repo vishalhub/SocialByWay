@@ -48,17 +48,6 @@
 
 			});
 			
-			SBW.api.getFollowCount(self.options.services, self.options.userDetails, function(response) {
-				  if (response && response.count) {
-					self.count += response.count;
-					self.serviceCount[response.serviceName] = response.count;
-					serviceDiv.find('.'+response.serviceName+"-count").text(response.count);
-					followCountContainer.text(self.count);
-				  }
-		    }, function (response) {
-            	SBW.logger.error("Could not get Follow count from " + response.serviceName);
-		    });
-
 			$(serviceDiv).append(followButton, followCountContainer);
 			$(containerDiv).append(serviceDiv);
 			$(self.element).append(containerDiv);
@@ -105,22 +94,11 @@
 		},
 		/**
 		 * @method
-		 * @desc Function to authenticate a user for a service and also update the follow count for the service.
-		 * @param {String} service Name of the registered service to be authenticated.
-		 */
-		authenticateAndUpdate : function(service) {
-			var self = this;
-			SBW.Singletons.serviceFactory.getService(service).startActionHandler(function() {
-				self.updateForService(service);
-			});
-		},
-		/**
-		 * @method
 		 * @param {String} service Name of the registered service.
 		 */
 		updateForService : function(service) {
 			var self = this;
-			SBW.Singletons.serviceFactory.getService(service).getFollowCount(self.options.userDetails[service], function(response) {
+			SBW.api.getFollowCount(service, self.options.userDetails[service], function(response) {
 				var targetContainer = $('#follow-widget div.service-container');
 				if (response && response.count) {
 					if (self.serviceCount[service]) {
@@ -141,18 +119,11 @@
 		 */
 		followForService : function(event, context) {
 			var sourceElement = event.srcElement || event.target, service = sourceElement.dataset.service, self = this;
-			SBW.Singletons.serviceFactory.getService(service).checkUserLoggedIn(function(isLoggedIn) {
-				if (isLoggedIn) {
-					if (!self.serviceCount[service]) {
+				SBW.api.follow(service, context.options.userDetails[service], function(response) {
 						self.updateForService(service);
-					}
-					SBW.Singletons.serviceFactory.getService(service).followUser(context.options.userDetails[service], function(response) {
 					}, function(error) {
-					});
-				} else {
-					self.authenticateAndUpdate(service);
-				}
-			});
+						SBW.logger.error("Error while following on - " + service);
+				});
 		},
 		/**
 		 * @method

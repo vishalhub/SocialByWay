@@ -411,7 +411,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       }));
     } else {
       callBack = errorCallback;
-      uploadStatus.push(new SBW.Models.ErrorObject({
+      uploadStatus.push(new SBW.Models.Error({
         message: resp.getElementsByTagName("err")[0].getAttribute('msg'),
         serviceName: 'facebook',
         rawData: response

@@ -44,6 +44,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       this.countUrl = "http://cdn.api.twitter.com/1/urls/count.json";
       this.followUrl = this.apiVersionUrl + "/friendships/create.json";
       this.unfollowUrl = this.apiVersionUrl + "/friendships/destroy.json";
+      this.followStatusUrl = this.apiVersionUrl + "/friendships/show.json";
       this.likeUrl = this.apiVersionUrl + "/favorites/create.json";
       this.unlikeUrl = this.apiVersionUrl + "/favorites/destroy.json";
       this.requestTokenUrl = "http://api.twitter.com/oauth/request_token";
@@ -364,12 +365,19 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @method
      * @desc Function to post a string on twitter.
      * @param {String} message The string that has to be posted on twitter.
-     * @param {callback} successcallback Function to be executed in case of success response from twitter.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
-    publishMessage: function (message, successcallback, errorCallback) {
-      var requestParameters = {status: message};
-      this.post(requestParameters, successcallback, errorCallback);
+    publishMessage: function (message, successCallback, errorCallback) {
+      var service = this,
+        requestParameters = {status: message};
+      service.post(requestParameters, function (response) {
+        var jsonResponse = $.parseJSON(response);
+        successCallback({
+          id: jsonResponse.id,
+          serviceName: "twitter"
+        }, response);
+      }, errorCallback);
     },
     /**
      * @method
@@ -379,37 +387,14 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     getLikes: function (objectId, successCallback, errorCallback) {
-      var service = this;
-      var likes = function (objectId, successCallback, errorCallback) {
-        service.getPost({id: objectId}, function (response) {
-          if(response) {
-            var jsonResponse = JSON.parse(response);
-            var likesObject = {
+      var likesObject = {
               serviceName: 'twitter',
               likes: null,
-              likeCount:jsonResponse.favourites_count,
-              rawData: jsonResponse
+              likeCount:null,
+              rawData: ''
             };
-            // Todo Populating the asset object with the like and user objects
-            successCallback(likesObject);
-          } else {
-            errorCallback();
-          }
-        }, errorCallback());
-      };
-      var callback = (function (objectId, successCallback, errorCallback) {
-        return function (isLoggedIn) {
-          if (isLoggedIn) {
-            likes(objectId, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function () {
-              likes(objectId, successCallback, errorCallback);
-            });
-          }
-        };
-      })(objectId, successCallback, errorCallback);
-
-      service.checkUserLoggedIn(callback);
+      successCallback(likesObject);
+    // todo implement it when twitter supports get favorites count for a tweet
     },
     /**
      * @method
@@ -488,7 +473,24 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         service.sendTwitterRequest(data, success, errorCallback);
       })
     },
+     /**
+     * @method
+     * @desc Function to post a tweet with an image on twitter.
+     * @param {Array} parameterArray An array that contains the parameters for the request.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter.
+     */
     uploadPhoto: function (parameterArray, successCallback, errorCallback) {
+      this.updateWithMedia(parameterArray, successCallback, errorCallback);
+    },
+     /**
+     * @method
+     * @desc Function to post a tweet with an image on twitter.
+     * @param {Array} parameterArray An array that contains the parameters for the request.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter.
+     */
+    uploadVideo: function (parameterArray, successCallback, errorCallback) {
       this.updateWithMedia(parameterArray, successCallback, errorCallback);
     },
     /**
@@ -548,8 +550,73 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} successCallback Function to be executed in case of success response from twitter.
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
-    followUser: function (name, successCallback, errorCallback) {
-      this.subscribe({screen_name: name}, successCallback, errorCallback);
+    follow: function (name, successCallback, errorCallback) {
+      var service = this,
+        followCallback = function (name, successCallback, errorCallback) {
+          service.checkFollowStatus(name, function (isFollowing) {
+            if(isFollowing === true) {
+              service.unSubscribe({screen_name: name}, successCallback, function(error){
+                errorCallback(new SBW.Models.Error({
+                  serviceName: 'twitter'
+                }));    
+              });
+            } else {
+              service.subscribe({screen_name: name}, successCallback, function(error){
+                errorCallback(new SBW.Models.Error({
+                  serviceName: 'twitter'
+                }));
+              }); 
+            }
+          }, function (error) {
+            SBW.logger.error("In checkFollowStatus method - Twitter");
+          });
+        },
+        callback = (function (name, successCallback, errorCallback) {
+          return function (isLoggedIn) {
+            if (isLoggedIn) {
+              followCallback(name, successCallback, errorCallback);
+            } else {
+              service.startActionHandler(function () {
+                followCallback(name, successCallback, errorCallback);
+              });
+            }
+          };
+        })(name, successCallback, errorCallback);
+      service.checkUserLoggedIn(callback);
+    },
+    /**
+     * @method
+     * @desc Checks if the logged in user follows the given target user.
+     * @param {String} targetScreenName Screen name of the user to check follow status.
+     * @param {callback} successCallback Function to be executed in case of success response from twitter.
+     * @param {callback} errorCallback Function to be executed in case of error response from twitter. 
+     * @ignore
+     */
+    checkFollowStatus: function(targetScreenName, successCallback, errorCallback) {
+      var service = this,
+        data,
+        checkFollowStatusCallback = function (targetScreenName, successCallback, errorCallback) {
+          data = service.getDataForRequest(service.followStatusUrl, {source_screen_name: service.userObject.screen_name, target_screen_name: targetScreenName}, 'GET');
+          service.sendTwitterRequest(data, function (response) {
+            successCallback(JSON.parse(response).relationship.target.followed_by);
+          }, function(error){
+            errorCallback(new SBW.Models.Error({
+              serviceName: 'twitter'
+            }));
+          }); 
+        },
+        callback = (function (targetScreenName, successCallback, errorCallback) {
+          return function (isLoggedIn) {
+            if (isLoggedIn) {
+              checkFollowStatusCallback(targetScreenName, successCallback, errorCallback);
+            } else {
+              service.startActionHandler(function () {
+                checkFollowStatusCallback(targetScreenName, successCallback, errorCallback);
+              });
+            }
+          };
+        })(targetScreenName, successCallback, errorCallback);
+      service.checkUserLoggedIn(callback);
     },
     /**
      * @method
@@ -561,7 +628,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     getFollowCount: function (name, successCallback, errorCallback) {
       var service = this,
         getFollowCountCallback = function (name, successCallback, errorCallback) {
-          service.getProfile({screen_name: name}, function (response) {
+          var data = service.getDataForRequest(service.profileUrl, {screen_name: name}, 'GET');
+          service.sendTwitterRequest(data, function (response) {
             if (typeof response === 'string') {
               response = JSON.parse(response);
             }
@@ -658,11 +726,20 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
      * @param {callback} errorCallback Function to be executed in case of error response from twitter.
      */
     like: function (ObjectId, successCallback, errorCallback) {
-      var parameters ={id:ObjectId}
+      var parameters ={id:ObjectId};
       var service = this,
         postLike = function (parameters, successCallback, errorCallback) {
-          var data = service.getDataForRequest(service.likeUrl, parameters, 'POST');
-          service.sendTwitterRequest(data, successCallback, errorCallback);
+          var data = service.getDataForRequest(service.likeUrl, parameters, 'POST'),
+            errorCall = function(response){
+             var resp = JSON.parse(response.responseText);
+             if(resp.errors[0]['code'] == 139 ){
+             // error code 139 comes when the user has liked the tweet already
+               successCallback();
+             }else{
+               errorCallback();
+             }
+            };
+          service.sendTwitterRequest(data, successCallback, errorCall);
         },
         callback = (function (parameters, successCallback, errorCallback) {
           return function (isLoggedIn) {

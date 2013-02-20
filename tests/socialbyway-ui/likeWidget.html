@@ -15,11 +15,17 @@
 <script type='text/javascript'>
     $(document).ready(function () {
         SBW.init('../config/test-config.json', function () {
-            $("#like-widget").LikeWidget();
-            $("#like-widget2").PageLikeWidget();
+            $("#like-widget").LikeWidget({objectId:'100004207443785_161177570699157',service:'facebook'});
+            $("#like-widget2").PageLikeWidget({services:[
+                {serviceName: 'linkedin', objectId: 'UNIU-214108097-5681285247195418624-SHARE'},
+                {serviceName: 'twitter', objectId: '302413460564762624'},
+                {serviceName: 'facebook', objectId: '100004207443785_161177570699157'},
+                {serviceName: 'flickr', objectId: '8443995831'},
+            ]});
         });
     });
 </script>
 
 </body>
 </html>
+

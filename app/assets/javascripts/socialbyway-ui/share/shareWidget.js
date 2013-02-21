@@ -1,5 +1,5 @@
-(function($) {"use strict";
-	/*jslint nomen: true*/
+(function ($) {
+	"use strict"; /*jslint nomen: true*/
 	/*jslint plusplus: true */
 	/*global console, SBW*/
 	/**
@@ -13,9 +13,8 @@
 	 * @alias ShareWidget
 	 * @constructor
 	 */
-	$.widget("ui.ShareWidget", /** @lends ShareWidget.prototype */
-	{
-		count : 0,
+	$.widget("ui.ShareWidget", /** @lends ShareWidget.prototype */ {
+		count: 0,
 		/**
 		 * @desc Options for the widget.
 		 * @inner
@@ -24,40 +23,42 @@
 		 * @property {String[]} services Name of the registered services.
 		 * @property {String} theme The theme for the widget.
 		 */
-		options : {
-			url : null,
-			services : ['facebook', 'twitter', 'linkedin'],
-			theme : 'default'
+		options: {
+			url: null,
+			services: ['facebook', 'twitter', 'linkedin'],
+			theme: 'default'
 		},
 		/**
 		 * @method
 		 * @private
 		 * @desc Constructor for the widget.
 		 */
-		_create : function() {
-			var self = this, serviceShareCountContainer, theme, containerDiv, serviceDiv, shareButton, shareCountContainer, minAngle;
+		_create: function () {
+			var self = this,
+				serviceShareCountContainer, theme, containerDiv, serviceDiv, shareButton, shareCountContainer, minAngle;
 			theme = self.options.theme;
 			containerDiv = $("<div />", {
-				'class' : 'sbw-widget sbw-share-widget-' + theme
+				'class': 'sbw-widget sbw-share-widget-' + theme
 			});
 			serviceDiv = $("<div />", {
-				'class' : 'service-container'
+				'class': 'service-container'
 			});
 			shareButton = $('<span />', {
-				'class' : 'share-button'
+				'class': 'share-button'
 			});
 			shareCountContainer = $("<div />", {
-				'class' : 'count-container'
+				'class': 'count-container'
 			});
 
 			minAngle = 360 / this.options.services.length;
-			$.each(this.options.services, function(index, service) {
+			$.each(this.options.services, function (index, service) {
 				var serviceContainer = self.createServiceElement(service, serviceDiv, (minAngle * index), self);
-				SBW.Singletons.serviceFactory.getService(service).getShareCount(self.options.url, function(response) {
+				SBW.Singletons.serviceFactory.getService(service).getShareCount(self.options.url, function (response) {
+					console.log(response);
 					if (response && response.count) {
 						self.count += response.count;
 						serviceShareCountContainer = $("<div />", {
-							'class' : 'service-count-container'
+							'class': 'service-count-container'
 						}).text(response.count).appendTo(serviceContainer);
 						shareCountContainer.text(self.count);
 					}
@@ -79,14 +80,14 @@
 		 * @param {Object} context The context for the function call.
 		 * @return {Object} The DOM element for the service.
 		 */
-		createServiceElement : function(service, parentContainer, angle, context) {
+		createServiceElement: function (service, parentContainer, angle, context) {
 			var serviceContainer = $("<div/>", {
-				'class' : service,
-				'data-service' : service,
-				'click' : function(event) {
+				'class': service,
+				'data-service': service,
+				'click': function (event) {
 					context.shareForService(event, context);
 				},
-				'style' : '-webkit-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + '-moz-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + '-ms-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + '-o-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + 'transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg)'
+				'style': '-webkit-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + '-moz-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + '-ms-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + '-o-transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg); ' + 'transform : rotate(' + angle + 'deg)' + 'translate(3em) rotate(-' + angle + 'deg)'
 			}).appendTo(parentContainer);
 			return serviceContainer;
 		},
@@ -94,7 +95,7 @@
 		 * @method
 		 * @desc Function to show services on mouse hover.
 		 */
-		showServices : function() {
+		showServices: function () {
 			var servicesContainer = $("#share-widget div.service-container");
 			servicesContainer.find("div").show();
 			servicesContainer.find("div.count-container").hide();
@@ -103,7 +104,7 @@
 		 * @method
 		 * @desc Function to hide services when the widget loses focus.
 		 */
-		hideServices : function() {
+		hideServices: function () {
 			var servicesContainer = $("#share-widget div.service-container");
 			servicesContainer.find("div").hide();
 			servicesContainer.find("div.count-container").show();
@@ -114,25 +115,17 @@
 		 * @param {Object} event The Event object.
 		 * @param {Object} context The scope of the calling function.
 		 */
-		shareForService : function(event, context) {
-			var sourceElement = event.srcElement || event.target, service = sourceElement.dataset.service;
-			SBW.Singletons.serviceFactory.getService(service).checkUserLoggedIn(function(isLoggedIn) {
-				if (isLoggedIn) {
-					SBW.Singletons.serviceFactory.getService(service).publishMessage((context.options.url || document.url), function(response) {
-					}, function(error) {
-					});
-				} else {
-					SBW.Singletons.serviceFactory.getService(service).startActionHandler(function() {
-					});
-				}
-			});
+		shareForService: function (event, context) {
+			var sourceElement = event.srcElement || event.target,
+				service = sourceElement.dataset.service;
+			SBW.api.publishMessage([service], (context.options.url || document.url), function (response) {}, function (error) {});
 		},
 		/**
 		 * @method
 		 * @desc Function to destroy the widget.
 		 * @ignore
 		 */
-		destroy : function() {
+		destroy: function () {
 			$.Widget.prototype.destroy.call(this, arguments);
 		}
 	});

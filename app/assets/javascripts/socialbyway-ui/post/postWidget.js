@@ -28,7 +28,7 @@
       self.$uploadPhotoTab.append(self.uploadPhotoTag);
       self.$tabsUl.append(self.$uploadPhotoTab);
       self.$uploadVideoTab = $('<li/>');
-      self.uploadVideoTag = $('<a/>').addClass('tab-2').html("<span>Upload Video</span>");
+      self.uploadVideoTag = $('<a/>').addClass('tab-3').html("<span>Upload Video</span>");
       self.$uploadVideoTab.append(self.uploadVideoTag);
       self.$tabsUl.append(self.$uploadVideoTab);
       // Container

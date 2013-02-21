@@ -686,7 +686,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~uploadVideo-successCallback Callback} to be executed on successful video upload.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} to be executed on video upload error.
 		 */
-		uploadVideo: function (serviceName, fileData, successCallback, errorCallback) {
+		uploadVideo: function (serviceArr, fileData, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed

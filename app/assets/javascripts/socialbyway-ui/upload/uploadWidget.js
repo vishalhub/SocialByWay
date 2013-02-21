@@ -24,7 +24,7 @@
         var self = this, serviceArray = ['facebook', 'flickr', 'twitter', 'picasa'];
         // display embedded initializing creates a widget container with specified functionality
         // display stand-alone initializing creates two tabs for image and video upload separately
-        self.$widgetContainer = $('<div/>').addClass("sbw-upload-widget-" + self.options.theme);
+        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-upload-widget-" + self.options.theme);
         if (self.options.display === 'stand-alone') {
           // Define Tab container
           self.$tabContainer = $('<div/>').addClass('tab-container');
@@ -69,13 +69,13 @@
         self.$checkBoxContainer = $('<div/>').addClass('checkBox-container');
         self.$checkContainer = [];
         serviceArray.forEach(function (value) {
-          var $serviceCheckbox = $('<div/>').addClass("check-container ")
+          var $serviceCheckbox = $('<div/>').addClass("check-container " + value)
               .append($("<input/>", {
                 'type': 'checkbox',
                 'name': 'service',
                 'value': value
               })),
-            $userView = $("<div/>").addClass("user-image " + value),
+            $userView = $("<div/>").addClass("user-image "),
             $serviceView = $('<div/>').addClass("service-container " + value);
           $serviceCheckbox.append($userView).append($serviceView);
           self.$checkContainer.push($serviceCheckbox);
@@ -100,7 +100,7 @@
               $(that).prop('checked', true);
               picSuccess = function (profilePicUrl) {
                 if(profilePicUrl){
-                  $(self.$checkBoxContainer).find('div.user-image' + '.' + self.service).css("background", 'url("' + profilePicUrl + '")');
+                  $(self.$checkBoxContainer).find('.check-container' + '.' + self.service + ' .user-image').css("background", 'url("' + profilePicUrl + '")');
                 }
               };
               picFailure = function (error) {
@@ -150,16 +150,16 @@
             'file': self.$browseButton[0].files[0]
           }, successCallback = function (uploadStatus) {
             if (self.$responseText) {
-              self.$responseText.text("Successfully published photo in " + uploadStatus[0].serviceName);
+              self.$responseText.text("Successfully published media in " + uploadStatus[0].serviceName);
             } else {
-              self.$responseText = $("<p/>").text("Successfully published photo in " + uploadStatus[0].serviceName);
+              self.$responseText = $("<p/>").text("Successfully published media in " + uploadStatus[0].serviceName);
               self.$widgetContainer.append(self.$responseText);
             }
           }, errorCallback = function (uploadStatus) {
             if (self.$responseText) {
-              self.$responseText.text("Failure while publishing photo in " + uploadStatus[0].serviceName);
+              self.$responseText.text("Failure while publishing media in " + uploadStatus[0].serviceName);
             } else {
-              self.$responseText = $("<p/>").text("Failure while publishing photo in " + uploadStatus[0].serviceName);
+              self.$responseText = $("<p/>").text("Failure while publishing media in " + uploadStatus[0].serviceName);
               self.$widgetContainer.append(self.$responseText);
             }
           };

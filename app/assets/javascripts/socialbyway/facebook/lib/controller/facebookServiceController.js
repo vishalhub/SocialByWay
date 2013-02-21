@@ -755,11 +755,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   getShareCount: function (url, successCallback, errorCallback) {
     var service = this,
       getCount = function (url, successCallback, errorCallback) {
-        FB.api('/?id=' + url, 'get', function (response) {
+        FB.api('fql', {q:"SELECT url, normalized_url, share_count, like_count, comment_count, total_count, commentsbox_count, comments_fbid, click_count FROM link_stat WHERE url = '"+url+"'"}, function (response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback({
-                count: response.shares || 0
+                count: response.data[0].share_count || 0
               }, response);
             }
           } else {
@@ -1056,7 +1056,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback Callback} will be called in case of any error while fetching data
    */
   uploadPhoto: function (fileData, successCallback, errorCallback) {
-    this._uploadMedia(fileData, successCallback, errorCallback, "photos");
+    var url=this.apiUrl + '/me/photos'; 
+    this._uploadMedia(fileData, successCallback, errorCallback, url);
   },
   /**
    * @method
@@ -1066,7 +1067,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} will be called in case of any error while fetching data
    */
   uploadVideo: function (fileData, successCallback, errorCallback) {
-    this._uploadMedia(fileData, successCallback, errorCallback, "video");
+    var url='https://graph-video.facebook.com/me/videos'; 
+    this._uploadMedia(fileData, successCallback, errorCallback, url);
   },
   /**
    * @method
@@ -1076,7 +1078,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   _uploadMedia: function (fileData, successCallback, errorCallback, context) {
     var service = this,
       upload = function (fileData, successCallback, errorCallback, context) {
-        var url = service.apiUrl + '/me/' + context + '?access_token=' + service.accessObject['token'];
+        var url = context + '?access_token=' + service.accessObject['token'];
         var options = {
           url: url,
           type: 'POST',

@@ -755,11 +755,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   getShareCount: function (url, successCallback, errorCallback) {
     var service = this,
       getCount = function (url, successCallback, errorCallback) {
-        FB.api('/?id=' + url, 'get', function (response) {
+        FB.api('fql', {q:"SELECT url, normalized_url, share_count, like_count, comment_count, total_count, commentsbox_count, comments_fbid, click_count FROM link_stat WHERE url = '"+url+"'"}, function (response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback({
-                count: response.shares || 0
+                count: response.data[0].share_count || 0
               }, response);
             }
           } else {

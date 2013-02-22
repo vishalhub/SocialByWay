@@ -106,10 +106,13 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           oauth_callback: service.callbackUrl
         }
       };
+      service.accessObject.access_token = null;
+      service.accessObject.tokenSecret = null;
       var url = service.signAndReturnUrl(this.requestTokenUrl, message);
       if (!service.accessObject.user_id || !service.accessObject.consumerSecret || !service.accessObject.tokenSecret) {
         this.sendTwitterRequest({
-          url: url
+          url: url,
+          returnType: 'text'
         }, function (response) {
           var respJson = SBW.Singletons.utils.getJSONFromQueryParams(response);
           service.accessObject.access_token = respJson.oauth_token;
@@ -169,7 +172,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       };
       var url = service.signAndReturnUrl(this.accessTokenUrl, message);
       this.sendTwitterRequest({
-        url: url
+        url: url,
+        returnType: 'text'
       }, function (response) {
         var jsonResp = SBW.Singletons.utils.getJSONFromQueryParams(response);
         service.accessObject.user_id = jsonResp.user_id;
@@ -229,7 +233,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       data: data.parameters || '',
       customHeaders: headers,
       contentType: data.contentType,
-      processData: data.processData
+      processData: data.processData,
+      dataType: data.returnType || 'json'
     };
     SBW.Singletons.utils.ajax(options, successCallback, errorCallback);
   },
@@ -386,12 +391,11 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         status: message
       },
       publishMessageCallback = function (requestParameters, successCallback, errorCallback) {
-        service.post(requestParameters, function (response) {
-          var jsonResponse = JSON.parse(response);
+        service.post(requestParameters, function (jsonResponse) {
           successCallback({
             id: jsonResponse.id,
             serviceName: "twitter"
-          }, response);
+          }, jsonResponse);
         }, errorCallback);
       },
       callback = (function (requestParameters, successCallback, errorCallback) {
@@ -488,14 +492,13 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         processData: false,
         contentType: false
       };
-      var success = function (response) {
-          var jsonResponse = JSON.parse(response);
+      var success = function (jsonResponse) {
           var uploadStatus = new Array();
           uploadStatus.push(new SBW.Models.UploadStatus({
             id: jsonResponse.id,
             serviceName: 'twitter',
             status: 'success',
-            rawData: response
+            rawData: jsonResponse
           }));
           successCallback(uploadStatus)
         };
@@ -562,13 +565,12 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       successcallback(service.userObject);
     } else {
       var data = this.getDataForRequest(this.profileUrl, parameters, 'GET');
-      this.sendTwitterRequest(data, function (response) {
-        var jsonResponse = JSON.parse(response);
+      this.sendTwitterRequest(data, function (jsonResponse) {
         service.userObject.id = jsonResponse.id;
         service.userObject.name = jsonResponse.name;
         service.userObject.screen_name = jsonResponse.screen_name;
         service.userObject.profile_image_url = jsonResponse.profile_image_url;
-        successcallback(response);
+        successcallback(jsonResponse);
       }, errorCallback);
     }
   },
@@ -633,7 +635,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           target_screen_name: targetScreenName
         }, 'GET');
         service.sendTwitterRequest(data, function (response) {
-          successCallback(JSON.parse(response).relationship.target.followed_by);
+          successCallback(response.relationship.target.followed_by);
         }, function (error) {
           errorCallback(new SBW.Models.Error({
             serviceName: 'twitter'
@@ -667,9 +669,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           screen_name: name
         }, 'GET');
         service.sendTwitterRequest(data, function (response) {
-          if (typeof response === 'string') {
-            response = JSON.parse(response);
-          }
           successCallback({
             count: response['followers_count'],
             serviceName: 'twitter'
@@ -704,9 +703,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     this.getCount({
       url: url
     }, function (response) {
-      if (typeof response === 'string') {
-        response = JSON.parse(response);
-      }
       successCallback(response);
     }, errorCallback);
   },
@@ -774,8 +770,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     var service = this,
       postLike = function (parameters, successCallback, errorCallback) {
         var data = service.getDataForRequest(service.likeUrl, parameters, 'POST'),
-          errorCall = function (response) {
-            var resp = JSON.parse(response.responseText);
+          errorCall = function (resp) {
             if (resp.errors[0]['code'] == 139) {
               // error code 139 comes when the user has liked the tweet already
               successCallback();

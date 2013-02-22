@@ -91,6 +91,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         }
       };
 
+      service.accessObject.access_token = null;
+      service.accessObject.tokenSecret = null;
       var url = service.signAndReturnUrl(service.requestTokenUrl, message);
       $.ajax({
         url: service.proxyUrl,

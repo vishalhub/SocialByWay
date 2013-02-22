@@ -32,8 +32,14 @@
           self.$tabContainer.append(self.$tabs);
 
           // Define Tabs
-          self.$imageTab = $('<li/>').addClass('image-tab').html("Upload Image");
-          self.$videoTab = $('<li/>').addClass('video-tab').html("Upload Video");
+          self.$imageTab = $('<li/>').attr({
+            class:'image-tab',
+            value:'image'
+          }).html("Upload Image");
+          self.$videoTab = $('<li/>').attr({
+            class:'video-tab',
+            value:'video'
+          }).html("Upload Video");
 
           //Append tabs to the tab container...
           self.$tabs.append(self.$imageTab).append(self.$videoTab);
@@ -87,6 +93,7 @@
         $(self.$imageTab).addClass('selected');
         $(self.$tabs).children().click(function () {
           $(this).toggleClass('selected');
+          self.options.functionality = $(this).attr('value');
           $(this).siblings().toggleClass('selected');
         });
         $(self.$checkBoxContainer).on('click', 'div.check-container input', function (e) {
@@ -124,7 +131,9 @@
       options: {
         theme: 'default',
         display: 'stand-alone',
-        functionality: 'image'
+        functionality: 'image',
+        // limit in kilobytes
+        sizeLimit : {image: 500, video :20480}
       },
       /**
        * @method
@@ -150,14 +159,14 @@
             'file': self.$browseButton[0].files[0]
           }, successCallback = function (uploadStatus) {
             if (self.$responseText) {
-              self.$responseText.text("Successfully published media in " + uploadStatus[0].serviceName);
+              self.$responseText.text(self.$responseText.text() +', '+ uploadStatus[0].serviceName);
             } else {
               self.$responseText = $("<p/>").text("Successfully published media in " + uploadStatus[0].serviceName);
               self.$widgetContainer.append(self.$responseText);
             }
           }, errorCallback = function (uploadStatus) {
             if (self.$responseText) {
-              self.$responseText.text("Failure while publishing media in " + uploadStatus[0].serviceName);
+              self.$responseText.text(self.$responseText.text() + uploadStatus[0].serviceName);
             } else {
               self.$responseText = $("<p/>").text("Failure while publishing media in " + uploadStatus[0].serviceName);
               self.$widgetContainer.append(self.$responseText);
@@ -166,19 +175,19 @@
         self.$checkBoxContainer.find("input:checked").each(function () {
           serviceArr.push(this.value);
         });
-        if (self.options.display === 'stand-alone') {
-          if ($(self.$tabs).children('.selected').html() === self.$imageTab.html()) {
-            SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
-          } else {
-            SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
-          }
-        } else {
           if (self.options.functionality === 'image') {
-            SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
+            if(self.$browseButton[0].files[0].size/1024 < self.options.sizeLimit.image){
+              SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
+            }else{
+              alert('Maximum upload size for image : 500KB')
+            }
           } else {
-            SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
+            if(self.$browseButton[0].files[0].size/1024 < self.options.sizeLimit.video){
+              SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
+            }else{
+              alert('Maximum upload size for video : 20MB')
+            }
           }
-        }
       }
     });
 })(jQuery);

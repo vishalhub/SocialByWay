@@ -21,7 +21,13 @@
        * @ignore
        */
       _create: function () {
-        var self = this, serviceArray = ['facebook', 'flickr', 'twitter', 'picasa'];
+        var self = this,supportedServices = ['facebook', 'flickr', 'twitter', 'picasa'];
+        // to check whether the service is supported or not
+        self.options.serviceArray.forEach(function(element,index,array){
+          if(supportedServices.indexOf(element)=== -1){
+            array.splice(array.indexOf(element),1);
+          }
+        });
         // display embedded initializing creates a widget container with specified functionality
         // display stand-alone initializing creates two tabs for image and video upload separately
         self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-upload-widget-" + self.options.theme);
@@ -33,7 +39,7 @@
 
           // Define Tabs
           self.$imageTab = $('<li/>').attr({
-            class:'image-tab',
+            class:'image-tab selected',
             value:'image'
           }).html("Upload Image");
           self.$videoTab = $('<li/>').attr({
@@ -42,18 +48,18 @@
           }).html("Upload Video");
 
           //Append tabs to the tab container...
-          self.$tabs.append(self.$imageTab).append(self.$videoTab);
+          self.$tabs.append(self.$imageTab,self.$videoTab);
           self.$widgetContainer.append(self.$tabContainer);
         }
 
         self.element.append(self.$widgetContainer);
 
         // Define content in the tab container...
-        self.$helpMessage = $("<p>").text("Select media for upload");
+        self.$helpMessage = $("<p/>").text("Select media for upload");
         self.$browseButton = $('<input/>').attr("type", "file").html("Choose file");
+        self.$errorAlert = $('<div/>').addClass('error-display').hide();
+        self.$loader = $('<div/>').addClass('loader').hide();
         self.$mediaContainer = $('<div/>').addClass('media-container ');
-        self.$mediaContainer.append(self.$helpMessage).append(self.$browseButton);
-        self.$widgetContainer.append(self.$mediaContainer);
 
         self.$description = $('<textarea/>').attr({
           'class': 'description-container',
@@ -67,14 +73,15 @@
           placeholder: 'Title'
         });
 
-        $(self.$mediaContainer).append(self.$titleInput).append(self.$description);
+        self.$mediaContainer.append(self.$helpMessage,self.$browseButton,self.$errorAlert,self.$loader,self.$titleInput,self.$description);
+        self.$widgetContainer.append(self.$mediaContainer);
 
         self.$uploadButton = $('<button/>').addClass('upload-button').text("publish");
 
         //Create the checkbox container...
         self.$checkBoxContainer = $('<div/>').addClass('checkBox-container');
-        self.$checkContainer = [];
-        serviceArray.forEach(function (value) {
+        var $checkContainer = [];
+        self.options.serviceArray.forEach(function (value) {
           var $serviceCheckbox = $('<div/>').addClass("check-container " + value)
               .append($("<input/>", {
                 'type': 'checkbox',
@@ -83,18 +90,21 @@
               })),
             $userView = $("<div/>").addClass("user-image "),
             $serviceView = $('<div/>').addClass("service-container " + value);
-          $serviceCheckbox.append($userView).append($serviceView);
-          self.$checkContainer.push($serviceCheckbox);
+          $serviceCheckbox.append($userView,$serviceView);
+          $checkContainer.push($serviceCheckbox);
         });
-        self.$checkBoxContainer.append(self.$checkContainer);
-        self.$checkBoxContainer.insertAfter(self.$description);
-        self.$uploadButton.insertAfter(self.$checkBoxContainer);
+        self.$checkBoxContainer.append($checkContainer);
+        self.$mediaContainer.append(self.$checkBoxContainer,self.$uploadButton);
         self.$uploadButton.on("click", this, this._publishPhoto);
-        $(self.$imageTab).addClass('selected');
-        $(self.$tabs).children().click(function () {
-          $(this).toggleClass('selected');
-          self.options.functionality = $(this).attr('value');
-          $(this).siblings().toggleClass('selected');
+        $(self.$tabs).on('click', 'li', function () {
+          var $currentTab = $(this);
+          $currentTab.addClass('selected').siblings('li').removeClass('selected');
+          self.options.functionality = $currentTab.attr('value');
+          if($currentTab.attr('value')=='video'){
+            self.$checkBoxContainer.find('.check-container.twitter').hide();
+          }else{
+            self.$checkBoxContainer.find('.check-container.twitter').show();
+          }
         });
         $(self.$checkBoxContainer).on('click', 'div.check-container input', function (e) {
           var that=this;
@@ -132,6 +142,7 @@
         theme: 'default',
         display: 'stand-alone',
         functionality: 'image',
+        serviceArray : ['facebook', 'flickr', 'picasa', 'twitter'],
         // limit in kilobytes
         sizeLimit : {image: 500, video :20480}
       },
@@ -158,6 +169,7 @@
             'location': '',
             'file': self.$browseButton[0].files[0]
           }, successCallback = function (uploadStatus) {
+            self.$loader.hide();
             if (self.$responseText) {
               self.$responseText.text(self.$responseText.text() +', '+ uploadStatus[0].serviceName);
             } else {
@@ -165,6 +177,7 @@
               self.$widgetContainer.append(self.$responseText);
             }
           }, errorCallback = function (uploadStatus) {
+            self.$loader.hide();
             if (self.$responseText) {
               self.$responseText.text(self.$responseText.text() + uploadStatus[0].serviceName);
             } else {
@@ -177,15 +190,20 @@
         });
           if (self.options.functionality === 'image') {
             if(self.$browseButton[0].files[0].size/1024 < self.options.sizeLimit.image){
+              self.$errorAlert.hide();
+              if(serviceArr.length!==0){
+                self.$loader.show();
+              }
               SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
             }else{
-              alert('Maximum upload size for image : 500KB')
+              self.$errorAlert.show().text('Maximum upload size for image : 500KB')
             }
           } else {
             if(self.$browseButton[0].files[0].size/1024 < self.options.sizeLimit.video){
+              self.$errorAlert.hide();
               SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
             }else{
-              alert('Maximum upload size for video : 20MB')
+              self.$errorAlert.show().text('Maximum upload size for video : 20MB')
             }
           }
       }

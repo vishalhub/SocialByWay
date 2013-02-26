@@ -5,6 +5,21 @@
     -webkit-appearance: none;
     display: block;
   }
+  .loader {
+    background: url("images/loading.gif") no-repeat scroll center center transparent;
+    background-size: 18px 18px;
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+  }
+  .error-display{
+    display: inline-block;
+    border: 1px solid #ff0000;
+    padding: 0px 5px;
+    border-radius: 5px;
+    color: #ff0000;
+    opacity: 0.6;
+  }
   .check-container{
     float:left;
     height: 44px;

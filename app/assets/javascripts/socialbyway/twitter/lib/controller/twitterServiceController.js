@@ -517,16 +517,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
   },
   /**
    * @method
-   * @desc Function to post a tweet with an image on twitter.
-   * @param {Array} parameterArray An array that contains the parameters for the request.
-   * @param {callback} successCallback Function to be executed in case of success response from twitter.
-   * @param {callback} errorCallback Function to be executed in case of error response from twitter.
-   */
-  uploadVideo: function (parameterArray, successCallback, errorCallback) {
-    this.updateWithMedia(parameterArray, successCallback, errorCallback);
-  },
-  /**
-   * @method
    * @desc Function to get the profile picture of the logged in user.
    * @param {String} userId The twitter user id of the user.
    * @param {callback} successcallback Function to be executed in case of success response from twitter.

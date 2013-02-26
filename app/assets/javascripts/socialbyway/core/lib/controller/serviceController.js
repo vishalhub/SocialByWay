@@ -395,7 +395,7 @@
 			/*TODO - Check for method implementation in service being called*/
 			//if(serviceFactory.getService(value).hasOwnProperty('follow')) {
 			serviceFactory.getService(serviceName).follow(serviceOption, successCallback, errorCallback);
-			//}                  
+			//}
 		},
 		/**
 		 * This callback is displayed as part of the follow method.
@@ -690,11 +690,9 @@
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			var returnValue = {};
 			serviceArr.forEach(function (data, index, serviceArr) {
-				returnValue[data] = SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
+        SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
 			});
-			return returnValue;		
 		},
 		/**
 		 * This callback is displayed as part of the uploadVideo method.
@@ -718,11 +716,9 @@
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			var returnValue = {};
 			serviceArr.forEach(function (data, index, serviceArr) {
-				returnValue[data] = SBW.Singletons.serviceFactory.getService(data).uploadPhoto(fileData, successCallback, errorCallback);
+				SBW.Singletons.serviceFactory.getService(data).uploadPhoto(fileData, successCallback, errorCallback);
 			});
-			return returnValue;
 		},
 		/**
 		 * This callback is displayed as part of the uploadPhoto method.

@@ -113,7 +113,8 @@ curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 $result = curl_exec($handle);
 $status = curl_getinfo ( $handle, CURLINFO_HTTP_CODE );
 
-header($result, true, $status);
+if($status != 200)
+    header($result, true, $status);
 echo $result;
 
 if($result === false) {

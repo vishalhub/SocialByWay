@@ -21,7 +21,13 @@
        * @ignore
        */
       _create: function () {
-        var self = this, serviceArray = ['facebook', 'flickr', 'twitter', 'picasa'];
+        var self = this, supportedServices = ['facebook', 'flickr', 'twitter', 'picasa'];
+        // to check whether the service is supported or not
+        self.options.serviceArray.forEach(function (element, index, array) {
+          if (supportedServices.indexOf(element) === -1) {
+            array.splice(array.indexOf(element), 1);
+          }
+        });
         // display embedded initializing creates a widget container with specified functionality
         // display stand-alone initializing creates two tabs for image and video upload separately
         self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-upload-widget-" + self.options.theme);
@@ -32,22 +38,28 @@
           self.$tabContainer.append(self.$tabs);
 
           // Define Tabs
-          self.$imageTab = $('<li/>').addClass('image-tab').html("Upload Image");
-          self.$videoTab = $('<li/>').addClass('video-tab').html("Upload Video");
+          self.$imageTab = $('<li/>').attr({
+            class: 'image-tab selected',
+            value: 'image'
+          }).html("Upload Image");
+          self.$videoTab = $('<li/>').attr({
+            class: 'video-tab',
+            value: 'video'
+          }).html("Upload Video");
 
           //Append tabs to the tab container...
-          self.$tabs.append(self.$imageTab).append(self.$videoTab);
+          self.$tabs.append(self.$imageTab, self.$videoTab);
           self.$widgetContainer.append(self.$tabContainer);
         }
 
         self.element.append(self.$widgetContainer);
 
         // Define content in the tab container...
-        self.$helpMessage = $("<p>").text("Select media for upload");
+        self.$helpMessage = $("<p/>").text("Select media for upload");
         self.$browseButton = $('<input/>').attr("type", "file").html("Choose file");
+        self.$errorAlert = $('<div/>').addClass('error-display').hide();
+        self.$loader = $('<div/>').addClass('loader').hide();
         self.$mediaContainer = $('<div/>').addClass('media-container ');
-        self.$mediaContainer.append(self.$helpMessage).append(self.$browseButton);
-        self.$widgetContainer.append(self.$mediaContainer);
 
         self.$description = $('<textarea/>').attr({
           'class': 'description-container',
@@ -61,14 +73,15 @@
           placeholder: 'Title'
         });
 
-        $(self.$mediaContainer).append(self.$titleInput).append(self.$description);
+        self.$mediaContainer.append(self.$helpMessage, self.$browseButton, self.$errorAlert, self.$loader, self.$titleInput, self.$description);
+        self.$widgetContainer.append(self.$mediaContainer);
 
         self.$uploadButton = $('<button/>').addClass('upload-button').text("publish");
 
         //Create the checkbox container...
         self.$checkBoxContainer = $('<div/>').addClass('checkBox-container');
-        self.$checkContainer = [];
-        serviceArray.forEach(function (value) {
+        var $checkContainer = [];
+        self.options.serviceArray.forEach(function (value) {
           var $serviceCheckbox = $('<div/>').addClass("check-container " + value)
               .append($("<input/>", {
                 'type': 'checkbox',
@@ -77,20 +90,26 @@
               })),
             $userView = $("<div/>").addClass("user-image "),
             $serviceView = $('<div/>').addClass("service-container " + value);
-          $serviceCheckbox.append($userView).append($serviceView);
-          self.$checkContainer.push($serviceCheckbox);
+          $serviceCheckbox.append($userView, $serviceView);
+          $checkContainer.push($serviceCheckbox);
         });
-        self.$checkBoxContainer.append(self.$checkContainer);
-        self.$checkBoxContainer.insertAfter(self.$description);
-        self.$uploadButton.insertAfter(self.$checkBoxContainer);
+        self.$checkBoxContainer.append($checkContainer);
+        self.$mediaContainer.append(self.$checkBoxContainer, self.$uploadButton);
         self.$uploadButton.on("click", this, this._publishPhoto);
-        $(self.$imageTab).addClass('selected');
-        $(self.$tabs).children().click(function () {
-          $(this).toggleClass('selected');
-          $(this).siblings().toggleClass('selected');
+
+        $(self.$tabs).on('click', 'li', function () {
+          var $currentTab = $(this);
+          $currentTab.addClass('selected').siblings('li').removeClass('selected');
+          self.options.functionality = $currentTab.attr('value');
+          if ($currentTab.attr('value') == 'video') {
+            self.$checkBoxContainer.find('.check-container.twitter').hide();
+          } else {
+            self.$checkBoxContainer.find('.check-container.twitter').show();
+          }
         });
+
         $(self.$checkBoxContainer).on('click', 'div.check-container input', function (e) {
-          var that=this;
+          var that = this;
           self.service = this.value;
           if ($(this).is("input:checked")) {
             $(that).prop('checked', false);
@@ -99,16 +118,16 @@
               $(that).siblings('div.service-container').toggleClass('selected');
               $(that).prop('checked', true);
               picSuccess = function (profilePicUrl) {
-                if(profilePicUrl){
+                if (profilePicUrl) {
                   $(self.$checkBoxContainer).find('.check-container' + '.' + self.service + ' .user-image').css("background", 'url("' + profilePicUrl + '")');
                 }
               };
               picFailure = function (error) {
               };
-              SBW.api.getProfilePic(self.service,userId, picSuccess, picFailure);
+              SBW.api.getProfilePic(self.service, userId, picSuccess, picFailure);
             };
             self.authenticate(self.service, loginSuccessHandler);
-          }else{
+          } else {
             $(that).siblings('div.service-container').toggleClass('selected');
           }
         });
@@ -124,8 +143,12 @@
       options: {
         theme: 'default',
         display: 'stand-alone',
-        functionality: 'image'
+        functionality: 'image',
+        serviceArray: ['facebook', 'flickr', 'picasa', 'twitter'],
+        // limit in kilobytes
+        sizeLimit: {image: 1024, video: 20480}
       },
+      services: 0,
       /**
        * @method
        * @desc Authenticate to the specified service to upload files.
@@ -142,41 +165,65 @@
        * @ignore
        */
       _publishPhoto: function (e) {
-        var self = e.data, description = $(self.$description).val(), title = $(self.$titleInput).val(), serviceArr = [],
+        var self = e.data, serviceCheck = 0, description = $(self.$description).val(), title = $(self.$titleInput).val(), serviceArr = [],
           fileData = {
             'description': description,
             'title': title,
             'location': '',
             'file': self.$browseButton[0].files[0]
           }, successCallback = function (uploadStatus) {
-            if (self.$responseText) {
-              self.$responseText.text("Successfully published media in " + uploadStatus[0].serviceName);
+            serviceCheck = serviceCheck + 1;
+            if (serviceCheck === self.services) {
+              self.$loader.hide();
+            }
+            if ((!self.$successText) || (self.$successText.text() === '')) {
+              self.$successText = $("<p/>").text("Successfully published media in " + uploadStatus[0].serviceName);
+              self.$widgetContainer.append(self.$successText);
             } else {
-              self.$responseText = $("<p/>").text("Successfully published media in " + uploadStatus[0].serviceName);
-              self.$widgetContainer.append(self.$responseText);
+              self.$successText.text(self.$successText.text() + ', ' + uploadStatus[0].serviceName);
             }
           }, errorCallback = function (uploadStatus) {
-            if (self.$responseText) {
-              self.$responseText.text("Failure while publishing media in " + uploadStatus[0].serviceName);
+            serviceCheck = serviceCheck + 1;
+            if (serviceCheck === self.services) {
+              self.$loader.hide();
+            }
+            if ((!self.$failureText) || (self.$failureText.text() === '')) {
+              self.$failureText = $("<p/>").text("Error while publishing media in " + uploadStatus[0].serviceName);
+              self.$widgetContainer.append(self.$failureText);
             } else {
-              self.$responseText = $("<p/>").text("Failure while publishing media in " + uploadStatus[0].serviceName);
-              self.$widgetContainer.append(self.$responseText);
+              self.$failureText.text(self.$failureText.text() + ', ' + uploadStatus[0].serviceName);
             }
           };
+        if (self.$successText) {
+          self.$successText.empty();
+        }
+        if (self.$failureText) {
+          self.$failureText.empty();
+        }
         self.$checkBoxContainer.find("input:checked").each(function () {
           serviceArr.push(this.value);
         });
-        if (self.options.display === 'stand-alone') {
-          if ($(self.$tabs).children('.selected').html() === self.$imageTab.html()) {
+        if (self.options.functionality === 'image') {
+          if (self.$browseButton[0].files[0].size / 1024 < self.options.sizeLimit.image) {
+            self.$errorAlert.hide();
+            if (serviceArr.length !== 0) {
+              self.$loader.show();
+              self.services = serviceArr.length;
+            }
             SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
           } else {
-            SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
+            self.$errorAlert.show().text('Maximum upload size for image : 1MB')
           }
         } else {
-          if (self.options.functionality === 'image') {
-            SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
-          } else {
+          if (self.$browseButton[0].files[0].size / 1024 < self.options.sizeLimit.video) {
+            self.$errorAlert.hide();
+            if (serviceArr.length !== 0) {
+              self.$loader.show();
+              self.services = serviceArr.length;
+            }
             SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
+          } else {
+            self.$errorAlert.show().text('Maximum upload size for video : 20MB')
           }
         }
       }

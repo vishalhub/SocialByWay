@@ -202,9 +202,10 @@
 				contentType: 'text',
 				type: 'GET'
 			}, function (response) {
-				var domObject = $.parseHTML(response),
+				var domObject = $.parseHTML(response) || [],
 					metaObject = {};
 				domObject.forEach(function (value, index, domObject) {
+					metaObject.url = url;
 					if (value.nodeName.toLowerCase() === 'meta') {
 						var attributeMap = value.attributes,
 							attribute;

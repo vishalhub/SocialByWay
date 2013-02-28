@@ -1,4 +1,4 @@
-(function ($) { /*jslint nomen: true*/
+(function($) { /*jslint nomen: true*/
   /*jslint plusplus: true */
   /*global console, SBW*/
   /**
@@ -11,7 +11,7 @@
    */
   "use strict";
   $.widget("ui.PostWidget", /** @lends PostWidget.prototype */ {
-    _create: function () {
+    _create: function() {
       var self = this;
       self.serviceFactory = SBW.Singletons.serviceFactory;
       // Tabs UI
@@ -48,7 +48,7 @@
       self.$postTabDiv.append(self.$containerDiv);
       self.$postTabDiv.append(self.$photocontainerDiv);
       self.$postTabDiv.append(self.$videocontainerDiv);
-      self.$tabsUl.on('click', 'li a', function () {
+      self.$tabsUl.on('click', 'li a', function() {
         if (!$(this).hasClass('selected')) {
           self.$tabsDiv.find('.tab-content>div').addClass('hide');
           self.$postTabDiv.find('.' + $(this).attr('class')).removeClass('hide');
@@ -63,8 +63,38 @@
         cols: 62,
         rows: 8,
         placeholder: self.options.labelPlaceholder
-      }).on('keyup', this, function () {
+      }).on('keydown', this, function(e) {
+        if (e.keyCode === 17) {
+          self.ctrlDown = true;
+        }
+
+      }).on('keyup', this, function(e) {
         self.$charsleft.html(this.value.length);
+        if (self.ctrlDown && e.keyCode === 86) {
+          self.ctrlDown = false;
+          var searchText = this.value,
+            urls = searchText.match(/((\b(https?|ftp|file)?:\/\/|www)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig);
+          if (urls instanceof Array && urls[0].length !== 0) {
+            var successcallback = function(metaObject) {
+              if (self.$containerDiv.find('.link-preview').length === 0 && metaObject.title) {
+                var temp = [];
+                temp.push('<div class="link-preview">');
+                if (metaObject.previewUrl) {
+                  temp.push('<img class="previewimg" height="50" width="50" src="' + metaObject.previewUrl + '"/>');
+                }
+                temp.push('<div class="link-info"><div class="link-title"><a href="#">' + metaObject.title + "</a></div>");
+                temp.push('<div class="link-description">' + (metaObject.description || metaObject.url) + '</div></div>');
+                temp.push('<div class="close">x</div><div class="clear"></div></div>');
+                self.$containerDiv.append(temp.join(''));
+                self.$containerDiv.find('.close').bind('click', function() {
+                  $(this).parent('.link-preview').remove();
+                })
+              }
+            }, errorcallback = function(error) {};
+            if (self.$containerDiv.find('.link-preview').length === 0)
+             SBW.Singletons.utils.getMetaForUrl(urls[0], successcallback, errorcallback);
+          }
+        }
       });
 
       self.$charsleft = $("<p/>").addClass('chars-count').text('0');
@@ -72,7 +102,7 @@
       self.$postBtn = $('<button/>').addClass('post-btn').text(self.options.buttonText);
       self.$checkBoxesDiv = $('<div/>').addClass('checkbox-container');
 
-      self.options.services.forEach(function (value) {
+      self.options.services.forEach(function(value) {
         var temp = $('<div/>').addClass("checkbox " + value).
         append("<input type='checkbox' name='service' value='" + value + "'/>").
         append("<div class='userimage'></div>").
@@ -86,19 +116,19 @@
       self.$checkBoxesDiv.insertAfter(self.$input);
 
       self.$postBtn.on("click", this, this._addPost);
-      self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function (e) {
+      self.$containerDiv.find(".checkbox-container").on('click', '.checkbox input', function(e) {
         var that = this,
           value = that.value;
         if ($(that).is(":checked")) {
           $(that).prop('checked', false);
-          self.serviceFactory.getService(value).startActionHandler(function () {
+          self.serviceFactory.getService(value).startActionHandler(function() {
             $(that).prop('checked', true);
             self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
-            SBW.api.getProfilePic([value], null, function (response) {
+            SBW.api.getProfilePic([value], null, function(response) {
               if (response) {
                 self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
               }
-            }, function (error) {});
+            }, function(error) {});
           });
         } else {
           self.$checkBoxesDiv.find(".service-container." + value).removeClass('selected');
@@ -133,7 +163,7 @@
      * @method
      * @desc Removes the widget from display
      */
-    destroy: function () {
+    destroy: function() {
       this.$tabsDiv.remove();
       $.Widget.prototype.destroy.call(this);
     },
@@ -143,11 +173,11 @@
      * @param e
      * @private
      */
-    _addPost: function (e) {
+    _addPost: function(e) {
       var self = e.data,
         postText = self.$input.val(),
         serviceArr = [],
-        successCallback = function (response) {
+        successCallback = function(response) {
           var elem = self.$containerDiv.find(".sbw-success-message");
           if (elem.length !== 0) {
             elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.serviceName + ".");
@@ -155,10 +185,10 @@
             self.$containerDiv.append('<span class="sbw-success-message">Successfully posted on ' + response.serviceName + '.</span>');
           }
         },
-        failureCallback = function (response) {
+        failureCallback = function(response) {
           self.$containerDiv.append('<span class="sbw-error-message">Some problem in posting with ' + response.serviceName + '.</span>');
         };
-      self.$checkBoxesDiv.find("input:checked").each(function () {
+      self.$checkBoxesDiv.find("input:checked").each(function() {
         serviceArr.push(this.value);
         if (this.value === 'twitter') {
           postText = postText.substring(0, 140); //twitter character limit

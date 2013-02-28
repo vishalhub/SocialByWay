@@ -15,7 +15,32 @@
     cursor:pointer;
   }
 
+  .link-preview{
 
+    a {
+      text-decoration: none;
+      color: #FF417E;
+      &:hover{
+        color: #AA2F4B;
+      }
+    }
+    .previewimg{
+      float:left;
+      margin-right: 20px;
+    }
+    .link-info{
+      float:left;
+      width:640px;
+      margin-right: 20px;
+    }
+    .close{
+      cursor:pointer;
+      float:left;
+      &:hover{
+        color:black;
+      }
+    }
+  }
   .sbw-post-container{
     background: #F8F8F8;
     padding:10px;

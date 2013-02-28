@@ -54,7 +54,6 @@
 			$.each(this.options.services, function (index, service) {
 				var serviceContainer = self.createServiceElement(service, serviceDiv, (minAngle * index), self);
 				SBW.Singletons.serviceFactory.getService(service).getShareCount(self.options.url, function (response) {
-					console.log(response);
 					if (response && response.count) {
 						self.count += response.count;
 						serviceShareCountContainer = $("<div />", {

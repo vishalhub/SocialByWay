@@ -107,7 +107,11 @@
             self.$checkBoxContainer.find('.check-container.twitter').show();
           }
         });
-
+        if (self.options.functionality == 'video') {
+          self.$checkBoxContainer.find('.check-container.twitter').hide();
+        } else {
+          self.$checkBoxContainer.find('.check-container.twitter').show();
+        }
         $(self.$checkBoxContainer).on('click', 'div.check-container input', function (e) {
           var that = this;
           self.service = this.value;

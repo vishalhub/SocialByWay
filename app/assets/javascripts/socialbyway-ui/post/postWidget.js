@@ -63,28 +63,37 @@
         cols: 62,
         rows: 8,
         placeholder: self.options.labelPlaceholder
+      }).on('keydown', this, function(e) {
+        if (e.keyCode === 17) {
+          self.ctrlDown = true;
+        }
+
       }).on('keyup', this, function(e) {
         self.$charsleft.html(this.value.length);
-        var searchText = this.value,
-          urls = searchText.match(/((\b(https?|ftp|file)?:\/\/|www)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig);
-        if (urls instanceof Array && urls[0].length !== 0) {
-          var successcallback = function(metaObject) {
-            if (self.$containerDiv.find('.link-preview').length === 0 && metaObject.title) {
-              var temp = [];
-              temp.push('<div class="link-preview">');
-              if (metaObject.previewUrl) {
-                temp.push('<img class="previewimg" height="50" width="50" src="' + metaObject.previewUrl + '"/>');
+        if (self.ctrlDown && e.keyCode === 86) {
+          self.ctrlDown = false;
+          var searchText = this.value,
+            urls = searchText.match(/((\b(https?|ftp|file)?:\/\/|www)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig);
+          if (urls instanceof Array && urls[0].length !== 0) {
+            var successcallback = function(metaObject) {
+              if (self.$containerDiv.find('.link-preview').length === 0 && metaObject.title) {
+                var temp = [];
+                temp.push('<div class="link-preview">');
+                if (metaObject.previewUrl) {
+                  temp.push('<img class="previewimg" height="50" width="50" src="' + metaObject.previewUrl + '"/>');
+                }
+                temp.push('<div class="link-info"><div class="link-title"><a href="#">' + metaObject.title + "</a></div>");
+                temp.push('<div class="link-description">' + (metaObject.description || metaObject.url) + '</div></div>');
+                temp.push('<div class="close">x</div><div class="clear"></div></div>');
+                self.$containerDiv.append(temp.join(''));
+                self.$containerDiv.find('.close').bind('click', function() {
+                  $(this).parent('.link-preview').remove();
+                })
               }
-              temp.push('<div class="link-info"><div class="link-title"><a href="#">' + metaObject.title + "</a></div>");
-              temp.push('<div class="link-description">' + (metaObject.description || metaObject.url) + '</div></div>');
-              temp.push('<div class="close">x</div><div class="clear"></div></div>');
-              self.$containerDiv.append(temp.join(''));
-              self.$containerDiv.find('.close').bind('click', function() {
-                $(this).parent('.link-preview').remove();
-              })
-            }
-          }, errorcallback = function(error) {};
-          if (self.$containerDiv.find('.link-preview').length === 0) SBW.Singletons.utils.getMetaForUrl(urls[0], successcallback, errorcallback);
+            }, errorcallback = function(error) {};
+            if (self.$containerDiv.find('.link-preview').length === 0)
+             SBW.Singletons.utils.getMetaForUrl(urls[0], successcallback, errorcallback);
+          }
         }
       });
 

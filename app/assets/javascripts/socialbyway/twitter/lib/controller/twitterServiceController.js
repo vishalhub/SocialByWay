@@ -761,7 +761,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       postLike = function (parameters, successCallback, errorCallback) {
         var data = service.getDataForRequest(service.likeUrl, parameters, 'POST'),
           errorCall = function (resp) {
-            if (resp.errors[0]['code'] == 139) {
+            if (JSON.parse(resp.responseText).errors[0]['code'] == 139) {
               // error code 139 comes when the user has liked the tweet already
               successCallback();
             } else {

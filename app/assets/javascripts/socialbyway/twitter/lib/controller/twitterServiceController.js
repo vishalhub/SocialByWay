@@ -67,8 +67,9 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} callback
    */
   startActionHandler: function (callback) {
-    var service = this,
-    tokenListener = function (windowReference) {
+    var service = this;
+    service.eraseCookie('twitterToken');
+    var tokenListener = function (windowReference) {
         if (!windowReference.closed) {
           if (service.getCookie('twitterToken')) {
             windowReference.close();

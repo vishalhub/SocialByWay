@@ -91,7 +91,8 @@
                 })
               }
             }, errorcallback = function(error) {};
-            if (self.$containerDiv.find('.link-preview').length === 0) SBW.Singletons.utils.getMetaForUrl(urls[0], successcallback, errorcallback);
+            if (self.$containerDiv.find('.link-preview').length === 0)
+             SBW.Singletons.utils.getMetaForUrl(urls[0], successcallback, errorcallback);
           }
         }
       });
@@ -120,27 +121,15 @@
           value = that.value;
         if ($(that).is(":checked")) {
           $(that).prop('checked', false);
-          self.serviceFactory.getService(value).checkUserLoggedIn(function(response) {
-            if (!response) {
-              self.serviceFactory.getService(value).startActionHandler(function() {
-                $(that).prop('checked', true);
-                self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
-                SBW.api.getProfilePic([value], null, function(response) {
-                  if (response) {
-                    self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
-                  }
-                }, function(error) {});
-              });
-            }else{
-              $(that).prop('checked', true);
-              SBW.api.getProfilePic([value], null, function(response) {
-                  if (response) {
-                    self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
-                  }
-                }, function(error) {});
-            }
+          self.serviceFactory.getService(value).startActionHandler(function() {
+            $(that).prop('checked', true);
+            self.$checkBoxesDiv.find(".service-container." + value).addClass('selected');
+            SBW.api.getProfilePic([value], null, function(response) {
+              if (response) {
+                self.$checkBoxesDiv.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
+              }
+            }, function(error) {});
           });
-
         } else {
           self.$checkBoxesDiv.find(".service-container." + value).removeClass('selected');
         }

@@ -50,7 +50,6 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    **/
   startActionHandler: function (callback) {
     var service = this;
-    service.eraseCookie('flickrToken');
     var tokenListener = function (windowReference) {
       if (!windowReference.closed) {
         if (service.getCookie('flickrToken')) {

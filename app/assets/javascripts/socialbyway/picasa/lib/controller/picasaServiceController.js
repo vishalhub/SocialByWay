@@ -184,7 +184,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
                 numAssets: this.gphoto$numphotos.$t,
                 assetCollectionId: this.gphoto$id.$t,
                 commentCount: this.gphoto$commentCount.$t,
-                //type: this.gphoto$albumType.$t, 
+                thumbnail: this.media$group.media$thumbnail[0].url || '',
                 fileName: this.gphoto$name.$t,
                 description: this.summary.$t,
                 author: this.author[0].name.$t

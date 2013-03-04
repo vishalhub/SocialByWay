@@ -327,7 +327,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @desc To post a photo to flickr through flickr API service
    * Flickr supports JPEGs, non-animated GIFs, and PNGs. Any other  format is automatically converted to and stored in JPEG format.
    * additional help for photo upload refer to URL: http://www.flickr.com/help/photos/
-   * @param fileData
+   * @param fileDataArray
    * @param successCallback
    * @param errorCallback
    */
@@ -813,64 +813,79 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    */
   getAlbums: function (userId, successCallback, errorCallback) {
     var service = this;
-    var apiKey = service.accessObject.consumerKey;
-    var message = {
-      action: service.flickrApiUrl,
-      method: "GET",
-      parameters: {
-        method: 'flickr.photosets.getList',
-        perms: 'write',
-        format: 'json',
-        user_id: userId,
-        api_key: apiKey,
-        nojsoncallback: 1
-      }
-    };
-    var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-    SBW.Singletons.utils.ajax({
-        url: url,
-        type: 'GET',
-        dataType: "json"
-      },
-      function(response){
-        var content = new Array();
-        var albums =  response.photosets.photoset;
-        albums.forEach(function(element){
-          var album = element;
-          var collection = new SBW.Models.AssetCollection({
-            id:'',
-            title:album.title._content,
-            createdTime:album.date_create,
-            rawData:album,
-            status:'private',
-            serviceName:'flickr',
-            assets: [],
-            metadata:{
-              dateUpdated:album.date_update,
-              dateUploaded:null,
-              numAssets:album.photos,
-              assetCollectionId:album.id,
-              type:'image',
-              tags:null,
-              fileName:null,
-              description:album.description._content,
-              thumbnail:null,
-              previewUrl:'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
-              author:null,
-              authorAvatar:null,
-              commentCount:album.count_comments,
-              comments:null,
-              likeCount:0,
-              likes:null
-            }
+    userId = ((userId !== undefined) ? userId : service.accessObject.id );
+    var getData = function (userId, successCallback, errorCallback) {
+      var apiKey = service.accessObject.consumerKey;
+      var message = {
+        action: service.flickrApiUrl,
+        method: "GET",
+        parameters: {
+          method: 'flickr.photosets.getList',
+          perms: 'write',
+          format: 'json',
+          user_id: userId,
+          api_key: apiKey,
+          nojsoncallback: 1
+        }
+      };
+      var url = service.signAndReturnUrl(service.flickrApiUrl, message);
+      SBW.Singletons.utils.ajax({
+          url: url,
+          type: 'GET',
+          dataType: "json"
+        },
+        function (response) {
+          var content = new Array();
+          var albums = response.photosets.photoset;
+          albums.forEach(function (element) {
+            var album = element;
+            var collection = new SBW.Models.AssetCollection({
+              id: '',
+              title: album.title._content,
+              createdTime: album.date_create,
+              rawData: album,
+              status: 'private',
+              serviceName: 'flickr',
+              assets: [],
+              metadata: {
+                dateUpdated: album.date_update,
+                dateUploaded: null,
+                numAssets: album.photos,
+                assetCollectionId: album.id,
+                type: 'image',
+                tags: null,
+                fileName: null,
+                description: album.description._content,
+                thumbnail: null,
+                previewUrl: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
+                author: null,
+                authorAvatar: null,
+                commentCount: album.count_comments,
+                comments: null,
+                likeCount: 0,
+                likes: null
+              }
+            });
+            collection.id = collection.getID();
+            content.push(collection);
           });
-          collection.id = collection.getID();
-          content.push(collection);
-        });
-        successCallback(content);
-      },
-      errorCallback
-    );
+          successCallback(content);
+        },
+        errorCallback
+      );
+    }
+    var callback = (function (userId, successCallback, errorCallback) {
+      return function (isLoggedIn) {
+        if (isLoggedIn) {
+          getData(userId, successCallback, errorCallback);
+        } else {
+          service.startActionHandler(function () {
+            getData(userId, successCallback, errorCallback);
+          });
+        }
+      };
+    })(userId, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
@@ -946,7 +961,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} successCallback
    * @param {Callback} errorCallback
    */
-  getAlbumPhotos: function (photoSetId, successCallback, errorCallback) {
+  getPhotosFromAlbum: function (photoSetId, successCallback, errorCallback) {
     var service = this;
     var apiKey = service.accessObject.consumerKey;
     var message = {
@@ -966,59 +981,60 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         url: url,
         type: 'GET',
         dataType: "json"
-      },  function(response){
+      }, function (response) {
         var content = new Array();
-        var assets =  response.photoset.photo;
-        assets.forEach(function(asset){
-          var collection  = new SBW.Models.Asset({
-            type:'asset',
-            id:'',
-            title:asset.title,
-            createdTime:'',
-            serviceName:'flickr',
-            rawData:asset,
-            status:'private',
-            imgSizes:{t:'', s:'', m:'', l:''},
-            metadata:{
-              caption:null,
-              type:null,
-              dateTaken:null,
-              dateUpdated:null,
-              dateUploaded:null,
-              comments:null,
-              size:null,
-              assetId:asset.id,
-              assetCollectionId:response.photoset.id,
-              height:null,
-              width:null,
-              commentCount:null,
-              category:null,
-              exifMake:null,
-              exifModel:null,
-              iptcKeywords:null,
-              orientation:null,
-              tags:null,
-              downloadUrl:null,
-              originalFormat:null,
-              fileName:null,
-              version:null,
-              description:null,
-              thumbnail:null,
-              previewUrl:'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
+        var assets = response.photoset.photo;
+        assets.forEach(function (asset) {
+          var collection = new SBW.Models.ImageAsset({
+            src: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
+            id: '',
+            title: asset.title,
+            createdTime: '',
+            serviceName: 'flickr',
+            rawData: asset,
+            status: 'private',
+            imgSizes: {t: '', s: '', m: '', l: ''},
+            metadata: {
+              caption: null,
+              type: null,
+              dateTaken: null,
+              dateUpdated: null,
+              dateUploaded: null,
+              comments: null,
+              size: null,
+              assetId: asset.id,
+              assetCollectionId: response.photoset.id,
+              height: null,
+              width: null,
+              commentCount: null,
+              category: null,
+              exifMake: null,
+              exifModel: null,
+              iptcKeywords: null,
+              orientation: null,
+              tags: null,
+              downloadUrl: null,
+              originalFormat: null,
+              fileName: null,
+              version: null,
+              description: null,
+              thumbnail: null,
+              previewUrl: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
               author: new SBW.Models.User({
-                name:response.photoset.ownername,
-                id:response.photoset.owner,
-                userImage:'http://flickr.com/buddyicons/' + response.photoset.owner + '.jpg'
+                name: response.photoset.ownername,
+                id: response.photoset.owner,
+                userImage: 'http://flickr.com/buddyicons/' + response.photoset.owner + '.jpg'
               }),
-              authorAvatar:null,
-              likeCount:0,
-              likes:null
+              authorAvatar: null,
+              likeCount: 0,
+              likes: null
             }
           });
           collection.id = collection.getID();
           content.push(collection);
         });
-        successCallback(content)},
+        successCallback(content)
+      },
       errorCallback
     );
   },
@@ -1106,8 +1122,56 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         url: url,
         type: 'GET',
         dataType: 'json'},
-      // todo to populate assets from the response
-      successCallback,
+      function (response) {
+        var photo = response.photo;
+        var asset = new SBW.Models.ImageAsset({
+          src: 'http://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '.jpg',
+          id: '',
+          title: photo.title._content,
+          createdTime: photo.dates.posted,
+          serviceName: 'flickr',
+          rawData: photo,
+          status: photo.visibility,
+          imgSizes: {t: '', s: '', m: '', l: ''},
+          metadata: {
+            caption: null,
+            type: null,
+            dateTaken: photo.dates.taken,
+            dateUpdated: photo.dates.lastupdate,
+            dateUploaded: photo.dateuploaded,
+            comments: null,
+            size: null,
+            assetId: photo.id,
+            assetCollectionId: null,
+            height: null,
+            width: null,
+            commentCount: photo.comments._content,
+            category: null,
+            exifMake: null,
+            exifModel: null,
+            iptcKeywords: null,
+            orientation: photo.rotation,
+            tags: photo.tags,
+            downloadUrl: null,
+            originalFormat: photo.originalformat,
+            fileName: null,
+            version: null,
+            description: photo.description._content,
+            thumbnail: null,
+            previewUrl: 'http://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '.jpg',
+            author: new SBW.Models.User({
+              name: photo.owner.username,
+              id: photo.owner.nsid,
+              userImage: 'http://flickr.com/buddyicons/' + photo.owner.nsid + '.jpg'
+            }),
+            authorAvatar: null,
+            likeCount: photo.isfavorite,
+            likes: null
+          }
+        });
+        asset.id = asset.getID();
+        successCallback(asset)
+      },
       errorCallback);
   },
   /**

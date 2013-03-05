@@ -356,6 +356,26 @@
 		 * @callback SBW.Controllers.Services.ServiceController~getComments-errorCallback
 		 * @param {Object} response JSON response from the service
 		 **/
+		 /**
+		 * @method
+		 * @desc get albums for the logged in user from the specified service.
+		 * @param {String} serviceName  Name of the registered service.
+		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getAlbums-successCallback Callback} to be executed on successful retrieval of albums.
+		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getAlbums-errorCallback Callback} to be executed on error while retrieving albums.
+		 */
+		getAlbums: function (serviceName, successCallback, errorCallback) {
+			SBW.Singletons.serviceFactory.getService(serviceName).getAlbums(successCallback, errorCallback);
+		},
+		/**
+		 * This callback is displayed as part of the getAlbums method.
+		 * @callback SBW.Controllers.Services.ServiceController~getAlbums-successCallback
+		 * @param {Array} response Array of {@link SBW.Models.AssetCollection albums} from the service
+		 **/
+		/**
+		 * This callback is displayed as part of the getAlbums method.
+		 * @callback SBW.Controllers.Services.ServiceController~getAlbums-errorCallback
+		 * @param {SBW.Models.Error} response JSON response from the service
+		 **/
 		/**
 		 * @method
 		 * @desc Retrieves comments for the url with the specified options on the speicifed service.

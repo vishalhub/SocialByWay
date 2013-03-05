@@ -73,9 +73,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         if (!windowReference.closed) {
           if (service.getCookie('twitterToken')) {
             windowReference.close();
-            if (!service.accessObject.user_id || !service.accessObject.consumerSecret || !service.accessObject.tokenSecret) {
               service.getAccessToken.call(service, callback);
-            }
           } else {
             setTimeout(function () {
               tokenListener(windowReference);
@@ -109,7 +107,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       service.accessObject.access_token = null;
       service.accessObject.tokenSecret = null;
       var url = service.signAndReturnUrl(this.requestTokenUrl, message);
-      if (!service.accessObject.user_id || !service.accessObject.consumerSecret || !service.accessObject.tokenSecret) {
         this.sendTwitterRequest({
           url: url,
           returnType: 'text'
@@ -122,7 +119,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         }, function (response) {
           console.log('Error: ', response);
         });
-      }
     } else {
       service.authWindowReference.focus();
     }
@@ -790,9 +786,27 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} successCallback Function to be executed in case of success response from twitter. Contains a count object as parameter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
-  unlike: function (parameters, successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.unlikeUrl, parameters, 'POST');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+  unlike: function (ObjectId, successCallback, errorCallback) {
+    var parameters = {
+      id: ObjectId
+    };
+    var service = this,
+      postUnlike = function (parameters, successCallback, errorCallback) {
+        var data = service.getDataForRequest(service.unlikeUrl, parameters, 'POST');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (parameters, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            postUnlike(parameters, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              postUnlike(parameters, successCallback, errorCallback);
+            });
+          }
+        };
+      })(parameters, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method

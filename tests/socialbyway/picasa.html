@@ -59,7 +59,7 @@
                     $('table#result tbody').append("<tr><td> ****** </td><td> ****** </td></tr>");
                     $('table#result tbody').append("<tr><td> Photo Id </td><td>" + this.id + "</td></tr>");
                     $('table#result tbody').append("<tr><td> Title </td><td>" + this.title + "</td></tr>");
-                    $('table#result tbody').append("<tr><td> Photo Link </td><td><a href='" + this.src + "' target='new'>" + this.src + "</a></td></tr>");
+                    $('table#result tbody').append("<tr><td> Photo Link </td><td><a href='" + this.metadata.downloadUrl + "' target='new'>" + this.metadata.downloadUrl + "</a></td></tr>");
                  });
 
         }, function (response) {

@@ -191,8 +191,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc  To like an object.
    * @param {String} objectId
-   * @param successCallback
-   * @param errorCallback
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
   like: function (objectId, successCallback, errorCallback) {
     var service = this;
@@ -236,8 +236,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc  To unlike an object.
    * @param {String} objectId
-   * @param successCallback
-   * @param errorCallback
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} will be called if unlike is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
    */
   unlike: function (objectId, successCallback, errorCallback) {
     var service = this;
@@ -280,9 +280,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @desc To comment on a photo.
    * @param {String} objectId
    * @param {String} comment
-   * @param successCallback
-   * @param errorCallback
-   */
+  * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} will be called if posting is successful
+    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
+    */
   postComment: function (objectId, comment, successCallback, errorCallback) {
     var service = this;
     var apiKey = service.accessObject.consumerKey;
@@ -327,9 +327,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @desc To post a photo to flickr through flickr API service
    * Flickr supports JPEGs, non-animated GIFs, and PNGs. Any other  format is automatically converted to and stored in JPEG format.
    * additional help for photo upload refer to URL: http://www.flickr.com/help/photos/
-   * @param fileDataArray
-   * @param successCallback
-   * @param errorCallback
+   * @param {Array} fileData  Array of {@link  SBW.Models.UploadFileMetaData}
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-successCallback Callback} will be called if media is uploaded successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback Callback} will be called in case of any error while uploading media
    */
   uploadPhoto: function (fileDataArray, successCallback, errorCallback) {
     var service = this;
@@ -382,13 +382,12 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @desc To post a video to flickr through flickr API service
    * Format supported for video  AVI (Proprietary codecs may not work), WMV, MOV (AVID or other proprietary codecs may not work), MPEG (1, 2, and 4), 3gp, M2TS, OGG, OGV
    * additional help on video upload refer to URL: http://www.flickr.com/help/video/
-   * @param fileData
-   * @param metadata
-   * @param successCallback
-   * @param errorCallback
-   */
-  uploadVideo: function (fileData, metadata, successCallback, errorCallback) {
-    this.uploadPhoto(fileData, metadata, successCallback, errorCallback);
+    * @param {Array} fileData  Array of {@link  SBW.Models.UploadFileMetaData}
+    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~uploadVideo-successCallback Callback} will be called if media is uploaded successfully
+    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} will be called in case of any error while uploading media
+    */
+  uploadVideo: function (fileDataArray, successCallback, errorCallback) {
+    this.uploadPhoto(fileDataArray, successCallback, errorCallback);
   },
   /**
    * @method
@@ -460,9 +459,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @desc To get likes(favorites) for the photo given through flickr API service
    * The method doesn't require any authentication
    * @param {String} photoId
-   * @param {Callback} successCallback
-   * @param {Callback} errorCallback
-   */
+  * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
+    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
+    */
   getLikes: function (photoId, successCallback, errorCallback) {
     var service = this;
     var apiKey = service.accessObject.consumerKey;
@@ -732,9 +731,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @desc To get comments of a Photo through Flickr API service
    * method doesn't require any authentication
    * @param {String} objectId
-   * @param {Callback} successCallback
-   * @param {Callback} errorCallback
-   */
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if data is fetched successfully
+     * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching data
+     */
   getComments: function (objectId, successCallback, errorCallback) {
     var service = this;
     var apiKey = service.accessObject.consumerKey;
@@ -1178,9 +1177,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc Method to get the profile image(buddy icon) of the logged in user
    * @param {String} userId
-   * @param {Callback} successCallback
-   * @param {Callback} errorCallback
-   */
+  * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-successCallback Callback} will be called if data is fetched successfully
+  * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} will be called in case of any error while fetching data
+  */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;
     userId = ((userId !== undefined) ? userId : service.accessObject.id );

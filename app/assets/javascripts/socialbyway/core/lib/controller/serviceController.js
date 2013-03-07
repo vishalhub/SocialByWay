@@ -376,6 +376,27 @@
 		 * @callback SBW.Controllers.Services.ServiceController~getAlbums-errorCallback
 		 * @param {SBW.Models.Error} response JSON response from the service
 		 **/
+		 /**
+		 * @method
+		 * @desc Fetch photo details from album for the specified service.
+		 * @param {String} serviceName  Name of the registered service.
+		 * @param {String}   albumId Album Id from which to fetch the photo details.
+		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-successCallback Callback} to be called with json response after fetching the photo details successfully.
+   		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-errorCallback Callback} to be called in case of error while fetching photo details.
+		 */
+		getPhotosFromAlbum: function (serviceName, albumId, successCallback, errorCallback) {
+			SBW.Singletons.serviceFactory.getService(serviceName).getPhotosFromAlbum(albumId, successCallback, errorCallback);
+		},
+		/**
+		 * This callback is displayed as part of the getPhotosFromAlbum method.
+		 * @callback SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-successCallback
+		 * @param {Array} response Array of {@Link SBW.Models.Asset} from the service
+		 **/
+		/**
+		 * This callback is displayed as part of the getPhotosFromAlbum method.
+		 * @callback SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-errorCallback
+		 * @param {SBW.Models.Error} response JSON response from the service
+		 **/
 		/**
 		 * @method
 		 * @desc Retrieves comments for the url with the specified options on the speicifed service.

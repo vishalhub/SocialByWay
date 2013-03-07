@@ -148,7 +148,7 @@
         successCallback = function (response) {
           var elem = self.$containerDiv.find(".sbw-success-info");
           if (elem.length !== 0) {
-            elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.service + ".");
+            elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.serviceName + ".");
           } else {
             self.$containerDiv.append('<span class="sbw-success-info">Successfully posted on ' + response.serviceName + '.</span>');
           }

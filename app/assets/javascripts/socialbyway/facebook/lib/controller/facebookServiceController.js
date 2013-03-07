@@ -14,6 +14,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    **/
   name: 'facebook',
   /**
+   * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for picasa.
+   */
+  content: [],
+  /**
    * @constant
    * @desc The icon class
    * @type {String}
@@ -50,7 +54,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc Initialize method to setup require items
    **/
-  init: function () {
+  init: function() {
     this.accessObject = {
       appId: SBW.Singletons.config.services.Facebook.appID,
       token: null
@@ -61,9 +65,9 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc This method is called at the time of setting the service
    */
-  setup: function () {
+  setup: function() {
     var self = this;
-    $(document).ready(function () {
+    $(document).ready(function() {
       var scriptEle = document.createElement('script'),
         done = false;
       if (document.getElementById('fb-root') === null) {
@@ -75,7 +79,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         body.insertBefore(fbroot, body.lastChild);
       }
       scriptEle.src = "//connect.facebook.net/en_US/all.js";
-      scriptEle.onload = scriptEle.onreadystatechange = function () {
+      scriptEle.onload = scriptEle.onreadystatechange = function() {
         if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
           done = true;
           FB.init({
@@ -86,7 +90,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           });
           //TODO Hack for IE remove this when its fixed in facebook for IE http://bugs.developers.facebook.net/show_bug.cgi?id=20168
           if (navigator.userAgent.indexOf('MSIE') !== -1) {
-            FB.UIServer.setLoadedNode = function (a, b) {
+            FB.UIServer.setLoadedNode = function(a, b) {
               FB.UIServer._loadedNodes[a.id] = b;
             };
           }
@@ -104,10 +108,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Triggers authentication process to the facebook service using FB.api call to method permissions.request. Disables start button.
    * @param {Callback} callback Callback will be executed on successful authentication
    */
-  startActionHandler: function (callback) {
+  startActionHandler: function(callback) {
     var service = this;
     if (service.facebookInit) {
-      FB.getLoginStatus(function (response) {
+      FB.getLoginStatus(function(response) {
         if (response.status === 'connected') {
           // the user is logged in and connected to your
           // app, and response.authResponse supplies
@@ -117,21 +121,21 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           service.getAccessToken.call(service, response, callback);
         } else {
           window._facebookopen = window.open;
-          window.open = function (url, name, params) {
+          window.open = function(url, name, params) {
             service.authWindowReference = window._facebookopen(url, name, params);
             return service.authWindowReference;
           };
 
           // the user isn't even logged in to Facebook.
-          FB.login(function (response) {
+          FB.login(function(response) {
             if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
               service.user = service.user || new SBW.Models.User();
-              service.getAccessToken.call(service, response, function (response) {
+              service.getAccessToken.call(service, response, function(response) {
                 service.user.name = response.name;
                 service.user.id = response.id;
-                service.getProfilePic(null, function (response) {
+                service.getProfilePic(null, function(response) {
                   service.user.userImage = response;
-                }, function (error) {
+                }, function(error) {
                   SBW.logger.debug("Could not fetch image url");
                 });
                 callback();
@@ -148,7 +152,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           window.open = window._facebookopen;
           window._facebookopen = null;
 
-          var intervalId = setInterval(function () {
+          var intervalId = setInterval(function() {
             if (service.authWindowReference.closed) {
               service.isUserLoggingIn = false;
               clearInterval(intervalId);
@@ -157,7 +161,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         }
       });
     } else {
-      setTimeout(function () {
+      setTimeout(function() {
         service.startActionHandler();
       }, 1000);
     }
@@ -167,10 +171,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Checks whether user is logged in(has a authenticated session to service).
    * @param {Callback} callback Callback function that will be called after checking login status
    */
-  checkUserLoggedIn: function (callback) {
+  checkUserLoggedIn: function(callback) {
     var service = this;
     if (service.facebookInit) {
-      FB.api('/me?access_token=' + service.accessObject['token'], "post", function (response) {
+      FB.api('/me?access_token=' + service.accessObject['token'], "post", function(response) {
         if (response.name !== undefined || response.error === null) {
           callback(true);
         } else {
@@ -178,7 +182,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         }
       });
     } else {
-      setTimeout(function () {
+      setTimeout(function() {
         service.checkUserLoggedIn(callback);
       }, 1000);
     }
@@ -189,13 +193,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Object} response  response from facebook api for the method permissions.request(authentication)
    * @param {Callback} callback function to be called after fetching access token
    */
-  getAccessToken: function (response, callback) {
+  getAccessToken: function(response, callback) {
     var service = this;
     if (response.status === "connected") {
       service.accessObject['uid'] = response.authResponse.userID;
       service.accessObject['token'] = response.authResponse.accessToken;
       service.accessObject['tokenSecret'] = response.authResponse.signedRequest;
-      FB.api('/me?access_token=' + service.accessObject['token'], function (response) {
+      FB.api('/me?access_token=' + service.accessObject['token'], function(response) {
         if (response.name) {
           callback(response);
           if (service.authWindowReference && !service.authWindowReference.closed) {
@@ -216,12 +220,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~publishMessage-successCallback Callback} will be called if publishing is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~publishMessage-errorCallback Callback} will be called in case of any error while publishing
    */
-  publishMessage: function (message, successCallback, errorCallback) {
+  publishMessage: function(message, successCallback, errorCallback) {
     var service = this,
-      publish = function (message, successCallback, errorCallback) {
+      publish = function(message, successCallback, errorCallback) {
         FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
           message: message
-        }, function (response) {
+        }, function(response) {
           if (response.id !== undefined || response.error === null) {
             if (successCallback) {
               successCallback({
@@ -242,12 +246,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         })
       },
-      callback = (function (message, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(message, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(message, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(message, successCallback, errorCallback);
             });
           }
@@ -263,12 +267,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~subscribe-successCallback Callback} will be called if successfully subscribes
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~subscribe-errorCallback Callback} will be called in case of any error
    */
-  subscribe: function (uid, successCallback, errorCallback) {
+  subscribe: function(uid, successCallback, errorCallback) {
     var service = this,
-      publish = function (uid, successCallback, errorCallback) {
+      publish = function(uid, successCallback, errorCallback) {
         FB.api('/me/og.follows?access_token=' + service.accessObject['token'], 'post', {
           profile: uid
-        }, function (response) {
+        }, function(response) {
           if (response.name !== undefined || response.error === null) {
             if (successCallback) {
               successCallback(response);
@@ -287,12 +291,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (uid, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(uid, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(uid, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(uid, successCallback, errorCallback);
             });
           }
@@ -308,12 +312,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~share-successCallback Callback} will be called if successfully shared the link.
    * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~share-errorCallback Callback} will be called if case of any error in sharing the link.
    */
-  share: function (link, successCallback, errorCallback) {
+  share: function(link, successCallback, errorCallback) {
     var service = this,
-      publish = function (link, successCallback, errorCallback) {
+      publish = function(link, successCallback, errorCallback) {
         FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
           link: link
-        }, function (response) {
+        }, function(response) {
           if (response.name !== undefined || response.error === null) {
             if (successCallback) {
               successCallback(response);
@@ -332,12 +336,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (message, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(message, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(message, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(message, successCallback, errorCallback);
             });
           }
@@ -360,7 +364,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~publishLink-successCallback Callback} will get called if publish successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~publishLink-errorCallback Callback} will get called in case of any error
    */
-  publishLink: function (type, name, caption, message, link, description, picture, icon, successCallback, errorCallback) {
+  publishLink: function(type, name, caption, message, link, description, picture, icon, successCallback, errorCallback) {
     var service = this,
       linkJson = {
         type: type,
@@ -372,7 +376,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         picture: picture,
         icon: icon
       },
-      publish = function (obj, successCallback, errorCallback) {
+      publish = function(obj, successCallback, errorCallback) {
         FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
           type: obj.type,
           name: obj.name,
@@ -382,7 +386,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           description: obj.description,
           picture: obj.picture,
           icon: obj.icon
-        }, function (response) {
+        }, function(response) {
           if (response.name !== undefined || response.error === null) {
             if (successCallback) {
               successCallback(response); //make the response consistent with other services
@@ -400,12 +404,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (linkJson, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(linkJson, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(linkJson, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(linkJson, successCallback, errorCallback);
             });
           }
@@ -423,14 +427,14 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~publishEvent-successCallback Callback} will be called if publishing is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~publishEvent-errorCallback Callback} will be called in case of any error while publishing
    */
-  publishEvent: function (name, startTime, endTime, successCallback, errorCallback) {
+  publishEvent: function(name, startTime, endTime, successCallback, errorCallback) {
     var service = this,
-      publish = function (name, startTime, endTime, successCallback, errorCallback) {
+      publish = function(name, startTime, endTime, successCallback, errorCallback) {
         FB.api('/me/events?access_token=' + service.accessObject['token'], 'post', {
           name: name,
           start_time: startTime,
           end_time: endTime
-        }, function (response) {
+        }, function(response) {
           if (!response.id || !response.error) {
             if (successCallback) {
               successCallback(response);
@@ -449,12 +453,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (name, startTime, endTime, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(name, startTime, endTime, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(name, startTime, endTime, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(name, startTime, endTime, successCallback, errorCallback);
             });
           }
@@ -470,10 +474,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
-  like: function (objectId, successCallback, errorCallback) {
+  like: function(objectId, successCallback, errorCallback) {
     var service = this,
-      postLike = function (objectId, successCallback, errorCallback) {
-        FB.api('/' + objectId + '/likes?access_token=' + service.accessObject['token'], 'post', function (response) {
+      postLike = function(objectId, successCallback, errorCallback) {
+        FB.api('/' + objectId + '/likes?access_token=' + service.accessObject['token'], 'post', function(response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback(response);
@@ -491,12 +495,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (objectId, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(objectId, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             postLike(objectId, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               postLike(objectId, successCallback, errorCallback);
             });
           }
@@ -512,10 +516,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} will be called if unlike is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
    */
-  unlike: function (objectId, successCallback, errorCallback) {
+  unlike: function(objectId, successCallback, errorCallback) {
     var service = this,
-      postUnlike = function (objectId, successCallback, errorCallback) {
-        FB.api('/' + objectId + '/likes?access_token=' + service.accessObject['token'], 'delete', function (response) {
+      postUnlike = function(objectId, successCallback, errorCallback) {
+        FB.api('/' + objectId + '/likes?access_token=' + service.accessObject['token'], 'delete', function(response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback(response);
@@ -533,12 +537,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (objectId, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(objectId, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             postUnlike(objectId, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               postUnlike(objectId, successCallback, errorCallback);
             });
           }
@@ -555,12 +559,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} will be called if posting is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
    */
-  postComment: function (objectId, comment, successCallback, errorCallback) {
+  postComment: function(objectId, comment, successCallback, errorCallback) {
     var service = this,
-      publish = function (objectId, comment, successCallback, errorCallback) {
+      publish = function(objectId, comment, successCallback, errorCallback) {
         FB.api('/' + objectId + '/comments?access_token=' + service.accessObject['token'], 'post', {
           message: comment
-        }, function (response) {
+        }, function(response) {
           if (!response.id || !response.error) {
             if (successCallback) {
               successCallback(response);
@@ -579,12 +583,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (objectId, comment, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(objectId, comment, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(objectId, comment, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(objectId, comment, successCallback, errorCallback);
             });
           }
@@ -598,7 +602,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Help us fetch specific set of data
    * @ignore
    */
-  _getData: function (context, callback) {
+  _getData: function(context, callback) {
     var service = this,
       url = context.url,
       user;
@@ -622,7 +626,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         url = '/' + user + '?access_token=' + service.accessObject['token'];
       }
     }
-    FB.api(url, 'get', function (response) {
+    FB.api(url, 'get', function(response) {
       callback(response);
     });
   },
@@ -631,11 +635,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Helps us retrieve all data of a particular context
    * @ignore
    */
-  _getAllData: function (context, successCallback, errorCallback) {
+  _getAllData: function(context, successCallback, errorCallback) {
     var service = this,
       posts = [],
-      callback = (function (successCallback, errorCallback) {
-        return function (response) {
+      callback = (function(successCallback, errorCallback) {
+        return function(response) {
           if (response && !response.error) {
             // if data is not present in response than return the response as it is and let the implementor fetch whatever he is looking for
             if (!response.data) {
@@ -675,17 +679,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getPosts-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getPosts-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getPosts: function (userId, successCallback, errorCallback) {
+  getPosts: function(userId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             service._getAllData({
               type: 'posts',
               id: userId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'posts',
                 id: userId
@@ -703,11 +707,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getLikes: function (objectId, successCallback, errorCallback) {
+  getLikes: function(objectId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
-          var likeSuccess = function (response) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          var likeSuccess = function(response) {
             var likesData = [];
             for (var i = 0; i < response.length; i++) {
               var user = new SBW.Models.User({
@@ -734,7 +738,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               id: objectId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'likes',
                 id: objectId
@@ -752,10 +756,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getShareCount-successCallback Callback} will be called if the share count is fetched successfully.
    * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getShareCount-errorCallback Callback} will be called in case of any error while fetching.
    */
-  getShareCount: function (url, successCallback, errorCallback) {
+  getShareCount: function(url, successCallback, errorCallback) {
     var service = this,
-      getCount = function (url, successCallback, errorCallback) {
-        FB.api('fql', {q:"SELECT url, normalized_url, share_count, like_count, comment_count, total_count, commentsbox_count, comments_fbid, click_count FROM link_stat WHERE url = '"+url+"'"}, function (response) {
+      getCount = function(url, successCallback, errorCallback) {
+        FB.api('fql', {
+          q: "SELECT url, normalized_url, share_count, like_count, comment_count, total_count, commentsbox_count, comments_fbid, click_count FROM link_stat WHERE url = '" + url + "'"
+        }, function(response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback({
@@ -779,11 +785,208 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     if (service.facebookInit) {
       getCount(url, successCallback, errorCallback);
     } else {
-      setTimeout(function () {
+      setTimeout(function() {
         service.getShareCount(url, successCallback, errorCallback);
       }, 1000);
     }
   },
+  /**
+   * @method
+   * @desc Fetches album details of the logged in user from picasa through picasa API service.
+   * The method doesn't require any authentication.
+   * @param {SBW.Controllers.Services.Picasa~getAlbums-successCallback} successCallback callback function to be called with the json response after successfully fetching the album details.
+   * @param {SBW.Controllers.Services.Picasa~getAlbums-errorCallback} errorCallback callback function to be called in case of error while fetching the album details.
+   */
+  getAlbums: function(successCallback, errorCallback) {
+    var service = this,
+      getAlbumsCallback = function(successCallback, errorCallback) {
+        FB.api('/me/albums?access_token=' + service.accessObject['token'], 'get', function(response) {
+          if (response && !response.error) {
+            var collection = null,
+              comment = null;
+            response.data.forEach(function(value) {
+              collection = new SBW.Models.AssetCollection({
+                title: value.name,
+                createdTime: new Date().getTime(),
+                status: null,
+                serviceName: 'facebook',
+                metadata: {
+                  dateUpdated: value.updated_time,
+                  dateUploaded: null,
+                  numAssets: null,
+                  comments: [],
+                  assetCollectionId: value.id,
+                  commentCount: (value.comments && value.comments.data.length) || 0,
+                  fileName: null,
+                  description: value.description || '',
+                  author: value.from.name
+                }
+              });
+              value.comments && value.comments.data.forEach(function(value) {
+                comment = new SBW.Models.Comment({
+                  text: value.message,
+                  createdTime: value.created_time,
+                  fromUser: value.from.name,
+                  likeCount: value.like_count,
+                  profilePic: '',
+                  serviceName: 'facebook',
+                  rawData: value
+                });
+                collection.metadata.comments.push(comment);
+              });
+              collection.id = collection.getID();
+              service.content.push(collection);
+              service.collectionSetRawData = response;
+            });
+            if (successCallback) {
+              successCallback(response.data);
+            }
+          } else {
+            if (errorCallback) {
+              var errorObject = new SBW.Models.Error({
+                message: response.error.message,
+                code: response.error.code,
+                serviceName: 'facebook',
+                rawData: response
+              });
+              errorCallback(errorObject);
+            }
+
+          }
+
+        });
+      },
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          if (isLoggedIn) {
+            getAlbumsCallback(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function() {
+              getAlbumsCallback(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * Success Callback for getAlbums method.
+   * @callback SBW.Controllers.Services.Picasa~getAlbums-successCallback
+   * @param {Object} response JSON response from the service
+   **/
+  /**
+   * Error Callback for getAlbums method.
+   * @callback SBW.Controllers.Services.Picasa~getAlbums-errorCallback
+   * @param {Object} response JSON response from the service
+   **/
+  /**
+   * @method
+   * @desc Fetch photo details from album
+   * @param {String}   albumId          Album Id from which to fetch the photo details.
+   * @param {SBW.Controllers.Services.Picasa~getPhotosFromAlbum-successCallback} successCallback  callback function to be called with json response after fetching the photo details successfully.
+   * @param {SBW.Controllers.Services.Picasa~getPhotosFromAlbum-errorCallback} errorCallback  callback function to be called in case of error while fetching photo details.
+   */
+  getPhotosFromAlbum: function(albumId, successCallback, errorCallback) {
+    var service = this,
+      getPhotosFromAlbumCallback = function(albumId, successCallback, errorCallback) {
+        FB.api('/' + albumId + '/photos?access_token=' + service.accessObject['token'], 'get', function(response) {
+          if (response && !response.error) {
+            var photoArray = [];
+            response.data.forEach(function(value) {
+              var asset = new SBW.Models.ImageAsset({
+                src: value.source,
+                title: value.name,
+                createdTime: value.created_time,
+                rawData: value,
+                serviceName: 'facebook',
+                metadata: {
+                  dateUpdated: value.updated_time,
+                  dateUploaded: value.created_time,
+                  size: null,
+                  assetId: value.id,
+                  assetCollectionId: value.albumId,
+                  height: value.height,
+                  comments:[],
+                  width: value.width,
+                  commentCount: value.comments && value.comments.data.length,
+                  originalFormat: null,
+                  version: null,
+                  description: value.name,
+                  author: value.from.name
+                }
+              });
+              value.comments && value.comments.data.forEach(function(value) {
+                comment = new SBW.Models.Comment({
+                  text: value.message,
+                  createdTime: value.created_time,
+                  fromUser: value.from.name,
+                  likeCount: value.like_count,
+                  profilePic: null,
+                  serviceName: 'facebook',
+                  rawData: value
+                });
+                asset.metadata.comments.push(comment);
+              });
+              asset.id = asset.getID();
+              photoArray.push(asset);
+            });
+            service._populateAssets(albumId, photoArray);
+            successCallback(photoArray);
+          } else {
+            if (errorCallback) {
+              var errorObject = new SBW.Models.Error({
+                message: response.error.message,
+                code: response.error.code,
+                serviceName: 'facebook',
+                rawData: response
+              });
+              errorCallback(errorObject);
+            }
+
+          }
+        })
+      },
+      callback = (function(albumId, successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          if (isLoggedIn) {
+            getPhotosFromAlbumCallback(albumId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function() {
+              getPhotosFromAlbumCallback(albumId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(albumId, successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
+   * @desc Populate assets into asset collections.
+   * @param {String} assetCollectionId Id of the asset collection
+   * @param {Array} assets Array of {@link SBW.Models.Asset Assets}
+   * @ignore
+   */
+  _populateAssets: function(assetcollectionId, assets) {
+    var service = this;
+    service.content.forEach(function(value) {
+      if (value.metadata.assetCollectionId === assetcollectionId) {
+        value.assets = assets;
+        return false;
+      }
+    });
+  },
+  /**
+   * Success Callback for getPhotosFromAlbum method.
+   * @callback SBW.Controllers.Services.Picasa~getPhotosFromAlbum-successCallback
+   * @param {Array} response Array of photos {@Link SBW.Models.ImageAsset} from the service
+   **/
+  /**
+   * Error Callback for getPhotosFromAlbum method.
+   * @callback SBW.Controllers.Services.Picasa~getPhotosFromAlbum-errorCallback
+   * @param {Object} response JSON response from the service
+   **/
   /**
    * @method
    * @desc Fetches Comments for an object through FB API service
@@ -791,31 +994,31 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getComments: function (objectId, successCallback, errorCallback) {
+  getComments: function(objectId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
-          var commentSuccess = function (result) {
-              var commentsData = [];
-              for (var i = 0; i < result.length; i++) {
-                commentsData[i] = new SBW.Models.Comment({
-                  createdTime: result[i].created_time,
-                  fromUser: result[i].from.name,
-                  likeCount: result[i].like_count,
-                  text: result[i].message,
-                  rawData: result[i],
-                  serviceName: "facebook"
-                });
-              }
-              successCallback(commentsData);
-            };
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          var commentSuccess = function(result) {
+            var commentsData = [];
+            for (var i = 0; i < result.length; i++) {
+              commentsData[i] = new SBW.Models.Comment({
+                createdTime: result[i].created_time,
+                fromUser: result[i].from.name,
+                likeCount: result[i].like_count,
+                text: result[i].message,
+                rawData: result[i],
+                serviceName: "facebook"
+              });
+            }
+            successCallback(commentsData);
+          };
           if (isLoggedIn) {
             service._getAllData({
               type: 'comments',
               id: objectId
             }, commentSuccess, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'comments',
                 id: objectId
@@ -833,17 +1036,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getEvents-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getEvents-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getEvents: function (userId, successCallback, errorCallback) {
+  getEvents: function(userId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             service._getAllData({
               type: 'events',
               id: userId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'events',
                 id: userId
@@ -861,17 +1064,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getSocialGroups-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getSocialGroups-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getSocialGroups: function (userId, successCallback, errorCallback) {
+  getSocialGroups: function(userId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             service._getAllData({
               type: 'groups',
               id: userId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'groups',
                 id: userId
@@ -889,17 +1092,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getFriends-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getFriends-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getFriends: function (userId, successCallback, errorCallback) {
+  getFriends: function(userId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             service._getAllData({
               type: 'friends',
               id: userId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'friends',
                 id: userId
@@ -917,11 +1120,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getProfilePic: function (userId, successCallback, errorCallback) {
+  getProfilePic: function(userId, successCallback, errorCallback) {
     userId = userId ? userId : 'me';
     var service = this,
-      getPic = function (userId, successCallback, errorCallback) {
-        FB.api('/' + userId + '/picture', 'get', function (response) {
+      getPic = function(userId, successCallback, errorCallback) {
+        FB.api('/' + userId + '/picture', 'get', function(response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback(response.data.url);
@@ -951,13 +1154,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~publishNotes-successCallback Callback} will be called if publishing is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~publishNotes-errorCallback Callback} will be called in case of any error while publishing
    */
-  publishNotes: function (subject, message, successCallback, errorCallback) {
+  publishNotes: function(subject, message, successCallback, errorCallback) {
     var service = this,
-      publish = function (subject, message, successCallback, errorCallback) {
+      publish = function(subject, message, successCallback, errorCallback) {
         FB.api('/me/notes?access_token=' + service.accessObject['token'], 'post', {
           message: message,
           subject: subject
-        }, function (response) {
+        }, function(response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback(response);
@@ -976,12 +1179,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (subject, message, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(subject, message, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(subject, message, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(subject, message, successCallback, errorCallback);
             });
           }
@@ -997,17 +1200,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getNotes-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getNotes-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getNotes: function (userId, successCallback, errorCallback) {
+  getNotes: function(userId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             service._getAllData({
               type: 'notes',
               id: userId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'notes',
                 id: userId
@@ -1025,10 +1228,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getProfile-successCallback Callback} will be called if the profile is fetched successfully.
    * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getProfile-errorCallback Callback} will be called in case of any error in fetching the profile.
    */
-  getProfile: function (userId, successCallback, errorCallback) {
+  getProfile: function(userId, successCallback, errorCallback) {
     var service = this,
-      callback = (function (successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             service._getAllData({
               type: 'user',
@@ -1036,7 +1239,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               id: userId
             }, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               service._getAllData({
                 type: 'user',
                 method: 'get',
@@ -1055,8 +1258,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback Callback} will be called in case of any error while fetching data
    */
-  uploadPhoto: function (fileData, successCallback, errorCallback) {
-    var url=this.apiUrl + '/me/photos'; 
+  uploadPhoto: function(fileData, successCallback, errorCallback) {
+    var url = this.apiUrl + '/me/photos';
     this._uploadMedia(fileData, successCallback, errorCallback, url);
   },
   /**
@@ -1066,8 +1269,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~uploadVideo-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} will be called in case of any error while fetching data
    */
-  uploadVideo: function (fileData, successCallback, errorCallback) {
-    var url='https://graph-video.facebook.com/me/videos'; 
+  uploadVideo: function(fileData, successCallback, errorCallback) {
+    var url = 'https://graph-video.facebook.com/me/videos';
     this._uploadMedia(fileData, successCallback, errorCallback, url);
   },
   /**
@@ -1075,9 +1278,9 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Utility for upload media
    * @ignore
    */
-  _uploadMedia: function (fileData, successCallback, errorCallback, context) {
+  _uploadMedia: function(fileData, successCallback, errorCallback, context) {
     var service = this,
-      upload = function (fileData, successCallback, errorCallback, context) {
+      upload = function(fileData, successCallback, errorCallback, context) {
         var url = context + '?access_token=' + service.accessObject['token'];
         var options = {
           url: url,
@@ -1087,12 +1290,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         };
         SBW.api.fileUpload('facebook', fileData, options, successCallback, errorCallback);
       },
-      callback = (function (fileData, successCallback, errorCallback, context) {
-        return function (isLoggedIn) {
+      callback = (function(fileData, successCallback, errorCallback, context) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             upload(fileData, successCallback, errorCallback, context);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               upload(fileData, successCallback, errorCallback, context);
             });
           }
@@ -1108,10 +1311,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param  {Callback} successCallback Callaback will be called once the success event happens
    * @param  {Callback} errorCallback Callback will be called once the failure event happens
    */
-  postUpload: function (response, successCallback, errorCallback) {
+  postUpload: function(response, successCallback, errorCallback) {
     var uploadStatus = [],
       callBack = successCallback;
-    response.forEach(function (value) {
+    response.forEach(function(value) {
       if (value && !value.error) {
         uploadStatus.push(new SBW.Models.UploadStatus({
           id: value.id,
@@ -1142,13 +1345,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} errorCallback  {@link  SBW.Controllers.Services.ServiceController~publishPhoto-errorCallback Callback} will be called in case of any error while fetching data
    * @ignore
    */
-  publishPhoto: function (description, imageUrl, successCallback, errorCallback) {
+  publishPhoto: function(description, imageUrl, successCallback, errorCallback) {
     var service = this,
-      publish = function (description, imageUrl, successCallback, errorCallback) {
+      publish = function(description, imageUrl, successCallback, errorCallback) {
         FB.api('/me/photos?access_token=' + service.accessObject['token'], 'post', {
           url: imageUrl,
           message: description
-        }, function (response) {
+        }, function(response) {
           if (response && !response.error) {
             if (successCallback) {
               successCallback(response);
@@ -1167,12 +1370,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function (description, imageUrl, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(description, imageUrl, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(description, imageUrl, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(description, imageUrl, successCallback, errorCallback);
             });
           }
@@ -1188,13 +1391,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param  {Callback} successCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-successCallback Callback} will be called if data is fetched successfully
    * @param  {Callback} errorCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getCommentsForUrl: function (options, successCallback, errorCallback) {
+  getCommentsForUrl: function(options, successCallback, errorCallback) {
     var service = this,
-      success = function (response) {
+      success = function(response) {
         var data = [],
           i = 0;
-        response.data.forEach(function (value, index, array) {
-          service.getProfilePic(value['from']['id'], function (picResponse) {
+        response.data.forEach(function(value, index, array) {
+          service.getProfilePic(value['from']['id'], function(picResponse) {
             var temp = new SBW.Models.Comment({
               createdTime: value['created_time'],
               fromUser: value['from']['name'],
@@ -1209,7 +1412,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             if (i === array.length) {
               successCallback(data);
             }
-          }, function (picResponse) {
+          }, function(picResponse) {
             var temp = new SBW.Models.Comment({
               createdTime: value['created_time'],
               fromUser: value['from']['name'],
@@ -1229,7 +1432,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         });
 
       },
-      error = function (response) {
+      error = function(response) {
         var errorObject = new SBW.Models.Error({
           message: response.error.message,
           code: response.error.code,

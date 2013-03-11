@@ -50,7 +50,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
   /**
    * @method
    * @triggers authentication process to the flickr service.
-   **/
+   * @param {callback} callback
+   */
   startActionHandler: function (callback) {
     var service = this;
     service.eraseCookie('flickrToken');
@@ -505,13 +506,13 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         successCallback(likesObject);
       };
     SBW.Singletons.utils.ajax({
-      url: url,
-      type: 'GET',
-      dataType: "json"
-    },
+        url: url,
+        type: 'GET',
+        dataType: "json"
+      },
       likeSuccess,
       errorCallback
-      );
+    );
   },
   /**
    * @method
@@ -847,21 +848,21 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               var collection = new SBW.Models.AssetCollection({
                 id: '',
                 title: album.title._content,
-              createdTime: new Date().getTime(),
+                createdTime: new Date().getTime(),
                 rawData: album,
                 status: 'private',
                 serviceName: 'flickr',
                 assets: [],
                 metadata: {
-                dateUpdated: new Date(album.date_update * 1000).toDateString(),
-                dateUploaded: new Date(album.date_create * 1000).toDateString(),
+                  dateUpdated: new Date(album.date_update * 1000).toDateString(),
+                  dateUploaded: new Date(album.date_create * 1000).toDateString(),
                   numAssets: album.photos,
                   assetCollectionId: album.id,
                   type: 'image',
                   tags: null,
                   fileName: null,
                   description: album.description._content,
-                thumbnail: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
+                  thumbnail: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
                   previewUrl: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
                   author: null,
                   authorAvatar: null,
@@ -1005,7 +1006,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               src: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
               id: '',
               title: asset.title,
-              createdTime: '',
+              createdTime: new Date().getTime(),
               serviceName: 'flickr',
               rawData: asset,
               status: 'private',
@@ -1150,7 +1151,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           src: 'http://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '.jpg',
           id: '',
           title: photo.title._content,
-          createdTime: photo.dates.posted,
+          createdTime: new Date().getTime(),
           serviceName: 'flickr',
           rawData: photo,
           status: photo.visibility,
@@ -1158,9 +1159,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           metadata: {
             caption: null,
             type: null,
-            dateTaken: photo.dates.taken,
-            dateUpdated: photo.dates.lastupdate,
-            dateUploaded: photo.dateuploaded,
+            dateTaken: new Date(photo.dates.taken * 1000).toDateString(),
+            dateUpdated: new Date(photo.dates.lastupdate * 1000).toDateString(),
+            dateUploaded: new Date(photo.dateuploaded * 1000).toDateString(),
             comments: null,
             size: null,
             assetId: photo.id,
@@ -1193,8 +1194,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         });
         asset.id = asset.getID();
         service.assetCollectionArray.forEach(function (assetCollection) {
-          assetCollection.assets.forEach(function (ImageAsset,index,array) {
-            if(ImageAsset.metadata.assetId === photoId){
+          assetCollection.assets.forEach(function (ImageAsset, index, array) {
+            if (ImageAsset.metadata.assetId === photoId) {
               array[index] = asset;
             }
           })

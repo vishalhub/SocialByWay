@@ -193,8 +193,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To like an object on LinkedIn through its API service
    * @param {String} objectId The object to like
-   * @param {callback} successCallback - success callback will get called if like is successful
-   * @param {callback} errorCallback - failure callback will get called in case of any error while liking
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
   like: function (objectId, successCallback, errorCallback) {
     var service = this;
@@ -227,8 +227,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To undo a like( or unlike) on an object in LinkedIn through its API service
    * @param {String} objectId The object to dislike
-   * @param {callback} successCallback - success callback will get called if like is successful
-   * @param {callback} errorCallback - failure callback will get called in case of any error while liking
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} will be called if unlike is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
    */
   unlike: function (objectId, successCallback, errorCallback) {
     var service = this;
@@ -262,8 +262,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To share a url in LinkedIn through its API service
    * @param {String} url The url to be shared
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~share-successCallback Callback} will be called if successfully shared the link.
+   * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~share-errorCallback Callback} will be called if case of any error in sharing the link.
    */
   share: function (url, successCallback, errorCallback) {
     var service = this;
@@ -291,8 +291,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get share count for a url in LinkedIn through its API service
    * @param {String} url The url for which share count is required
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getShareCount-successCallback Callback} will be called if the share count is fetched successfully.
+   * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getShareCount-errorCallback Callback} will be called in case of any error while fetching share count.
    */
   getShareCount: function (url, successCallback, errorCallback) {
     var service = this;
@@ -311,8 +311,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get comments posted on an object(post) of a LinkedIn user through its API service
    * @param  objectId the id of the object, against which comments posted are to retrieved
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if comments are fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching comments
    */
   getComments: function (objectId, successCallback, errorCallback) {
     var service = this;
@@ -346,8 +346,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @param  {String} url
-   * @param  {callback} successCallback [description]
-   * @param  {callback} errorCallback [description]
+   * @param  {Callback} successCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-successCallback Callback} will be called if data is fetched successfully
+   * @param  {Callback} errorCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback Callback} will be called in case of any error while fetching data
    * @ignore
    */
   getCommentsForUrl: function (url, successCallback, errorCallback) {
@@ -357,8 +357,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get likes on an object(post) of a LinkedIn user through its API service
    * @param  objectId the id of the object, against which likes posted are to retrieved
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
   getLikes: function (objectId, successCallback, errorCallback) {
     var service = this;
@@ -410,8 +410,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get updates from a LinkedIn user through its API service
    * @param {String} userId The Id of the user
-   * @param {callback} successCallback  success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback  failure callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getPosts-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getPosts-errorCallback Callback} will be called in case of any error while fetching data
    */
   getPosts: function (userId, successCallback, errorCallback) {
     var service = this;
@@ -477,8 +477,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get connections of a LinkedIn user through its API service
    * @param {String} userId The Id of the user
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getFriends-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getFriends-errorCallback Callback} will be called in case of any error while fetching data
    */
   getFriends: function (userId, successCallback, errorCallback) {
     var service = this;
@@ -528,11 +528,11 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
                 .result(function (result) {
                   setTimeout(function () {
                     successCallback(result);
-                   }, 1000);
+                  }, 1000);
                 })
                 .error(function (error) {
                   errorCallback(error);
-                });              
+                });
             }
           });
           if (!unfollowFlag) {
@@ -586,7 +586,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
         })
         .error(function (error) {
           errorCallback(new SBW.Models.Error({
-            serviceName : 'linkedin'
+            serviceName: 'linkedin'
           }));
         });
     } else {
@@ -663,8 +663,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get profile data from a LinkedIn user through its API service
    * @param {String} userId The Id of the user
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} will be called in case of any error while fetching data
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;

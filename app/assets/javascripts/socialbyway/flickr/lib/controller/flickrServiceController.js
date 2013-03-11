@@ -842,14 +842,14 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
             var collection = new SBW.Models.AssetCollection({
               id: '',
               title: album.title._content,
-              createdTime: album.date_create,
+              createdTime: new Date().getTime(),
               rawData: album,
               status: 'private',
               serviceName: 'flickr',
               assets: [],
               metadata: {
-                dateUpdated: album.date_update,
-                dateUploaded: null,
+                dateUpdated: new Date(album.date_update * 1000).toDateString(),
+                dateUploaded: new Date(album.date_create * 1000).toDateString(),
                 numAssets: album.photos,
                 assetCollectionId: album.id,
                 type: 'image',

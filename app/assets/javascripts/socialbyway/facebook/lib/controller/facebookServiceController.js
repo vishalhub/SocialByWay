@@ -791,6 +791,39 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     }
   },
   /**
+   * @ignore
+   */
+  _populateAlbumThumbnail: function(successCallback, errorCallback) {
+    var service = this,
+      getPhoto = function(successCallback, errorCallback) {
+        var i=0;
+        service.content.forEach(function(value, index,a) {
+          FB.api('/' + value.metadata.coverid + "?access_token=" + service.accessObject['token'], 'get', function(response) {
+            i++;
+            if (response && !response.error) {
+              value.metadata.thumbnail = response.picture || '';
+            }
+            if(i ===a.length) {
+              successCallback(service.content);
+            }
+          })
+        });
+      },
+      callback = (function(successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          if (isLoggedIn) {
+            getPhoto(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function() {
+              getPhoto(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+  },
+  /**
    * @method
    * @desc Fetches album details of the logged in user from picasa through picasa API service.
    * The method doesn't require any authentication.
@@ -811,10 +844,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                 status: null,
                 serviceName: 'facebook',
                 metadata: {
-                  dateUpdated: value.updated_time,
-                  dateUploaded: null,
-                  numAssets: null,
+                  dateUpdated: new Date(value.updated_time).toDateString(),
+                  dateUploaded: new Date(value.created_time).toDateString(),
+                  numAssets: value.count,
                   comments: [],
+                  coverid: value.cover_photo,
                   assetCollectionId: value.id,
                   commentCount: (value.comments && value.comments.data.length) || 0,
                   fileName: null,
@@ -838,9 +872,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               service.content.push(collection);
               service.collectionSetRawData = response;
             });
-            if (successCallback) {
-              successCallback(response.data);
-            }
+            service._populateAlbumThumbnail(function (response) {
+              successCallback(response);
+            }, errorCallback);
+            
           } else {
             if (errorCallback) {
               var errorObject = new SBW.Models.Error({
@@ -907,7 +942,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   assetId: value.id,
                   assetCollectionId: value.albumId,
                   height: value.height,
-                  comments:[],
+                  comments: [],
                   width: value.width,
                   commentCount: value.comments && value.comments.data.length,
                   originalFormat: null,

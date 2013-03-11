@@ -25,19 +25,12 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   },
   /**
    * @method
-   * @decs This function is called by serviceController on init and is used to set internationalized messages for title, openAlbumLabel, seeAllAlbumsLabel.
-   */
-  setup: function () {
-  },
-  /**
-   * @method
    * @decs This function is called by serviceController on Click of start of button instagram service's authorize view page. gets the accessTokenUrl, forms the authentication url, opens the popup with signed url and calls for auth token listener.
    * @param {Callback} callback function to be called after successful authentication
    */
   startActionHandler: function (callback) {
     var service = this;
     service.accessObject.access_token = null;
-
     var tokenListner = function (windowRef) {
       if (!windowRef.closed) {
         if (service.getCookie('instagramToken')) {
@@ -53,42 +46,11 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
         service.isUserLoggingIn = false;
       }
     };
-    if (service.authWindowReference == null || service.authWindowReference.closed) {
+    if (service.authWindowReference === null || service.authWindowReference.closed) {
       service.authWindowReference = window.open(service.accessObject.accessTokenUrl, "Instagram" + new Date().getTime(), service.getPopupWindowParams({width: 800, height: 300}));
       tokenListner(service.authWindowReference);
     } else {
       service.authWindowReference.focus();
-    }
-  },
-  /**
-   * @method
-   * @decs This function pings the server for authenticated access token till the user authorize the service and finally called
-   * serviceController's successLoginHandler function
-   * @param {Callback} callback callback function to be called after fetching access token
-   */
-  getAccessToken: function (callback) {
-    var service = this,
-      cookie = service.getCookie('instagramToken');
-    if (cookie !== "undefined") {
-      service.accessObject.access_token = cookie;
-      $.ajax({
-        url: "https://api.instagram.com/v1/users/self",
-        data: {access_token: service.accessObject.access_token},
-        dataType: 'jsonp',
-        jsonpCallback: 'callback',
-        success: function (response) {
-          if (response && response.meta && response.meta.code === 200) {
-//                        var user= EM.Models.AssetManager.User.create({name:response.data.username});
-            var user = {name: response.data.username};
-            service.accessObject.mediaCount = parseInt(response.data.counts.media);
-            callback(user);
-          } else {
-            service.failureLoginHandler.call(service, null);
-          }
-        }
-      });
-    } else {
-      service.failureLoginHandler.call(service, null);
     }
   },
   /**
@@ -124,18 +86,18 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
             errorCallback(response);
           }
         });
-      };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          publish(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             publish(successCallback, errorCallback);
-          });
-        }
-      };
-    })(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
@@ -162,36 +124,34 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
             errorCallback(response);
           }
         });
-      };
-    var callback = (function (mediaId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          publish(mediaId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+      },
+      callback = (function (mediaId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             publish(mediaId, successCallback, errorCallback);
-          });
-        }
-      };
-    })(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(mediaId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
    * @method
-   * @desc To get likes(favorites) for the photo given through instagram API service
-   * The method doesn't require any authentication
+   * @desc To like(favorite) a media through instagram API service
    * @param {String} mediaId
-   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
-   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
-  getLikes: function (mediaId, successCallback, errorCallback) {
+  like: function (mediaId, successCallback, errorCallback) {
     var service = this,
       publish = function (mediaId, successCallback, errorCallback) {
         $.ajax({
-          url: service.apiUrl + '/media/' + mediaId + '/likes',
+          url: SBW.Singletons.config.proxyURL + '?url=' + service.apiUrl + '/media/' + mediaId + '/likes',
           data: {access_token: service.accessObject.access_token},
-          type: 'GET',
-          dataType: 'jsonp',
+          type: 'POST',
           crossDomain: true,
           success: function (response) {
             successCallback(response);
@@ -214,9 +174,105 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
       })(mediaId, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
-  /*
-   *
-   *
+  /**
+   * @method
+   * @desc To unlike(un-favorite) a media through instagram API service
+   * @param {String} mediaId
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} will be called if unlike is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while unliking
+   */
+  unlike: function (mediaId, successCallback, errorCallback) {
+    var service = this,
+      publish = function (mediaId, successCallback, errorCallback) {
+        $.ajax({
+          url: SBW.Singletons.config.proxyURL + '?url=' + service.apiUrl + '/media/' + mediaId + '/likes?access_token=' + service.accessObject.access_token,
+          data: {access_token: service.accessObject.access_token},
+          type: 'DELETE',
+          crossDomain: true,
+          success: function (response) {
+            successCallback(response);
+          },
+          error: function (response) {
+            errorCallback(response);
+          }
+        });
+      },
+      callback = (function (mediaId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            publish(mediaId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(mediaId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(mediaId, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
+   * @desc To get likes(favorites) for the photo given through instagram API service
+   * The method doesn't require any authentication
+   * @param {String} mediaId
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
+   */
+  getLikes: function (mediaId, successCallback, errorCallback) {
+    var service = this,
+      publish = function (mediaId, successCallback, errorCallback) {
+        $.ajax({
+          url: service.apiUrl + '/media/' + mediaId + '/likes',
+          data: {access_token: service.accessObject.access_token},
+          type: 'GET',
+          dataType: 'jsonp',
+          crossDomain: true,
+          success: function (response) {
+            var likesData = [], i, user;
+            for (i = 0; i < response.data.length; i++) {
+              user = new SBW.Models.User({
+                name: response.data[i].full_name,
+                id: response.data[i].id,
+                userImage: response.data[i].profile_picture
+              });
+              likesData[i] = new SBW.Models.Like({
+                user: user,
+                rawData: response.data[i]
+              });
+            }
+            var likesObject = {
+              serviceName: 'instagram',
+              likes: likesData,
+              likeCount: likesData.length,
+              rawData: response
+            };
+            // Todo Populating the asset object with the like and user objects
+            successCallback(likesObject);
+          },
+          error: function (response) {
+            errorCallback(response);
+          }
+        });
+      },
+      callback = (function (mediaId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            publish(mediaId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(mediaId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(mediaId, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
+   * @desc To get Media of the user through instagram API service
+   * @param {String} userId
+   * @param {Callback} successCallback  will be called if data is fetched successfully
+   * @param {Callback} errorCallback  will be called in case of any error while fetching data
    */
   getMedia: function (userId, successCallback, errorCallback) {
     var service = this,
@@ -313,7 +369,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
               collection.metadata.likes = likesArray;
               content.push(collection);
             });
-            successCallback(content)
+            successCallback(content);
           },
           error: function (response) {
             errorCallback(response);
@@ -332,172 +388,5 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
         };
       })(userId, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
-  },
-
-  _getPaginatedCollection: function (service, response, next_url, callback) {
-    service.data = $.merge($.makeArray(response.data), $.makeArray(service.data));
-    $.ajax({
-      url: next_url,
-      data: {access_token: service.accessObject.access_token},
-      dataType: 'jsonp',
-      jsonpCallback: 'callback_' + new Date().getTime(),
-      success: function (response) {
-        if (response.meta.code === 200) {
-          response.data = $.merge($.makeArray(service.data), $.makeArray(response.data));
-          if (response.data.length == service.accessObject.mediaCount) {
-            service.successMediaSetCollectionHandler(response, callback);
-          } else {
-            var next_url = response.pagination.next_url;
-            service._getPaginatedCollection(service, response, next_url, callback);
-          }
-        } else {
-        }
-      }
-    });
-  },
-
-  /**
-   * @method
-   * @decs This function is the implementation of abstract function defined in serviceController. Used for retrieving photo collection.
-   * @param {Object} photoSet Photo-set object
-   * @param {Callback} callback function to be called after successful completion of photos from service
-   * @param {Number} pageNumber - Page number.
-   */
-  getMediaForMediaSet: function (photoSet, callback, pageNumber) {
-    this.successMediaForMediaSetHandler.call(this, photoSet, photoSet.rawData, callback, pageNumber);
-  },
-
-  /**
-   *  @method
-   * @decs This function is used for retrieving photo-set collection from instagram service's raw response.
-   * @param {Object} response Raw response of the instagram service's request for photo-sets.
-   * @returns  {Array} media set objects array.
-   */
-  getMediaSetCollectionObjFromResponse: function (response) {
-    var name = "Instagram Photos",
-      id = "collection";
-    if (response.data && $.makeArray(response.data).length > 0) {
-      var thumbUrl = response.data[0].images.thumbnail.url,
-        responseData = {setData: {id: id, title: name, content: [], imgSizes: {'t': thumbUrl}, type: 'photoset', mediaCount: $.makeArray(response.data).length, rawData: response}};
-      return true;
-    } else {
-      return null;
-    }
-  },
-
-  /**
-   * @method
-   * @desc This function is used for retrieving photos from instagram service's response.
-   * @param {Object} response Raw response of the instagram service's request for photos.
-   * @return {Object} photo set object
-   *
-   */
-  getMediaFromResponse: function (response) {
-    return  response.data;
-  },
-  /**
-   * @method
-   * @desc This function is used for converting instagram's raw photo into.
-   * @param {Object} media photo response object
-   * @return {Object} photo object
-   *
-   */
-  formatMedia: function (media) {
-    // getting date in datetime string
-    var dateTakenString = this.getFormattedDate(new Date(parseInt(media.created_time) * 1000));
-    var name = media["caption"] ? media["caption"]["text"] : '';
-    var thumbUrl = media.images.thumbnail.url;
-    var mediumUrl = media.images['low_resolution'].url;
-    var largeUrl = media.images['standard_resolution'].url;
-    var isSupported = this.validateMedia(media);
-    return this.newPhoto({id: media.id, title: name, imgSizes: {t: thumbUrl, s: thumbUrl, m: mediumUrl, l: largeUrl}, dateTakenString: dateTakenString, dateUploadedString: dateTakenString, rawData: media, isSupported: isSupported});
-  },
-
-  /**
-   * @method
-   * @desc This function is called for resetting the instagram's accessObject. Called when the user clicks on change link.
-   * @param {Callback} callback callback function to be called after logout.
-   *
-   */
-
-  logoutHandler: function (callback) {
-//        EM.Utils.clearCookie('instagramToken');
-    var service = this;
-    service.accessObject['access_token'] = null;
-    var image = new Image();
-    image.src = 'https://instagram.com/accounts/logout/';
-    service.successLogoutHandler.call(service, callback);
-  },
-
-  /**
-   * @method
-   * @desc This function is called for retrieving metadata of a given photo. Makes a jsnop request and obtained meta information of the given photo.
-   * @param {Object} photo  Photo object
-   * @param {Callback} callback function to be called after getting the photo meta data from service
-   *
-   */
-  getMediaMetadata: function (photo, callback) {
-    this.successMediaMetadataHandler(photo.metadata, callback);
-  },
-  /**
-   * @method
-   * @desc Method for populating the response to a  object.
-   * @param {Object} fMedia formated media after doing doing formatting by each service.
-   */
-  populateAdditionalMediaMetaData: function (fMedia) {
-    var height = fMedia.rawData.images.standard_resolution.height;
-    var width = fMedia.rawData.images.standard_resolution.width;
-
-    var properties = {
-      "dateTaken": this.convertDateToUTC(fMedia.dateTakenString),
-      "dateUploaded": this.convertDateToUTC(fMedia.dateUploadedString),
-      "dateUpdated": this.convertDateToUTC(fMedia.dateTakenString),
-      "caption": fMedia.rawData["caption"] ? fMedia.rawData["caption"]["text"] : '',
-      "description": fMedia.rawData["caption"] ? fMedia.rawData["caption"]["text"] : '',
-      "comments": fMedia.rawData['comments'],
-      "size": fMedia.rawData["size"],
-      "height": height,
-      "width": width,
-      "author": fMedia.rawData["user"] ? fMedia.rawData["user"]["full_name"] : '',
-      "authorAvatar": fMedia.rawData["user"] ? fMedia.rawData["user"]["profile_picture"] : '',
-      "commentCount": fMedia.rawData["comments"] ? fMedia.rawData["comments"]["count"] : '',
-      "likeCount": fMedia.rawData["likes"] ? fMedia.rawData["likes"]["count"] : '',
-      "likes": fMedia.rawData["likes"],
-      "latitude": fMedia.rawData["location"] ? fMedia.rawData["location"]['latitude'] : '',
-      "longitude": fMedia.rawData["location"] ? fMedia.rawData["location"]['longitude'] : '',
-      "tags": fMedia.rawData['tags'],
-      "thumbnail": fMedia.rawData['images'] ? fMedia.rawData['images']["thumbnail"]["url"] : '',
-      "downloadUrl": fMedia.rawData['images'] ? fMedia.rawData['images']["standard_resolution"]["url"] : ''
-    };
-
-    this.setPropertiesOnMediaMetaData(fMedia, properties);
-  },
-
-  /**
-   * @method
-   * @desc Utility method used for signing urls.
-   * @param link url link to be signed
-   * @param msg hash object used for signing the request.
-   * @returns link signed url
-   */
-  signAndReturnUrl: function (link, msg) {
-    var service = this;
-    OAuth.completeRequest(msg, service.accessObject);
-    OAuth.SignatureMethod.sign(msg, service.accessObject);
-    link = link + '?' + OAuth.formEncode(msg.parameters);
-    return link;
-  },
-
-  /**
-   * @method
-   * @desc Method for checking for supported media
-   * @param  media raw data of the media from the service response.
-   */
-  validateMedia: function (media) {
-    if (media.images) {
-      return this.checkMediaSupported(media.images["standard_resolution"]["url"], this.validationConstant.URL);
-    }
-    return false;
   }
-
 });

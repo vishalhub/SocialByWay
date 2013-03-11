@@ -195,28 +195,28 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
   like: function (objectId, successCallback, errorCallback) {
-    var service = this;
-    var postLike = function (objectId, successCallback, errorCallback) {
-      var apiKey = service.accessObject.consumerKey;
-      var message = {
-        action: service.flickrApiUrl,
-        method: "POST",
-        parameters: {
-          method: 'flickr.favorites.add',
-          perms: 'write',
-          format: 'json',
-          photo_id: objectId,
-          api_key: apiKey,
-          nojsoncallback: 1
-        }
+    var service = this,
+      postLike = function (objectId, successCallback, errorCallback) {
+        var apiKey = service.accessObject.consumerKey,
+          message = {
+            action: service.flickrApiUrl,
+            method: "POST",
+            parameters: {
+              method: 'flickr.favorites.add',
+              perms: 'write',
+              format: 'json',
+              photo_id: objectId,
+              api_key: apiKey,
+              nojsoncallback: 1
+            }
+          };
+        var url = service.signAndReturnUrl(service.flickrApiUrl, message);
+        SBW.Singletons.utils.ajax({
+          url: url,
+          type: 'POST',
+          dataType: "json"
+        }, successCallback, errorCallback);
       };
-      var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      SBW.Singletons.utils.ajax({
-        url: url,
-        type: 'POST',
-        dataType: "json"
-      }, successCallback, errorCallback);
-    };
     var callback = (function (service, objectId, successCallback, errorCallback) {
       return function (isLoggedIn) {
         if (isLoggedIn) {
@@ -240,28 +240,28 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
    */
   unlike: function (objectId, successCallback, errorCallback) {
-    var service = this;
-    var removeLike = function (objectId, successCallback, errorCallback) {
-      var apiKey = service.accessObject.consumerKey;
-      var message = {
-        action: service.flickrApiUrl,
-        method: "POST",
-        parameters: {
-          method: 'flickr.favorites.remove',
-          perms: 'write',
-          format: 'json',
-          photo_id: objectId,
-          api_key: apiKey,
-          nojsoncallback: 1
-        }
+    var service = this,
+      removeLike = function (objectId, successCallback, errorCallback) {
+        var apiKey = service.accessObject.consumerKey,
+          message = {
+            action: service.flickrApiUrl,
+            method: "POST",
+            parameters: {
+              method: 'flickr.favorites.remove',
+              perms: 'write',
+              format: 'json',
+              photo_id: objectId,
+              api_key: apiKey,
+              nojsoncallback: 1
+            }
+          };
+        var url = service.signAndReturnUrl(service.flickrApiUrl, message);
+        SBW.Singletons.utils.ajax({
+          url: url,
+          type: 'POST',
+          dataType: "json"
+        }, successCallback, errorCallback);
       };
-      var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      SBW.Singletons.utils.ajax({
-        url: url,
-        type: 'POST',
-        dataType: "json"
-      }, successCallback, errorCallback);
-    };
     var callback = (function (service, objectId, successCallback, errorCallback) {
       return function (isLoggedIn) {
         if (isLoggedIn) {
@@ -483,7 +483,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       for (var i = 0; i < response.photo.person.length; i++) {
         var user = new SBW.Models.User({
           name: response.photo.person[i].username,
-          id: response.photo.person[i].nsid
+          id: response.photo.person[i].nsid,
+          userImage: 'http://flickr.com/buddyicons/' + response.photo.person[i].nsid + '.jpg'
         });
         likesData[i] = new SBW.Models.Like({
           user: user,

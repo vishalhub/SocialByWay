@@ -833,42 +833,46 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         }
       };
       var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      SBW.Singletons.utils.ajax({
-          url: url,
-          type: 'GET',
-          dataType: "json"
-        },
-        function (response) {
-          var content = new Array();
-          var albums = response.photosets.photoset;
-          albums.forEach(function (element) {
-            var album = element;
-            var collection = new SBW.Models.AssetCollection({
-              id: '',
-              title: album.title._content,
+      if (service.assetCollectionArray.length > 0) {
+        successCallback(service.assetCollectionArray);
+      } else {
+        SBW.Singletons.utils.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+          },
+          function (response) {
+            var albums = response.photosets.photoset;
+            albums.forEach(function (album) {
+              var collection = new SBW.Models.AssetCollection({
+                id: '',
+                title: album.title._content,
               createdTime: new Date().getTime(),
-              rawData: album,
-              status: 'private',
-              serviceName: 'flickr',
-              assets: [],
-              metadata: {
+                rawData: album,
+                status: 'private',
+                serviceName: 'flickr',
+                assets: [],
+                metadata: {
                 dateUpdated: new Date(album.date_update * 1000).toDateString(),
                 dateUploaded: new Date(album.date_create * 1000).toDateString(),
-                numAssets: album.photos,
-                assetCollectionId: album.id,
-                type: 'image',
-                tags: null,
-                fileName: null,
-                description: album.description._content,
+                  numAssets: album.photos,
+                  assetCollectionId: album.id,
+                  type: 'image',
+                  tags: null,
+                  fileName: null,
+                  description: album.description._content,
                 thumbnail: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
-                previewUrl: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
-                author: null,
-                authorAvatar: null,
-                commentCount: album.count_comments,
-                comments: null,
-                likeCount: 0,
-                likes: null
-              }
+                  previewUrl: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
+                  author: null,
+                  authorAvatar: null,
+                  commentCount: album.count_comments,
+                  comments: null,
+                  likeCount: 0,
+                  likes: null
+                }
+              });
+              collection.id = collection.getID();
+              service.assetCollectionArray.push(collection);
             });
             successCallback(service.assetCollectionArray);
           },

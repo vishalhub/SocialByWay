@@ -810,7 +810,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} successCallback
    * @param {Callback} errorCallback
    */
-  getAlbums: function (userId, successCallback, errorCallback) {
+  getAlbums: function (successCallback, errorCallback, userId) {
     var service = this;
     userId = ((userId !== undefined) ? userId : service.accessObject.id );
     var getData = function (userId, successCallback, errorCallback) {
@@ -855,7 +855,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                 tags: null,
                 fileName: null,
                 description: album.description._content,
-                thumbnail: null,
+                thumbnail: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
                 previewUrl: 'http://farm' + album.farm + '.staticflickr.com/' + album.server + '/' + album.primary + '_' + album.secret + '.jpg',
                 author: null,
                 authorAvatar: null,

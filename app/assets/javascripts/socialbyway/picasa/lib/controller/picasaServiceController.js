@@ -318,6 +318,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
       createdTime: media.gphoto$timestamp.$t,
       rawData: media,
       serviceName: 'picasa',
+      src: media.content.src,
       metadata: {
         dateUpdated: media.updated.$t,
         downloadUrl: media.content.src,

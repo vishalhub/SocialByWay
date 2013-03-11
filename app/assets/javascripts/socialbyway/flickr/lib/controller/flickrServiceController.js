@@ -23,7 +23,10 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @type {string}
    **/
   title: 'Flickr',
-
+  /**
+   *
+   */
+  assetCollectionArray: [],
   /**
    * @method
    * @desc initialize method to setup required items
@@ -153,15 +156,15 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       flickrVerifier = service.getCookie('flickrToken');
     if (flickrVerifier) {
       var message = {
-        action: service.accessTokenUrl,
-        method: "GET",
-        parameters: {
-          oauth_token: service.accessObject.access_token,
-          oauth_verifier: flickrVerifier,
-          perms: 'write'
-        }
-      };
-      var url = service.signAndReturnUrl(service.accessTokenUrl, message);
+          action: service.accessTokenUrl,
+          method: "GET",
+          parameters: {
+            oauth_token: service.accessObject.access_token,
+            oauth_verifier: flickrVerifier,
+            perms: 'write'
+          }
+        },
+        url = service.signAndReturnUrl(service.accessTokenUrl, message);
       $.ajax({
         url: service.proxyUrl,
         data: {
@@ -170,11 +173,11 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         type: 'GET',
         crossDomain: true,
         success: function (response) {
-          var jsonResp = SBW.Singletons.utils.getJSONFromQueryParams(response);
+          var jsonResp = SBW.Singletons.utils.getJSONFromQueryParams(response), user;
           service.accessObject.id = decodeURIComponent(jsonResp.user_nsid);
           service.accessObject.access_token = jsonResp.oauth_token;
           service.accessObject.tokenSecret = jsonResp.oauth_token_secret;
-          var user = new SBW.Models.User({
+          user = new SBW.Models.User({
             name: jsonResp.username,
             id: decodeURIComponent(jsonResp.user_nsid)
           });
@@ -216,18 +219,18 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           type: 'POST',
           dataType: "json"
         }, successCallback, errorCallback);
-      };
-    var callback = (function (service, objectId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          postLike(objectId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+      },
+      callback = (function (service, objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             postLike(objectId, successCallback, errorCallback);
-          });
-        }
-      };
-    })(service, objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              postLike(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(service, objectId, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -261,18 +264,18 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           type: 'POST',
           dataType: "json"
         }, successCallback, errorCallback);
-      };
-    var callback = (function (service, objectId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          removeLike(objectId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+      },
+      callback = (function (service, objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             removeLike(objectId, successCallback, errorCallback);
-          });
-        }
-      };
-    })(service, objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              removeLike(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(service, objectId, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
@@ -284,41 +287,41 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
    */
   postComment: function (objectId, comment, successCallback, errorCallback) {
-    var service = this;
-    var apiKey = service.accessObject.consumerKey;
-    var publish = function (objectId, comment, successCallback, errorCallback) {
-      var message = {
-        action: service.flickrApiUrl,
-        method: "POST",
-        parameters: {
-          method: 'flickr.photos.comments.addComment',
-          api_key: apiKey,
-          format: 'json',
-          photo_id: objectId,
-          perms: 'write',
-          comment_text: comment,
-          oauth_token: service.accessObject.access_token,
-          nojsoncallback: 1
-        }
-      };
-      var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      SBW.Singletons.utils.ajax({
-        url: url,
-        type: 'POST',
-        dataType: "json"
-      }, successCallback, errorCallback);
-    };
-    var callback = (function (objectId, comment, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          publish(objectId, comment, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+    var service = this,
+      apiKey = service.accessObject.consumerKey,
+      publish = function (objectId, comment, successCallback, errorCallback) {
+        var message = {
+            action: service.flickrApiUrl,
+            method: "POST",
+            parameters: {
+              method: 'flickr.photos.comments.addComment',
+              api_key: apiKey,
+              format: 'json',
+              photo_id: objectId,
+              perms: 'write',
+              comment_text: comment,
+              oauth_token: service.accessObject.access_token,
+              nojsoncallback: 1
+            }
+          },
+          url = service.signAndReturnUrl(service.flickrApiUrl, message);
+        SBW.Singletons.utils.ajax({
+          url: url,
+          type: 'POST',
+          dataType: "json"
+        }, successCallback, errorCallback);
+      },
+      callback = (function (objectId, comment, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             publish(objectId, comment, successCallback, errorCallback);
-          });
-        }
-      };
-    })(objectId, comment, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(objectId, comment, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, comment, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 
@@ -429,21 +432,21 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback
    */
   getGalleries: function (userId, successCallback, errorCallback) {
-    var service = this;
-    var apiKey = service.accessObject.consumerKey;
-    var message = {
-      action: service.flickrApiUrl,
-      method: "GET",
-      parameters: {
-        method: 'flickr.galleries.getList',
-        perms: 'write',
-        format: 'json',
-        user_id: userId,
-        api_key: apiKey,
-        nojsoncallback: 1
-      }
-    };
-    var url = service.signAndReturnUrl(service.flickrApiUrl, message);
+    var service = this,
+      apiKey = service.accessObject.consumerKey,
+      message = {
+        action: service.flickrApiUrl,
+        method: "GET",
+        parameters: {
+          method: 'flickr.galleries.getList',
+          perms: 'write',
+          format: 'json',
+          user_id: userId,
+          api_key: apiKey,
+          nojsoncallback: 1
+        }
+      },
+      url = service.signAndReturnUrl(service.flickrApiUrl, message);
     SBW.Singletons.utils.ajax({
         url: url,
         type: 'GET',
@@ -463,51 +466,52 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
   getLikes: function (photoId, successCallback, errorCallback) {
-    var service = this;
-    var apiKey = service.accessObject.consumerKey;
-    var message = {
-      action: service.flickrApiUrl,
-      method: "GET",
-      parameters: {
-        method: 'flickr.photos.getFavorites',
-        perms: 'write',
-        format: 'json',
-        photo_id: photoId,
-        api_key: apiKey,
-        nojsoncallback: 1
-      }
-    };
-    var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-    var likeSuccess = function (response) {
-      var likesData = [];
-      for (var i = 0; i < response.photo.person.length; i++) {
-        var user = new SBW.Models.User({
-          name: response.photo.person[i].username,
-          id: response.photo.person[i].nsid,
-          userImage: 'http://flickr.com/buddyicons/' + response.photo.person[i].nsid + '.jpg'
-        });
-        likesData[i] = new SBW.Models.Like({
-          user: user,
-          rawData: response.photo.person[i]
-        });
-      }
-      var likesObject = {
-        serviceName: 'flickr',
-        likes: likesData,
-        likeCount: likesData.length,
-        rawData: response
-      };
-      // Todo Populating the asset object with the like and user objects
-      successCallback(likesObject);
-    };
-    SBW.Singletons.utils.ajax({
-        url: url,
-        type: 'GET',
-        dataType: "json"
+    var service = this,
+      apiKey = service.accessObject.consumerKey,
+      message = {
+        action: service.flickrApiUrl,
+        method: "GET",
+        parameters: {
+          method: 'flickr.photos.getFavorites',
+          perms: 'write',
+          format: 'json',
+          photo_id: photoId,
+          api_key: apiKey,
+          nojsoncallback: 1
+        }
       },
+      url = service.signAndReturnUrl(service.flickrApiUrl, message),
+      likeSuccess = function (response) {
+        var likesData = [], i;
+        for (i = 0; i < response.photo.person.length; i++) {
+          var user = new SBW.Models.User({
+            name: response.photo.person[i].username,
+            id: response.photo.person[i].nsid,
+            userImage: 'http://flickr.com/buddyicons/' + response.photo.person[i].nsid + '.jpg'
+          });
+          likesData[i] = new SBW.Models.Like({
+            user: user,
+            rawData: response.photo.person[i]
+          });
+        }
+        ;
+        var likesObject = {
+          serviceName: 'flickr',
+          likes: likesData,
+          likeCount: likesData.length,
+          rawData: response
+        };
+        // Todo Populating the asset object with the like and user objects
+        successCallback(likesObject);
+      };
+    SBW.Singletons.utils.ajax({
+      url: url,
+      type: 'GET',
+      dataType: "json"
+    },
       likeSuccess,
       errorCallback
-    );
+      );
   },
   /**
    * @method
@@ -518,43 +522,43 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @param {Callback} errorCallback
    */
   createGallery: function (title, description, successCallback, errorCallback) {
-    var service = this;
-    var apiKey = service.accessObject.consumerKey;
-    var newGallery = function (title, description, successCallback, errorCallback) {
-      var message = {
-        action: service.flickrApiUrl,
-        method: "POST",
-        parameters: {
-          api_key: apiKey,
-          description: description,
-          title: title,
-          format: 'json',
-          method: 'flickr.galleries.create',
-          oauth_token: service.accessObject.access_token,
-          perms: 'write',
-          nojsoncallback: 1
-        }
-      };
-      var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      SBW.Singletons.utils.ajax({
-          url: url,
-          type: 'POST',
-          dataType: 'json'
-        },
-        successCallback,
-        errorCallback);
-    };
-    var callback = (function (title, description, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          newGallery(title, description, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+    var service = this,
+      apiKey = service.accessObject.consumerKey,
+      newGallery = function (title, description, successCallback, errorCallback) {
+        var message = {
+            action: service.flickrApiUrl,
+            method: "POST",
+            parameters: {
+              api_key: apiKey,
+              description: description,
+              title: title,
+              format: 'json',
+              method: 'flickr.galleries.create',
+              oauth_token: service.accessObject.access_token,
+              perms: 'write',
+              nojsoncallback: 1
+            }
+          },
+          url = service.signAndReturnUrl(service.flickrApiUrl, message);
+        SBW.Singletons.utils.ajax({
+            url: url,
+            type: 'POST',
+            dataType: 'json'
+          },
+          successCallback,
+          errorCallback);
+      },
+      callback = (function (title, description, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             newGallery(title, description, successCallback, errorCallback);
-          });
-        }
-      };
-    })(title, description, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              newGallery(title, description, successCallback, errorCallback);
+            });
+          }
+        };
+      })(title, description, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
@@ -866,14 +870,12 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                 likes: null
               }
             });
-            collection.id = collection.getID();
-            content.push(collection);
-          });
-          successCallback(content);
-        },
-        errorCallback
-      );
-    }
+            successCallback(service.assetCollectionArray);
+          },
+          errorCallback
+        );
+      }
+    };
     var callback = (function (userId, successCallback, errorCallback) {
       return function (isLoggedIn) {
         if (isLoggedIn) {
@@ -977,66 +979,82 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       }
     };
     var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-    SBW.Singletons.utils.ajax({
-        url: url,
-        type: 'GET',
-        dataType: "json"
-      }, function (response) {
-        var content = new Array();
-        var assets = response.photoset.photo;
-        assets.forEach(function (asset) {
-          var collection = new SBW.Models.ImageAsset({
-            src: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
-            id: '',
-            title: asset.title,
-            createdTime: '',
-            serviceName: 'flickr',
-            rawData: asset,
-            status: 'private',
-            imgSizes: {t: '', s: '', m: '', l: ''},
-            metadata: {
-              caption: null,
-              type: null,
-              dateTaken: null,
-              dateUpdated: null,
-              dateUploaded: null,
-              comments: null,
-              size: null,
-              assetId: asset.id,
-              assetCollectionId: response.photoset.id,
-              height: null,
-              width: null,
-              commentCount: null,
-              category: null,
-              exifMake: null,
-              exifModel: null,
-              iptcKeywords: null,
-              orientation: null,
-              tags: null,
-              downloadUrl: null,
-              originalFormat: null,
-              fileName: null,
-              version: null,
-              description: null,
-              thumbnail: null,
-              previewUrl: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
-              author: new SBW.Models.User({
-                name: response.photoset.ownername,
-                id: response.photoset.owner,
-                userImage: 'http://flickr.com/buddyicons/' + response.photoset.owner + '.jpg'
-              }),
-              authorAvatar: null,
-              likeCount: 0,
-              likes: null
+    assetFound = false;
+    service.assetCollectionArray.forEach(function (collectionValue, collectionIndex, serviceContentArray) {
+      if (collectionValue.metadata.assetCollectionId === photoSetId) {
+        if (collectionValue.assets.length > 0) {
+          successCallback(collectionValue.assets);
+          assetFound = true;
+        }
+      }
+    });
+    if (!assetFound) {
+      SBW.Singletons.utils.ajax({
+          url: url,
+          type: 'GET',
+          dataType: "json"
+        }, function (response) {
+          var content = new Array();
+          var assets = response.photoset.photo;
+          assets.forEach(function (asset) {
+            var collection = new SBW.Models.ImageAsset({
+              src: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
+              id: '',
+              title: asset.title,
+              createdTime: '',
+              serviceName: 'flickr',
+              rawData: asset,
+              status: 'private',
+              imgSizes: {t: '', s: '', m: '', l: ''},
+              metadata: {
+                caption: null,
+                type: null,
+                dateTaken: null,
+                dateUpdated: null,
+                dateUploaded: null,
+                comments: null,
+                size: null,
+                assetId: asset.id,
+                assetCollectionId: response.photoset.id,
+                height: null,
+                width: null,
+                commentCount: null,
+                category: null,
+                exifMake: null,
+                exifModel: null,
+                iptcKeywords: null,
+                orientation: null,
+                tags: null,
+                downloadUrl: null,
+                originalFormat: null,
+                fileName: null,
+                version: null,
+                description: null,
+                thumbnail: null,
+                previewUrl: 'http://farm' + asset.farm + '.staticflickr.com/' + asset.server + '/' + asset.id + '_' + asset.secret + '.jpg',
+                author: new SBW.Models.User({
+                  name: response.photoset.ownername,
+                  id: response.photoset.owner,
+                  userImage: 'http://flickr.com/buddyicons/' + response.photoset.owner + '.jpg'
+                }),
+                authorAvatar: null,
+                likeCount: 0,
+                likes: null
+              }
+            });
+            collection.id = collection.getID();
+            content.push(collection);
+          });
+          service.assetCollectionArray.forEach(function (assetCollection) {
+            if (assetCollection.metadata.assetCollectionId === photoSetId) {
+              assetCollection.assets = content;
             }
           });
-          collection.id = collection.getID();
-          content.push(collection);
-        });
-        successCallback(content)
-      },
-      errorCallback
-    );
+          successCallback(content);
+        },
+        errorCallback
+      );
+    }
   },
   /**
    * @method
@@ -1170,6 +1188,13 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           }
         });
         asset.id = asset.getID();
+        service.assetCollectionArray.forEach(function (assetCollection) {
+          assetCollection.assets.forEach(function (ImageAsset,index,array) {
+            if(ImageAsset.metadata.assetId === photoId){
+              array[index] = asset;
+            }
+          })
+        });
         successCallback(asset)
       },
       errorCallback);

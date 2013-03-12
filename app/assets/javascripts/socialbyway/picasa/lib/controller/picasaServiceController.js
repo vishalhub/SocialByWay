@@ -182,8 +182,8 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
                 status: this.gphoto$access.$t,
                 serviceName: 'picasa',
                 metadata: {
-                  dateUpdated: this.updated.$t,
-                  dateUploaded: this.published.$t,
+                  dateUpdated: new Date(this.updated.$t).toDateString(),
+                  dateUploaded: new Date(this.published.$t).toDateString(),
                   numAssets: this.gphoto$numphotos.$t,
                   assetCollectionId: this.gphoto$id.$t,
                   commentCount: this.gphoto$commentCount.$t,
@@ -318,6 +318,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
       createdTime: media.gphoto$timestamp.$t,
       rawData: media,
       serviceName: 'picasa',
+      src: media.content.src,
       metadata: {
         dateUpdated: media.updated.$t,
         downloadUrl: media.content.src,

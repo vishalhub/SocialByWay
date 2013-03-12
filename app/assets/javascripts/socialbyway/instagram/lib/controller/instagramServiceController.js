@@ -70,22 +70,25 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
       }
     });
   },
-  getProfile: function (successCallback, errorCallback) {
+  /**
+   * @method
+   * @desc To get logged in user profile through Instagram API service
+   * @param {String} userId  Id of the service user.
+   * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getProfile-successCallback Callback} to be executed on successful profile retrieving.
+   * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getProfile-errorCallback Callback} to be executed on retrieving profile error.
+   */
+  getProfile: function (userId, successCallback, errorCallback) {
+    userId = ((userId !== undefined) ? userId : 'self');
     var service = this,
       publish = function (successCallback, errorCallback) {
-        $.ajax({
-          url: service.apiUrl + '/users/self',
-          data: {access_token: service.accessObject.access_token},
-          type: 'GET',
-          dataType: 'jsonp',
-          crossDomain: true,
-          success: function (response) {
-            successCallback(response);
-          },
-          error: function (response) {
-            errorCallback(response);
-          }
-        });
+        SBW.Singletons.utils.ajax({
+            url: service.apiUrl + '/users/'+userId,
+            type: 'GET',
+            dataType: "jsonp",
+            data: {access_token: service.accessObject.access_token}
+          }, successCallback,
+          errorCallback
+        );
       },
       callback = (function (successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -111,19 +114,14 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   getComments: function (mediaId, successCallback, errorCallback) {
     var service = this,
       publish = function (mediaId, successCallback, errorCallback) {
-        $.ajax({
-          url: service.apiUrl + '/media/' + mediaId + '/comments',
-          data: {access_token: service.accessObject.access_token},
-          type: 'GET',
-          dataType: 'jsonp',
-          crossDomain: true,
-          success: function (response) {
-            successCallback(response);
-          },
-          error: function (response) {
-            errorCallback(response);
-          }
-        });
+        SBW.Singletons.utils.ajax({
+            url: service.apiUrl + '/media/' + mediaId + '/comments',
+            type: 'GET',
+            dataType: "jsonp",
+            data: {access_token: service.accessObject.access_token}
+          }, successCallback,
+          errorCallback
+        );
       },
       callback = (function (mediaId, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -135,7 +133,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
             });
           }
         };
-      })(successCallback, errorCallback);
+      })(mediaId, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
@@ -148,18 +146,13 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   like: function (mediaId, successCallback, errorCallback) {
     var service = this,
       publish = function (mediaId, successCallback, errorCallback) {
-        $.ajax({
-          url: SBW.Singletons.config.proxyURL + '?url=' + service.apiUrl + '/media/' + mediaId + '/likes',
-          data: {access_token: service.accessObject.access_token},
-          type: 'POST',
-          crossDomain: true,
-          success: function (response) {
-            successCallback(response);
-          },
-          error: function (response) {
-            errorCallback(response);
-          }
-        });
+        SBW.Singletons.utils.ajax({
+            url: SBW.Singletons.config.proxyURL + '?url=' + service.apiUrl + '/media/' + mediaId + '/likes',
+            type: 'POST',
+            data: {access_token: service.accessObject.access_token}
+          }, successCallback,
+          errorCallback
+        );
       },
       callback = (function (mediaId, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -184,18 +177,12 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   unlike: function (mediaId, successCallback, errorCallback) {
     var service = this,
       publish = function (mediaId, successCallback, errorCallback) {
-        $.ajax({
-          url: SBW.Singletons.config.proxyURL + '?url=' + service.apiUrl + '/media/' + mediaId + '/likes?access_token=' + service.accessObject.access_token,
-          data: {access_token: service.accessObject.access_token},
-          type: 'DELETE',
-          crossDomain: true,
-          success: function (response) {
-            successCallback(response);
-          },
-          error: function (response) {
-            errorCallback(response);
-          }
-        });
+        SBW.Singletons.utils.ajax({
+            url: SBW.Singletons.config.proxyURL + '?url=' + service.apiUrl + '/media/' + mediaId + '/likes?access_token=' + service.accessObject.access_token,
+            type: 'DELETE'
+          }, successCallback,
+          errorCallback
+        );
       },
       callback = (function (mediaId, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -221,13 +208,12 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   getLikes: function (mediaId, successCallback, errorCallback) {
     var service = this,
       publish = function (mediaId, successCallback, errorCallback) {
-        $.ajax({
-          url: service.apiUrl + '/media/' + mediaId + '/likes',
-          data: {access_token: service.accessObject.access_token},
-          type: 'GET',
-          dataType: 'jsonp',
-          crossDomain: true,
-          success: function (response) {
+        SBW.Singletons.utils.ajax({
+            url: service.apiUrl + '/media/' + mediaId + '/likes',
+            type: 'GET',
+            dataType: "jsonp",
+            data: {access_token: service.accessObject.access_token}
+          }, function (response) {
             var likesData = [], i, user;
             for (i = 0; i < response.data.length; i++) {
               user = new SBW.Models.User({
@@ -248,11 +234,10 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
             };
             // Todo Populating the asset object with the like and user objects
             successCallback(likesObject);
-          },
-          error: function (response) {
+          }, function (response) {
             errorCallback(response);
           }
-        });
+        );
       },
       callback = (function (mediaId, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -277,13 +262,13 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   getMedia: function (userId, successCallback, errorCallback) {
     var service = this,
       publish = function (userId, successCallback, errorCallback) {
-        $.ajax({
-          url: service.apiUrl + '/users/' + userId + '/media/recent',
-          data: {access_token: service.accessObject.access_token},
-          type: 'GET',
-          dataType: 'jsonp',
-          crossDomain: true,
-          success: function (response) {
+        SBW.Singletons.utils.ajax({
+            url: service.apiUrl + '/users/' + userId + '/media/recent',
+            data: {access_token: service.accessObject.access_token},
+            type: 'GET',
+            dataType: 'jsonp'
+          },
+          function (response) {
             var content = new Array(),
               assets = response.data;
             assets.forEach(function (asset) {
@@ -370,11 +355,10 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
               content.push(collection);
             });
             successCallback(content);
-          },
-          error: function (response) {
+          }, function (response) {
             errorCallback(response);
           }
-        });
+        );
       },
       callback = (function (userId, successCallback, errorCallback) {
         return function (isLoggedIn) {

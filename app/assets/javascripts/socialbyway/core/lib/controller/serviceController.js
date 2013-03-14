@@ -1,4 +1,4 @@
-(function () {
+(function() {
 	"use strict"; /*jslint nomen: true*/
 	/*jslint plusplus: true */
 	/*global SBW*/
@@ -61,7 +61,7 @@
 		/**
 		 * @private
 		 */
-		_forEach: function (array, callback) {
+		_forEach: function(array, callback) {
 			if (!this.utils) {
 				this.utils = new SBW.Utils();
 			}
@@ -72,30 +72,30 @@
 		 * @desc Initializes the service.
 		 * @see SBW.Controllers.Services.Facebook
 		 */
-		init: function () {},
+		init: function() {},
 		/**
 		 * @method
 		 * @desc Resets the service object to default values.
 		 */
-		reset: function () {},
+		reset: function() {},
 		/**
 		 * @method
 		 * @private
 		 * @desc The internationalized message for title, openAlbumLabel, seeAllAlbumsLabel. Internal method to be executed by service init method.
 		 */
-		setup: function () {},
+		setup: function() {},
 		/**
 		 * @method
 		 * @desc Checks whether the user is logged in / has a authenticated session to service.
 		 * @param {Function} callbackFn  Callback function to be executed once the user is logged in.
 		 */
-		checkUserLoggedIn: function (callbackFn) {},
+		checkUserLoggedIn: function(callbackFn) {},
 		/**
 		 * @method
 		 * @desc Update the user object in the service
 		 * @param {Object} userObject  Object of logged in user
 		 */
-		populateUserInformation: function (userObject) {
+		populateUserInformation: function(userObject) {
 			this.user = userObject;
 		},
 		/**
@@ -103,21 +103,21 @@
 		 * @desc Triggers the authentication process.
 		 * @param {Function} callback  Callback function to be executed once the user is authenticated and connected to the client application.
 		 */
-		startActionHandler: function (callback) {},
+		startActionHandler: function(callback) {},
 		/**
 		 * @method
 		 * @desc Retrieves access tokens from the response.
 		 * @param {Object} response  Response from the service.
 		 * @param {Function} callback  Callback function to be executed after retrieving the access token.
 		 */
-		getAccessToken: function (response, callback) {},
+		getAccessToken: function(response, callback) {},
 		/**
 		 * @method
 		 * @desc Handler for login failure.
 		 * @param {Function} callback Callback function to be executed on authentication failure.
 		 * @param {String} message Error message to be displayed .
 		 */
-		failureLoginHandler: function (callback, message) {},
+		failureLoginHandler: function(callback, message) {},
 		/**
 		 * @method
 		 * @desc Publishing text message onto the specified services. This method accepts success and error callbacks in the arguments. For each
@@ -135,11 +135,11 @@
 		 *         // Error callback logic...
 		 *        });
 		 */
-		publishMessage: function (serviceArr, message, successCallback, errorCallback) {
+		publishMessage: function(serviceArr, message, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).publishMessage(message, successCallback, errorCallback);
 			});
 		},
@@ -159,7 +159,7 @@
 		 * @param {SBW.User} user  The service user object.
 		 * @param {Function} callback Callback to be executed on successful login.
 		 */
-		successLoginHandler: function (user, callback) {
+		successLoginHandler: function(user, callback) {
 			this.set('isUserLoggedIn', true);
 			this.set('isUserLoggingIn', false);
 			// format the user_id
@@ -183,11 +183,11 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~publishLink-successCallback Callback} to be executed on successful link publishing.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~publishLink-errorCallback Callback} to be executed on link publishing error.
 		 */
-		publishLink: function (serviceArr, type, name, caption, message, link, description, picture, icon, successCallback, errorCallback) {
+		publishLink: function(serviceArr, type, name, caption, message, link, description, picture, icon, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).publishLink(type, name, caption, message, link, description, picture, icon, successCallback, errorCallback);
 			});
 		},
@@ -211,11 +211,11 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~publishEvent-successCallback Callback} to be executed on successful event publishing.
 		 * @param {Function} errorCallback {@link SBW.Controllers.Services.ServiceController~publishEvent-errorCallback Callback} to be executed on event publishing error.
 		 */
-		publishEvent: function (serviceArr, name, startTime, endTime, successCallback, errorCallback) {
+		publishEvent: function(serviceArr, name, startTime, endTime, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).publishEvent(name, startTime, endTime, successCallback, errorCallback);
 			});
 		},
@@ -237,7 +237,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~like-successCallback Callback} to be executed on object liking in a service succeeds.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~like-errorCallback Callback} to be executed on object liking error.
 		 */
-		like: function (serviceName, objectId, successCallback, errorCallback) {
+		like: function(serviceName, objectId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).like(objectId, successCallback, errorCallback);
 		},
 		/**
@@ -250,17 +250,17 @@
 		 * @callback SBW.Controllers.Services.ServiceController~like-errorCallback
 		 * @param {Object} response JSON response from the service
 		 **/
-		 /**
-	      * @method
-	      * @desc Un liking an object onto the specified service.
-	      * @param {String} serviceName  Name of the registered service.
-	      * @param {String} objectId  Id of the object un liked i.e. post,comment etc..
-	      * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} to be executed on object un liking in a service succeeds.
-	      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} to be executed on object un liking error.
-	      */
-	    unlike: function (serviceName, objectId, successCallback, errorCallback) {
-	      SBW.Singletons.serviceFactory.getService(serviceName).unlike(objectId, successCallback, errorCallback);
-	    },
+		/**
+		 * @method
+		 * @desc Un liking an object onto the specified service.
+		 * @param {String} serviceName  Name of the registered service.
+		 * @param {String} objectId  Id of the object un liked i.e. post,comment etc..
+		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} to be executed on object un liking in a service succeeds.
+		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} to be executed on object un liking error.
+		 */
+		unlike: function(serviceName, objectId, successCallback, errorCallback) {
+			SBW.Singletons.serviceFactory.getService(serviceName).unlike(objectId, successCallback, errorCallback);
+		},
 		/**
 		 * This callback is displayed as part of the unlike method.
 		 * @callback SBW.Controllers.Services.ServiceController~unlike-successCallback
@@ -275,13 +275,13 @@
 		 * @method
 		 * @desc Posting comment on an object in the specified service.
 		 * @param {String} serviceName  Name of the registered service.
-		 * @param {String} objectId  Id of the object liked i.e. post,comment etc..
+		 * @param {Object} idObject  Id of the object liked i.e. post,comment etc..
 		 * @param {String} comment Comment to be posted on to the service.
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} to be executed on successful comment posting.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} to be executed on comment posting error.
 		 */
-		postComment: function (serviceName, objectId, comment, successCallback, errorCallback) {
-			SBW.Singletons.serviceFactory.getService(serviceName).postComment(objectId, comment, successCallback, errorCallback);
+		postComment: function(serviceName, idObject, comment, successCallback, errorCallback) {
+			SBW.Singletons.serviceFactory.getService(serviceName).postComment(idObject, comment, successCallback, errorCallback);
 		},
 		/**
 		 * This callback is displayed as part of the postComment method.
@@ -301,7 +301,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getPosts-successCallback Callback} to be executed on successful posts retrieving.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getPosts-errorCallback Callback} to be executed on retrieving posts error.
 		 */
-		getPosts: function (serviceName, userId, successCallback, errorCallback) {
+		getPosts: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getPosts(userId, successCallback, errorCallback);
 		},
 		/**
@@ -322,7 +322,7 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} to be executed on successful likes retrieving.
 		 * @param {Function} errorCallback {@link SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} to be executed on retrieving likes error.
 		 */
-		getLikes: function (serviceName, objectId, successCallback, errorCallback) {
+		getLikes: function(serviceName, objectId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getLikes(objectId, successCallback, errorCallback);
 		},
 		/**
@@ -343,7 +343,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} to be executed on successful comments retrieving.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} to be executed on retrieving comments error.
 		 */
-		getComments: function (serviceName, objectId, successCallback, errorCallback) {
+		getComments: function(serviceName, objectId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getComments(objectId, successCallback, errorCallback);
 		},
 		/**
@@ -356,14 +356,14 @@
 		 * @callback SBW.Controllers.Services.ServiceController~getComments-errorCallback
 		 * @param {Object} response JSON response from the service
 		 **/
-		 /**
+		/**
 		 * @method
 		 * @desc get albums for the logged in user from the specified service.
 		 * @param {String} serviceName  Name of the registered service.
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getAlbums-successCallback Callback} to be executed on successful retrieval of albums.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getAlbums-errorCallback Callback} to be executed on error while retrieving albums.
 		 */
-		getAlbums: function (serviceName, successCallback, errorCallback) {
+		getAlbums: function(serviceName, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getAlbums(successCallback, errorCallback);
 		},
 		/**
@@ -376,15 +376,15 @@
 		 * @callback SBW.Controllers.Services.ServiceController~getAlbums-errorCallback
 		 * @param {SBW.Models.Error} response JSON response from the service
 		 **/
-		 /**
+		/**
 		 * @method
 		 * @desc Fetch photo details from album for the specified service.
 		 * @param {String} serviceName  Name of the registered service.
 		 * @param {String}   albumId Album Id from which to fetch the photo details.
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-successCallback Callback} to be called with json response after fetching the photo details successfully.
-   		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-errorCallback Callback} to be called in case of error while fetching photo details.
+		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getPhotosFromAlbum-errorCallback Callback} to be called in case of error while fetching photo details.
 		 */
-		getPhotosFromAlbum: function (serviceName, albumId, successCallback, errorCallback) {
+		getPhotosFromAlbum: function(serviceName, albumId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getPhotosFromAlbum(albumId, successCallback, errorCallback);
 		},
 		/**
@@ -405,11 +405,11 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~getCommentsForUrl-successCallback Callback} to be executed on successful comments retrieving.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback Callback} to be executed on retrieving comments error.
 		 */
-		getCommentsForUrl: function (serviceArr, options, successCallback, errorCallback) {
+		getCommentsForUrl: function(serviceArr, options, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).getCommentsForUrl(options, successCallback, errorCallback);
 			});
 		},
@@ -431,7 +431,7 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~follow-successCallback Callback} to be executed after following user/company successfully.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~follow-errorCallback Callback} to be executed on error while following.
 		 */
-		follow: function (serviceName, serviceOption, successCallback, errorCallback) {
+		follow: function(serviceName, serviceOption, successCallback, errorCallback) {
 			var serviceFactory = SBW.Singletons.serviceFactory;
 			/*TODO - Check for method implementation in service being called*/
 			//if(serviceFactory.getService(value).hasOwnProperty('follow')) {
@@ -456,7 +456,7 @@
 		 * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~getFollowCount-successCallback Callback} to be executed on successful retrieval of follow count.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getFollowCount-errorCallback Callback} to be executed on error while retrieving follow count.
 		 */
-		getFollowCount: function (serviceName, serviceOption, successCallback, errorCallback) {
+		getFollowCount: function(serviceName, serviceOption, successCallback, errorCallback) {
 			var serviceFactory = SBW.Singletons.serviceFactory;
 			/*TODO - Check for method implementation in service being called*/
 			//if(serviceFactory.getService(value).hasOwnProperty('getFollowCount')) {
@@ -481,7 +481,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getEvents-successCallback Callback} to be executed on successful events retrieval.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getEvents-errorCallback Callback} to be executed on events retrieving error.
 		 */
-		getEvents: function (serviceName, userId, successCallback, errorCallback) {
+		getEvents: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getEvents(userId, successCallback, errorCallback);
 		},
 		/**
@@ -502,7 +502,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getSocialGroups-successCallback Callback} to be executed on successful social groups retrieval.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getSocialGroups-errorCallback Callback} to be executed on social groups retrieving error.
 		 */
-		getSocialGroups: function (serviceName, userId, successCallback, errorCallback) {
+		getSocialGroups: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getSocialGroups(userId, successCallback, errorCallback);
 		},
 		/**
@@ -523,11 +523,11 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getShareCount-successCallback Callback} to be executed on successful social groups retrieval.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getShareCount-errorCallback Callback} to be executed on social groups retrieving error.
 		 */
-		getShareCount: function (serviceArr, url, successCallback, errorCallback) {
+		getShareCount: function(serviceArr, url, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).getShareCount(url, successCallback, errorCallback);
 			});
 		},
@@ -549,7 +549,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getFriends-successCallback Callback} to be executed on successful friends list retrieval.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getFriends-errorCallback Callback} to be executed on friends list retrieving error.
 		 */
-		getFriends: function (serviceName, userId, successCallback, errorCallback) {
+		getFriends: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getFriends(userId, successCallback, errorCallback);
 		},
 		/**
@@ -570,7 +570,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getProfilePic-successCallback Callback} to be executed on successful profile picture retrieval.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} to be executed on profile picture retrieving error.
 		 */
-		getProfilePic: function (serviceName, userId, successCallback, errorCallback) {
+		getProfilePic: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getProfilePic(userId, successCallback, errorCallback);
 		},
 		/**
@@ -592,11 +592,11 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~publishNotes-successCallback Callback} to be executed on successful notes publishing.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~publishNotes-errorCallback Callback} to be executed on publishing notes error.
 		 */
-		publishNotes: function (serviceArr, subject, message, successCallback, errorCallback) {
+		publishNotes: function(serviceArr, subject, message, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).publishNotes(subject, message, successCallback, errorCallback);
 			});
 		},
@@ -618,7 +618,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getNotes-successCallback Callback} to be executed on successful notes retrieving.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getNotes-errorCallback Callback} to be executed on retrieving notes error.
 		 */
-		getNotes: function (serviceName, userId, successCallback, errorCallback) {
+		getNotes: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getNotes(userId, successCallback, errorCallback);
 		},
 		/**
@@ -637,7 +637,7 @@
 		 * @param {Object} layout  Object that specifies the dimensions of popup window.
 		 * @return {String} params Popup window parameters.
 		 */
-		getPopupWindowParams: function (layout) {
+		getPopupWindowParams: function(layout) {
 			var height = (layout.height == undefined) ? '250' : layout.height;
 			var width = (layout.width == undefined) ? '500' : layout.width;
 			var left = ($(window).width() - width) / 2;
@@ -659,7 +659,7 @@
 		 * @param {String} token Name of the cookie.
 		 * @return {String} value Value of the cookie.
 		 */
-		getCookie: function (token) {
+		getCookie: function(token) {
 			//retrieve the cookie from the document
 			var cks = document.cookie.split(";");
 			var val = null;
@@ -680,7 +680,7 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getProfile-successCallback Callback} to be executed on successful profile retrieving.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getProfile-errorCallback Callback} to be executed on retrieving profile error.
 		 */
-		getProfile: function (serviceName, userId, successCallback, errorCallback) {
+		getProfile: function(serviceName, userId, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getProfile(userId, successCallback, errorCallback);
 		},
 		/**
@@ -700,7 +700,7 @@
 		 * @param {String} value Value for the cookie.
 		 * @param {Number} [days] The number of days for the cookie to be alive.
 		 */
-		createCookie: function (name, value, days) {
+		createCookie: function(name, value, days) {
 			var expires, domain = window.location.hostname.substr(window.location.hostname.indexOf("."));
 			if (days) {
 				var date = new Date();
@@ -716,7 +716,7 @@
 		 * @desc Removes the existing cookie that matches by name.
 		 * @param {String} name Name of the cookie to be removed.
 		 */
-		eraseCookie: function (name) {
+		eraseCookie: function(name) {
 			this.createCookie(name, "", -1);
 		},
 		/**
@@ -727,12 +727,12 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~uploadVideo-successCallback Callback} to be executed on successful video upload.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~uploadVideo-errorCallback Callback} to be executed on video upload error.
 		 */
-		uploadVideo: function (serviceArr, fileData, successCallback, errorCallback) {
+		uploadVideo: function(serviceArr, fileData, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
+			serviceArr.forEach(function(data, index, serviceArr) {
+				SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
 			});
 		},
 		/**
@@ -753,11 +753,11 @@
 		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~uploadPhoto-successCallback Callback} to be executed on successful photo upload.
 		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~uploadPhoto-errorCallback Callback} to be executed on photo upload error.
 		 */
-		uploadPhoto: function (serviceArr, fileData, successCallback, errorCallback) {
+		uploadPhoto: function(serviceArr, fileData, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				serviceArr = [];
 			} // create an empty array if not passed
-			serviceArr.forEach(function (data, index, serviceArr) {
+			serviceArr.forEach(function(data, index, serviceArr) {
 				SBW.Singletons.serviceFactory.getService(data).uploadPhoto(fileData, successCallback, errorCallback);
 			});
 		},
@@ -779,7 +779,7 @@
 		 * @param {Function} successCallback  Callback to be executed on successful post retrieving.
 		 * @param {Function} errorCallback  Callback to be executed on post retrieving error.
 		 */
-		getPostByID: function (serviceName, postID, successCallback, errorCallback) {
+		getPostByID: function(serviceName, postID, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getPostByID(postID, successCallback, errorCallback);
 		},
 		/**
@@ -790,7 +790,7 @@
 		 * @param {Function} successCallback  Callback to be executed on successful comment retrieving.
 		 * @param {Function} errorCallback  Callback to be executed on comment retrieving error.
 		 */
-		getCommentByID: function (serviceName, commentByID, successCallback, errorCallback) {
+		getCommentByID: function(serviceName, commentByID, successCallback, errorCallback) {
 			SBW.Singletons.serviceFactory.getService(serviceName).getCommentByID(commentByID, successCallback, errorCallback);
 		},
 		/**
@@ -803,7 +803,7 @@
 		 * @param {Function} errorCallback  Callback to be executed on file uploading error.
 		 * @ignore
 		 */
-		fileUpload: function (serviceName, fileData, options, successCallback, errorCallback) {
+		fileUpload: function(serviceName, fileData, options, successCallback, errorCallback) {
 			var i = 0,
 				j = 0,
 				processData = options.processData || false,
@@ -824,8 +824,8 @@
 					}
 				}
 
-				var scallback = (function (len) {
-					return function (response) {
+				var scallback = (function(len) {
+					return function(response) {
 						j++;
 						// service.fileStatus[serviceName][len].status = "Uploaded";
 						returnValue[len] = response;
@@ -835,8 +835,8 @@
 					}
 				})(queueLength);
 
-				var fcallback = (function (len) {
-					return function (data) {
+				var fcallback = (function(len) {
+					return function(data) {
 						j++;
 						// service.fileStatus[serviceName][len].status = "Upload Failed";
 						returnValue[len] = data;
@@ -858,6 +858,28 @@
 		},
 		/**
 		 * @method
+		 * @desc Fetches assets from the asset collection
+		 * @param  {String} serviceName A name of registered services.
+		 * @param  {String} assetCollectionId Id of the assetcollection
+		 * @param  {String} assetId Id of the asset.
+		 *
+		 */
+		getAsset: function(serviceName, assetCollectionId, assetId) {
+			var assetArray = SBW.Singletons.serviceFactory.getService(serviceName) && SBW.Singletons.serviceFactory.getService(serviceName).content || [],
+				assetObj;
+			assetArray.forEach(function(value) {
+				if (value.metadata.assetCollectionId === assetCollectionId) {
+					value.assets.forEach(function(asset) {
+						if (asset.metadata.assetId === assetId) {
+							assetObj = asset;
+						}
+					});
+				}
+			});
+			return assetObj;
+		},
+		/**
+		 * @method
 		 * @desc Upload the post onto the specified services
 		 * @param  {String[]} serviceArr An array of registered services.
 		 * @param  {Object} returnValue Object that holds the service response.
@@ -872,11 +894,11 @@
 		 *        // Error callback logic...
 		 *   );
 		 */
-		postUpload: function (serviceArr, returnValue, successCallback, errorCallback) {
+		postUpload: function(serviceArr, returnValue, successCallback, errorCallback) {
 			if (!(serviceArr instanceof Array)) {
 				SBW.Singletons.serviceFactory.getService(serviceArr).postUpload(returnValue, successCallback, errorCallback);
 			} else { // create an empty array if not passed
-				serviceArr.forEach(function (data, index, serviceArr) {
+				serviceArr.forEach(function(data, index, serviceArr) {
 					SBW.Singletons.serviceFactory.getService(data).postUpload(returnValue, successCallback, errorCallback);
 				});
 			}

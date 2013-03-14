@@ -282,15 +282,15 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
   /**
    * @method
    * @desc To comment on a photo.
-   * @param {String} objectId
+   * @param {Object} idObject contains ids of asssets.
    * @param {String} comment
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} will be called if posting is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
    */
-  postComment: function (objectId, comment, successCallback, errorCallback) {
+  postComment: function (idObject, comment, successCallback, errorCallback) {
     var service = this,
       apiKey = service.accessObject.consumerKey,
-      publish = function (objectId, comment, successCallback, errorCallback) {
+      publish = function (idObject, comment, successCallback, errorCallback) {
         var message = {
             action: service.flickrApiUrl,
             method: "POST",
@@ -298,7 +298,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               method: 'flickr.photos.comments.addComment',
               api_key: apiKey,
               format: 'json',
-              photo_id: objectId,
+              photo_id: idObject.assetId,
               perms: 'write',
               comment_text: comment,
               oauth_token: service.accessObject.access_token,
@@ -312,17 +312,17 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           dataType: "json"
         }, successCallback, errorCallback);
       },
-      callback = (function (objectId, comment, successCallback, errorCallback) {
+      callback = (function (idObject, comment, successCallback, errorCallback) {
         return function (isLoggedIn) {
           if (isLoggedIn) {
-            publish(objectId, comment, successCallback, errorCallback);
+            publish(idObject, comment, successCallback, errorCallback);
           } else {
             service.startActionHandler(function () {
-              publish(objectId, comment, successCallback, errorCallback);
+              publish(idObject, comment, successCallback, errorCallback);
             });
           }
         };
-      })(objectId, comment, successCallback, errorCallback);
+      })(idObject, comment, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 

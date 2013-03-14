@@ -554,15 +554,15 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @desc Posts a comment to facebook through FB API service
-   * @param objectId Id of the object on to which comment should be posted.
+   * @param {Object} idObject Contains Ids of assets.
    * @param {String} comment
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} will be called if posting is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
    */
-  postComment: function(objectId, comment, successCallback, errorCallback) {
+  postComment: function(idObject, comment, successCallback, errorCallback) {
     var service = this,
-      publish = function(objectId, comment, successCallback, errorCallback) {
-        FB.api('/' + objectId + '/comments?access_token=' + service.accessObject['token'], 'post', {
+      publish = function(idObject, comment, successCallback, errorCallback) {
+        FB.api('/' + idObject.assetId + '/comments?access_token=' + service.accessObject['token'], 'post', {
           message: comment
         }, function(response) {
           if (!response.id || !response.error) {
@@ -583,17 +583,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function(objectId, comment, successCallback, errorCallback) {
+      callback = (function(idObject, comment, successCallback, errorCallback) {
         return function(isLoggedIn) {
           if (isLoggedIn) {
-            publish(objectId, comment, successCallback, errorCallback);
+            publish(idObject, comment, successCallback, errorCallback);
           } else {
             service.startActionHandler(function() {
-              publish(objectId, comment, successCallback, errorCallback);
+              publish(idObject, comment, successCallback, errorCallback);
             });
           }
         };
-      })(objectId, comment, successCallback, errorCallback);
+      })(idObject, comment, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -936,8 +936,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                 rawData: value,
                 serviceName: 'facebook',
                 metadata: {
-                  dateUpdated: value.updated_time,
-                  dateUploaded: value.created_time,
+                  dateUpdated: new Date(value.updated_time).toDateString(),
+                  dateUploaded: new Date(value.created_time).toDateString(),
                   size: null,
                   assetId: value.id,
                   assetCollectionId: value.albumId,

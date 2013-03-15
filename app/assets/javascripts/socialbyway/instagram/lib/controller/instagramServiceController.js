@@ -20,7 +20,6 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
       callbackUrl: callbackURL,
       accessTokenUrl: 'http://api.instagram.com/oauth/authorize/?client_id=' + clientID + '&redirect_uri=' + callbackURL + '&response_type=token' + '&scope=likes+comments',
       access_token: null,
-      mediaCount: 0
     };
   },
   /**
@@ -30,6 +29,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
    */
   startActionHandler: function (callback) {
     var service = this;
+    service.eraseCookie('instagramToken');
     service.accessObject.access_token = null;
     var tokenListner = function (windowRef) {
       if (!windowRef.closed) {
@@ -62,13 +62,18 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
     var service = this,
       access_token = service.accessObject.access_token,
       url = "https://api.instagram.com/v1/users/self/?access_token=" + access_token;
-    $.getJSON(url, 'callback=?', function (response) {
+    SBW.Singletons.utils.ajax({
+      url: url,
+      type: 'GET',
+      dataType: "jsonp"
+    }, function (response) {
       if (response.meta.code === 200) {
         callback(true);
       } else {
         callback(false);
       }
-    });
+    }
+      );
   },
   /**
    * @method
@@ -82,11 +87,19 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
     var service = this,
       publish = function (successCallback, errorCallback) {
         SBW.Singletons.utils.ajax({
-            url: service.apiUrl + '/users/'+userId,
+            url: service.apiUrl + '/users/' + userId,
             type: 'GET',
             dataType: "jsonp",
             data: {access_token: service.accessObject.access_token}
-          }, successCallback,
+          }, function (response) {
+            var user = new SBW.Models.User({
+              name: response.data.full_name,
+              id: response.data.id,
+              userImage: response.data.profile_picture,
+              rawData: response
+            });
+            successCallback(user);
+          },
           errorCallback
         );
       },
@@ -274,8 +287,9 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
             assets.forEach(function (asset) {
               var collection = new SBW.Models.ImageAsset({
                   id: '',
+                  src: asset.images.standard_resolution.url,
                   title: asset.caption === null ? null : asset.caption.text,
-                  createdTime: asset.created_time,
+                  createdTime: new Date.getTime(),
                   serviceName: 'instagram',
                   rawData: asset,
                   status: 'private',
@@ -288,7 +302,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
                   metadata: {
                     caption: asset.caption,
                     type: asset.type,
-                    dateTaken: null,
+                    dateTaken: new Date(asset.created_time * 1000).toDateString(),
                     dateUpdated: null,
                     dateUploaded: null,
                     comments: null,
@@ -304,11 +318,11 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
                     iptcKeywords: null,
                     orientation: null,
                     tags: asset.tags,
-                    downloadUrl: null,
+                    downloadUrl: asset.images.standard_resolution.url,
                     originalFormat: null,
                     fileName: null,
                     version: null,
-                    description: null,
+                    description: asset.caption,
                     thumbnail: asset.images.thumbnail.url,
                     previewUrl: asset.images.standard_resolution.url,
                     author: new SBW.Models.User({

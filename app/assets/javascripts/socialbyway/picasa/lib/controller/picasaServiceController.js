@@ -164,38 +164,42 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           }
         },
         url = service.feedUrl + '?access_token=' + service.accessObject.access_token + '&alt=json';
-        SBW.Singletons.utils.ajax({
-          url: url,
-          crossDomain: false,
-          type: "GET",
-          dataType: "jsonp"
-        }, function(response) {
-          var collection = null;
-          service.content = [];
-          $.each(response.feed.entry, function(key, value) {
-            collection = new SBW.Models.AssetCollection({
-              title: this.title.$t,
-              createdTime: new Date().getTime(),
-              status: this.gphoto$access.$t,
-              serviceName: 'picasa',
-              metadata: {
-                dateUpdated: this.updated.$t,
-                dateUploaded: this.published.$t,
-                numAssets: this.gphoto$numphotos.$t,
-                assetCollectionId: this.gphoto$id.$t,
-                commentCount: this.gphoto$commentCount.$t,
-                //type: this.gphoto$albumType.$t, 
-                fileName: this.gphoto$name.$t,
-                description: this.summary.$t,
-                author: this.author[0].name.$t
-              }
-            });
-            collection.id = collection.getID();
-            service.content.push(collection);
-            service.collectionSetRawData = response;
-          });
+        if (service.content.length > 0) {
           successCallback(service.content);
-        }, errorCallback);
+        } else {
+          SBW.Singletons.utils.ajax({
+            url: url,
+            crossDomain: false,
+            type: "GET",
+            dataType: "jsonp"
+          }, function(response) {
+            var collection = null;
+            service.content = [];
+            $.each(response.feed.entry, function(key, value) {
+              collection = new SBW.Models.AssetCollection({
+                title: this.title.$t,
+                createdTime: new Date().getTime(),
+                status: this.gphoto$access.$t,
+                serviceName: 'picasa',
+                metadata: {
+                  dateUpdated: new Date(this.updated.$t).toDateString(),
+                  dateUploaded: new Date(this.published.$t).toDateString(),
+                  numAssets: this.gphoto$numphotos.$t,
+                  assetCollectionId: this.gphoto$id.$t,
+                  commentCount: this.gphoto$commentCount.$t,
+                  thumbnail: this.media$group.media$thumbnail[0].url || '',
+                  fileName: this.gphoto$name.$t,
+                  description: this.summary.$t,
+                  author: this.author[0].name.$t
+                }
+              });
+              collection.id = collection.getID();
+              service.content.push(collection);
+              service.collectionSetRawData = response;
+            });
+            successCallback(service.content);
+          }, errorCallback);
+        }
       },
       callback = (function(successCallback, errorCallback) {
         return function(isLoggedIn) {
@@ -310,13 +314,14 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    */
   _formatMedia: function(media) {
     var asset = new SBW.Models.ImageAsset({
-      src: media.content.src,
       title: media.title.$t,
       createdTime: media.gphoto$timestamp.$t,
       rawData: media,
       serviceName: 'picasa',
+      src: media.content.src,
       metadata: {
         dateUpdated: media.updated.$t,
+        downloadUrl: media.content.src,
         dateUploaded: media.published.$t,
         size: media.gphoto$size.$t,
         assetId: media.gphoto$id.$t,
@@ -433,22 +438,33 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
   getPhotosFromAlbum: function(albumId, successCallback, errorCallback) {
     var service = this,
       getPhotosFromAlbumCallback = function(albumId, successCallback, errorCallback) {
-        var url = service.feedUrl + '/albumid/' + albumId + '?access_token=' + service.accessObject.access_token + '&alt=json';
-        SBW.Singletons.utils.ajax({
-          url: url,
-          crossDomain: false,
-          type: "GET",
-          dataType: "json"
-        }, function(response) {
-          var photoArray = [];
-          if (response.feed.entry) {
-            $.each(response.feed.entry, function(key, value) {
-              photoArray.push(service._formatMedia(value));
-            });
-            service._populateAssets(response.feed.gphoto$id.$t, photoArray);
+        var url = service.feedUrl + '/albumid/' + albumId + '?access_token=' + service.accessObject.access_token + '&alt=json',
+          assetFound = false;
+        service.content.forEach(function(collectionValue, collectionIndex, serviceContentArray) {
+          if (collectionValue.metadata.assetCollectionId === albumId) {
+            if (collectionValue.assets.length > 0) {
+              successCallback(collectionValue.assets);
+              assetFound = true;
+            }
           }
-          successCallback(photoArray);
-        }, errorCallback);
+        });
+        if (!assetFound) {
+          SBW.Singletons.utils.ajax({
+            url: url,
+            crossDomain: false,
+            type: "GET",
+            dataType: "json"
+          }, function(response) {
+            var photoArray = [];
+            if (response.feed.entry) {
+              $.each(response.feed.entry, function(key, value) {
+                photoArray.push(service._formatMedia(value));
+              });
+              service._populateAssets(response.feed.gphoto$id.$t, photoArray);
+            }
+            successCallback(photoArray);
+          }, errorCallback);
+        }
       },
       callback = (function(albumId, successCallback, errorCallback) {
         return function(isLoggedIn) {

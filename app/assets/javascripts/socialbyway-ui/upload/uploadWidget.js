@@ -55,7 +55,7 @@
         self.element.append(self.$widgetContainer);
 
         // Define content in the tab container...
-        self.$helpMessage = $("<p/>").text("Select media for upload");
+        self.$helpMessage = $("<p/>").text("Select media to upload");
         self.$browseButton = $('<input/>').attr("type", "file").html("Choose file");
         self.$errorAlert = $('<div/>').addClass('error-display').hide();
         self.$loader = $('<div/>').addClass('loader').hide();

@@ -58,9 +58,9 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
             //  User Profile Overview     r_basicprofile
             //  User Full Profile         r_fullprofile
             //  User Email Address		    r_emailaddress
-            //  User Connections		      r_network
+            //  User Connections	        r_network
             //  User Contact Info		      r_contactinfo
-            //  Network Updates	     	    rw_nus
+            //  Network Updates           rw_nus
             //  Group Discussions		      rw_groups
             //  Invitations and Messages	w_messages
             scope: 'r_network rw_nus r_fullprofile',
@@ -125,29 +125,35 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - failure callback will get called in case of any error while publishing
    */
   publishMessage: function (message, successCallback, errorCallback) {
-    var service = this;
-    var publish = function (message, successCallback, errorCallback) {
-      IN.API.Raw("/people/~/current-status")
-        .method("PUT")
-        .body(JSON.stringify(message))
-        .result(function (result) {
-          successCallback({id: "n/a", serviceName: "linkedin"}, result);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (message, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          publish(message, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            publish(message, successCallback, errorCallback);
+    var service = this,
+      publish = function (message, successCallback, errorCallback) {
+        IN.API.Raw("/people/~/current-status")
+          .method("PUT")
+          .body(JSON.stringify(message))
+          .result(function (result) {
+            successCallback({id: "n/a", serviceName: "linkedin"}, result);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(message, successCallback, errorCallback);
+      },
+      callback = (function (message, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            publish(message, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(message, successCallback, errorCallback);
+            });
+          }
+        };
+      })(message, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -161,30 +167,36 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - failure callback will get called in case of any error while posting
    */
   postComment: function (objectId, comment, successCallback, errorCallback) {
-    var service = this;
-    var publish = function (objectId, comment, successCallback, errorCallback) {
-      var content = {"comment": comment};
-      IN.API.Raw("/people/~/network/updates/key=" + objectId + "/update-comments")
-        .method("POST")
-        .body(JSON.stringify(content))
-        .result(function (result) {
-          successCallback(result);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (objectId, comment, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          publish(objectId, comment, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            publish(objectId, comment, successCallback, errorCallback);
+    var service = this,
+      publish = function (objectId, comment, successCallback, errorCallback) {
+        var content = {"comment": comment};
+        IN.API.Raw("/people/~/network/updates/key=" + objectId + "/update-comments")
+          .method("POST")
+          .body(JSON.stringify(content))
+          .result(function (result) {
+            successCallback(result);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(objectId, comment, successCallback, errorCallback);
+      },
+      callback = (function (objectId, comment, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            publish(objectId, comment, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(objectId, comment, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, comment, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -193,33 +205,33 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To like an object on LinkedIn through its API service
    * @param {String} objectId The object to like
-   * @param {callback} successCallback - success callback will get called if like is successful
-   * @param {callback} errorCallback - failure callback will get called in case of any error while liking
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~like-successCallback Callback} will be called if like is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~like-errorCallback Callback} will be called in case of any error while liking
    */
   like: function (objectId, successCallback, errorCallback) {
-    var service = this;
-    var postLike = function (objectId, successCallback, errorCallback) {
-      IN.API.Raw("/people/~/network/updates/key=" + objectId + "/is-liked")
-        .method("PUT")
-        .body("true")
-        .result(function (result) {
-          successCallback(result);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (objectId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          postLike(objectId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            postLike(objectId, successCallback, errorCallback);
+    var service = this,
+      postLike = function (objectId, successCallback, errorCallback) {
+        IN.API.Raw("/people/~/network/updates/key=" + objectId + "/is-liked")
+          .method("PUT")
+          .body("true")
+          .result(function (result) {
+            successCallback(result);
+          })
+          .error(function (error) {
+            errorCallback(error);
           });
-        }
-      };
-    })(objectId, successCallback, errorCallback);
+      },
+      callback = (function (objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            postLike(objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              postLike(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -227,33 +239,33 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To undo a like( or unlike) on an object in LinkedIn through its API service
    * @param {String} objectId The object to dislike
-   * @param {callback} successCallback - success callback will get called if like is successful
-   * @param {callback} errorCallback - failure callback will get called in case of any error while liking
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~unlike-successCallback Callback} will be called if unlike is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~unlike-errorCallback Callback} will be called in case of any error while un liking
    */
   unlike: function (objectId, successCallback, errorCallback) {
-    var service = this;
-    var postLike = function (objectId, successCallback, errorCallback) {
-      IN.API.Raw("/people/~/network/updates/key=" + objectId + "/is-liked")
-        .method("PUT")
-        .body("false")
-        .result(function (result) {
-          successCallback(result);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (objectId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          postLike(objectId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            postLike(objectId, successCallback, errorCallback);
+    var service = this,
+      postLike = function (objectId, successCallback, errorCallback) {
+        IN.API.Raw("/people/~/network/updates/key=" + objectId + "/is-liked")
+          .method("PUT")
+          .body("false")
+          .result(function (result) {
+            successCallback(result);
+          })
+          .error(function (error) {
+            errorCallback(error);
           });
-        }
-      };
-    })(objectId, successCallback, errorCallback);
+      },
+      callback = (function (objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            postLike(objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              postLike(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -262,27 +274,27 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To share a url in LinkedIn through its API service
    * @param {String} url The url to be shared
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~share-successCallback Callback} will be called if successfully shared the link.
+   * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~share-errorCallback Callback} will be called if case of any error in sharing the link.
    */
   share: function (url, successCallback, errorCallback) {
-    var service = this;
-    var shareLink = function (url, successCallback, errorCallback) {
-      IN.UI.Share().params({
-        url: url
-      }).place();
-    };
-    var callback = (function (url, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          shareLink(url, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+    var service = this,
+      shareLink = function (url, successCallback, errorCallback) {
+        IN.UI.Share().params({
+          url: url
+        }).place();
+      },
+      callback = (function (url, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             shareLink(url, successCallback, errorCallback);
-          });
-        }
-      };
-    })(url, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              shareLink(url, successCallback, errorCallback);
+            });
+          }
+        };
+      })(url, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -291,8 +303,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get share count for a url in LinkedIn through its API service
    * @param {String} url The url for which share count is required
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param  {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getShareCount-successCallback Callback} will be called if the share count is fetched successfully.
+   * @param  {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getShareCount-errorCallback Callback} will be called in case of any error while fetching share count.
    */
   getShareCount: function (url, successCallback, errorCallback) {
     var service = this;
@@ -311,43 +323,49 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get comments posted on an object(post) of a LinkedIn user through its API service
    * @param  objectId the id of the object, against which comments posted are to retrieved
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if comments are fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching comments
    */
   getComments: function (objectId, successCallback, errorCallback) {
-    var service = this;
-    var comments = function (objectId, successCallback, errorCallback) {
-      IN.API.Raw("/people/~/network/updates/key=" + objectId + "/update-comments")
-        .result(function (result) {
-          var commentsData = [], comments = result.values;
-          for (var i = 0; i < comments.length; i++) {
-            commentsData[i] = {"comment": comments[i].comment, "id": comments[i].id, "fromName": comments[i].person.firstName + ' ' + comments[i].person.lastName, "fromId": comments[i].person.id, "fromUrl": comments[i].person.pictureUrl, "time": comments[i].timestamp, "isLikable": false };
-          }
-          successCallback(commentsData);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (objectId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          comments(objectId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            comments(objectId, successCallback, errorCallback);
+    var service = this,
+      comments = function (objectId, successCallback, errorCallback) {
+        IN.API.Raw("/people/~/network/updates/key=" + objectId + "/update-comments")
+          .result(function (result) {
+            var commentsData = [], comments = result.values;
+            for (var i = 0; i < comments.length; i++) {
+              commentsData[i] = {"comment": comments[i].comment, "id": comments[i].id, "fromName": comments[i].person.firstName + ' ' + comments[i].person.lastName, "fromId": comments[i].person.id, "fromUrl": comments[i].person.pictureUrl, "time": comments[i].timestamp, "isLikable": false };
+            }
+            successCallback(commentsData);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(objectId, successCallback, errorCallback);
+      },
+      callback = (function (objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            comments(objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              comments(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
   /**
    * @method
    * @param  {String} url
-   * @param  {callback} successCallback [description]
-   * @param  {callback} errorCallback [description]
+   * @param  {Callback} successCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-successCallback Callback} will be called if data is fetched successfully
+   * @param  {Callback} errorCallback  {@link  SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback Callback} will be called in case of any error while fetching data
    * @ignore
    */
   getCommentsForUrl: function (url, successCallback, errorCallback) {
@@ -357,51 +375,57 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get likes on an object(post) of a LinkedIn user through its API service
    * @param  objectId the id of the object, against which likes posted are to retrieved
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
   getLikes: function (objectId, successCallback, errorCallback) {
-    var service = this;
-    var likes = function (objectId, successCallback, errorCallback) {
-      IN.API.Raw("/people/~/network/updates/key=" + objectId + "/likes")
-        .result(function (response) {
-          var likesData = [];
-          var likes = response.values;
-          for (var i = 0; i < likes.length; i++) {
-            var user = new SBW.Models.User({
-              name: likes[i].person.firstName + ' ' + likes[i].person.lastName,
-              id: likes[i].person.id,
-              userImage: likes[i].person.pictureUrl
+    var service = this,
+      likes = function (objectId, successCallback, errorCallback) {
+        IN.API.Raw("/people/~/network/updates/key=" + objectId + "/likes")
+          .result(function (response) {
+            var likesData = [];
+            var likes = response.values;
+            for (var i = 0; i < likes.length; i++) {
+              var user = new SBW.Models.User({
+                name: likes[i].person.firstName + ' ' + likes[i].person.lastName,
+                id: likes[i].person.id,
+                userImage: likes[i].person.pictureUrl
+              });
+              likesData[i] = new SBW.Models.Like({
+                user: user,
+                rawData: likes[i]
+              });
+            }
+            var likesObject = {
+              serviceName: 'linkedin',
+              likes: likesData,
+              likeCount: likesData.length,
+              rawData: response
+            };
+            // Todo Populating the asset object with the like and user objects
+            successCallback(likesObject);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
             });
-            likesData[i] = new SBW.Models.Like({
-              user: user,
-              rawData: likes[i]
+            errorCallback(errorObject);
+          });
+      },
+      callback = (function (objectId, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            likes(objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              likes(objectId, successCallback, errorCallback);
             });
           }
-          var likesObject = {
-            serviceName: 'linkedin',
-            likes: likesData,
-            likeCount: likesData.length,
-            rawData: response
-          };
-          // Todo Populating the asset object with the like and user objects
-          successCallback(likesObject);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (objectId, successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          likes(objectId, successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            likes(objectId, successCallback, errorCallback);
-          });
-        }
-      };
-    })(objectId, successCallback, errorCallback);
+        };
+      })(objectId, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -410,32 +434,38 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get updates from a LinkedIn user through its API service
    * @param {String} userId The Id of the user
-   * @param {callback} successCallback  success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback  failure callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getPosts-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getPosts-errorCallback Callback} will be called in case of any error while fetching data
    */
   getPosts: function (userId, successCallback, errorCallback) {
-    var service = this;
     userId = userId || 'me';
-    var updates = function (successCallback, errorCallback) {
-      IN.API.MemberUpdates(userId)
-        .result(function (result) {
-          successCallback(result.values);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          updates(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            updates(successCallback, errorCallback);
+    var service = this,
+      updates = function (successCallback, errorCallback) {
+        IN.API.MemberUpdates(userId)
+          .result(function (result) {
+            successCallback(result.values);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(successCallback, errorCallback);
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            updates(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              updates(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -448,28 +478,34 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
    */
   getRecentPostId: function (userId, successCallback, errorCallback) {
-    var service = this;
     userId = userId || 'me';
-    var updates = function (successCallback, errorCallback) {
-      IN.API.MemberUpdates(userId)
-        .result(function (result) {
-          successCallback(result.values[0].updateKey);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          updates(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            updates(successCallback, errorCallback);
+    var service = this,
+      updates = function (successCallback, errorCallback) {
+        IN.API.MemberUpdates(userId)
+          .result(function (result) {
+            successCallback(result.values[0].updateKey);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(successCallback, errorCallback);
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            updates(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              updates(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 
@@ -477,31 +513,37 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get connections of a LinkedIn user through its API service
    * @param {String} userId The Id of the user
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getFriends-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getFriends-errorCallback Callback} will be called in case of any error while fetching data
    */
   getFriends: function (userId, successCallback, errorCallback) {
-    var service = this;
-    var connections = function (successCallback, errorCallback) {
-      IN.API.Raw("people/~/connections")
-        .result(function (result) {
-          successCallback(JSON.stringify(result));
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          connections(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            connections(successCallback, errorCallback);
+    var service = this,
+      connections = function (successCallback, errorCallback) {
+        IN.API.Raw("people/~/connections")
+          .result(function (result) {
+            successCallback(JSON.stringify(result));
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(successCallback, errorCallback);
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            connections(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              connections(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 
@@ -513,58 +555,58 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
    */
   follow: function (companyId, successCallback, errorCallback) {
-    var service = this;
-    var connections = function (successCallback, errorCallback) {
-      var url = '/people/~/following/companies', body = {"id": companyId}, unfollowFlag = false;
-      IN.API.Raw()
-        .url(url)
-        .result(function (result) {
-          result.values.forEach(function (value) {
-            if (Number(companyId) === Number(value.id)) {
-              unfollowFlag = true;
+    var service = this,
+      connections = function (successCallback, errorCallback) {
+        var url = '/people/~/following/companies', body = {"id": companyId}, unfollowFlag = false;
+        IN.API.Raw()
+          .url(url)
+          .result(function (result) {
+            result.values.forEach(function (value) {
+              if (Number(companyId) === Number(value.id)) {
+                unfollowFlag = true;
+                IN.API.Raw()
+                  .url(url + '/id=' + companyId)
+                  .method('DELETE')
+                  .result(function (result) {
+                    setTimeout(function () {
+                      successCallback(result);
+                    }, 1000);
+                  })
+                  .error(function (error) {
+                    errorCallback(error);
+                  });
+              }
+            });
+            if (!unfollowFlag) {
               IN.API.Raw()
-                .url(url + '/id=' + companyId)
-                .method('DELETE')
+                .url(url)
+                .method('POST')
+                .body(JSON.stringify(body))
                 .result(function (result) {
                   setTimeout(function () {
                     successCallback(result);
-                   }, 1000);
+                  }, 1000);
                 })
                 .error(function (error) {
                   errorCallback(error);
-                });              
+                });
             }
+          })
+          .error(function (error) {
+            errorCallback(error);
           });
-          if (!unfollowFlag) {
-            IN.API.Raw()
-              .url(url)
-              .method('POST')
-              .body(JSON.stringify(body))
-              .result(function (result) {
-                setTimeout(function () {
-                  successCallback(result);
-                }, 1000);
-              })
-              .error(function (error) {
-                errorCallback(error);
-              });
-          }
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          connections(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
             connections(successCallback, errorCallback);
-          });
-        }
-      };
-    })(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              connections(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 
@@ -576,8 +618,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
    */
   getFollowCount: function (companyId, successCallback, errorCallback) {
-    var service = this;
-    var url = 'companies/' + companyId + ':(num-followers)';
+    var service = this,
+      url = 'companies/' + companyId + ':(num-followers)';
     if (service.linkedInInit && IN.API) {
       IN.API.Raw()
         .url(url)
@@ -585,9 +627,13 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
           successCallback({count: result.numFollowers, serviceName: 'linkedin'});
         })
         .error(function (error) {
-          errorCallback(new SBW.Models.Error({
-            serviceName : 'linkedin'
-          }));
+          var errorObject = new SBW.Models.Error({
+            message: error.message,
+            serviceName: 'linkedin',
+            rawData: error,
+            code: error.errorCode
+          });
+          errorCallback(errorObject);
         });
     } else {
       setTimeout(function () {
@@ -604,9 +650,9 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
    */
   getRecommendCount: function (companyId, successCallback, errorCallback) {
-    var service = this;
-    var body = {"id": companyId};
-    var url = '/companies/' + companyId + '/products:(id,name,type,num-recommendations,recommendations:(recommender))';
+    var service = this,
+      body = {"id": companyId},
+      url = '/companies/' + companyId + '/products:(id,name,type,num-recommendations,recommendations:(recommender))';
     if (service.linkedInInit && IN.API) {
       IN.API.Raw()
         .url(url)
@@ -631,31 +677,37 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
    */
   getProfile: function (userId, successCallback, errorCallback) {
-    var service = this;
     userId = userId || 'me';
-    var profile = function (successCallback, errorCallback) {
-      IN.API.Profile(userId)
-        .fields(["id", "firstName", "lastName", "pictureUrl"])
-        .result(function (result) {
-          var profile = result.values[0];
-          var profileData = {"id": profile.id, "name": profile.firstName + ' ' + profile.lastName, "photoUrl": profile.pictureUrl };
-          successCallback(profileData);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          profile(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            profile(successCallback, errorCallback);
+    var service = this,
+      profile = function (successCallback, errorCallback) {
+        IN.API.Profile(userId)
+          .fields(["id", "firstName", "lastName", "pictureUrl"])
+          .result(function (result) {
+            var profile = result.values[0];
+            var profileData = {"id": profile.id, "name": profile.firstName + ' ' + profile.lastName, "photoUrl": profile.pictureUrl };
+            successCallback(profileData);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(successCallback, errorCallback);
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            profile(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              profile(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 
@@ -663,34 +715,40 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
    * @method
    * @desc To get profile data from a LinkedIn user through its API service
    * @param {String} userId The Id of the user
-   * @param {callback} successCallback - success callback will get called if data is fetched successfully
-   * @param {callback} errorCallback - error callback will get called in case of any error while fetching data
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getProfilePic-errorCallback Callback} will be called in case of any error while fetching data
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
-    var service = this;
     userId = userId || 'me';
-    var profilePic = function (successCallback, errorCallback) {
-      IN.API.Profile(userId)
-        .fields(["pictureUrl"])
-        .result(function (result) {
-          var profile = result.values[0];
-          successCallback(profile.pictureUrl);
-        })
-        .error(function (error) {
-          errorCallback(error);
-        });
-    };
-    var callback = (function (successCallback, errorCallback) {
-      return function (isLoggedIn) {
-        if (isLoggedIn) {
-          profilePic(successCallback, errorCallback);
-        } else {
-          service.startActionHandler(function () {
-            profilePic(successCallback, errorCallback);
+    var service = this,
+      profilePic = function (successCallback, errorCallback) {
+        IN.API.Profile(userId)
+          .fields(["pictureUrl"])
+          .result(function (result) {
+            var profile = result.values[0];
+            successCallback(profile.pictureUrl);
+          })
+          .error(function (error) {
+            var errorObject = new SBW.Models.Error({
+              message: error.message,
+              serviceName: 'linkedin',
+              rawData: error,
+              code: error.errorCode
+            });
+            errorCallback(errorObject);
           });
-        }
-      };
-    })(successCallback, errorCallback);
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            profilePic(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              profilePic(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   }
 });

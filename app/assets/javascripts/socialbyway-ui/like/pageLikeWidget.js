@@ -14,7 +14,7 @@
    * @constructor
    */
   $.widget("ui.PageLikeWidget", /** @lends LikeWidget.prototype */  {
-    count: {linkedin: 0, twitter :0,facebook:0,flickr:0},
+    count: {linkedin: 0, twitter: 0, facebook: 0, flickr: 0},
     /**
      * @desc Options for the widget.
      * @inner
@@ -23,7 +23,7 @@
      * @property {String} theme The theme for the widget.
      */
     options: {
-      services:'',
+      services: '',
       theme: 'default'
     },
     /**
@@ -32,11 +32,11 @@
      * @desc Constructor for the widget.
      */
     _create: function () {
-      var self = this;
-      var theme = self.options.theme;
-      var containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
+      var self = this,
+        theme = self.options.theme,
+        containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
       self.$serviceContainer = $('<div />').addClass('service-container');
-      var $likeButton = $('<span />').addClass( 'like-button');
+      var $likeButton = $('<span />').addClass('like-button');
       self.$likeCountContainer = $("<span />").addClass('count-container');
       var minAngle = 360 / this.options.services.length;
       $.each(this.options.services, function (index, service) {
@@ -96,9 +96,9 @@
      * @param {Object} context The scope of the calling function.
      */
     likeForService: function (event, context) {
-      var sourceElement = event.srcElement || event.target;
-      var serviceName = sourceElement.dataset.service;
-      var objectId;
+      var sourceElement = event.srcElement || event.target,
+        serviceName = sourceElement.dataset.service,
+        objectId;
 //      $.each(context.options.services,function(index,service){
 //        if(service['serviceName']===serviceName){
 //          objectId = service['objectId'];
@@ -110,17 +110,15 @@
         }
       }
       var likesSuccessCallback = function (response) {
-        var count = response['likeCount'],totalCount = 0;
-        if(count !== null){
+        var count = response['likeCount'], totalCount = 0;
+        if (count !== null) {
           var serviceLikeCountContainer = $("<span />").addClass('service-count-container').html(count).appendTo(sourceElement);
         }
         context.count[response['serviceName']] = count;
-        for(var key in context.count){
+        for (var key in context.count) {
           totalCount = totalCount + context.count[key];
         }
-        if(totalCount != 0){
           context.$likeCountContainer.addClass('liked').html(totalCount)
-        }
       };
       var likesFailureCallback = function () {
         alert('Some problem occurred while getting likes');
@@ -128,23 +126,27 @@
       var unLikeSuccessCallback = function (response) {
         SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
-        context.$serviceContainer.find('.'+serviceName).removeClass('liked');
+        context.$serviceContainer.find('.' + serviceName).removeClass('liked');
+        if(!(context.$serviceContainer.find('.liked').length > 2)){
+          context.$serviceContainer.find('.like-button').removeClass('liked');
+        }
       };
       var unLikeFailureCallback = function () {
         alert('Some problem occurred while un liking post');
       };
       var likeSuccessCallback = function (response) {
-        context.$serviceContainer.find('.'+serviceName).addClass('liked');
+        context.$serviceContainer.find('.' + serviceName).addClass('liked');
+        context.$serviceContainer.find('.like-button').addClass('liked');
         SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
       };
       var likeFailureCallback = function () {
         alert('Some problem occurred while liking post');
       };
-      if(context.$serviceContainer.find('.'+serviceName).hasClass('liked')){
+      if (context.$serviceContainer.find('.' + serviceName).hasClass('liked')) {
         SBW.api.unlike(serviceName, objectId, unLikeSuccessCallback,
           unLikeFailureCallback);
-      }else{
+      } else {
         SBW.api.like(serviceName, objectId, likeSuccessCallback,
           likeFailureCallback);
       }

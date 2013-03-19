@@ -24,8 +24,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    **/
   title: 'Flickr',
   /**
-   *
+   * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for Flickr.
    */
+  
   assetCollectionArray: [],
   /**
    * @method

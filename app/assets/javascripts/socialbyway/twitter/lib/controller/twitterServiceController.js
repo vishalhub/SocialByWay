@@ -392,7 +392,15 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
             id: jsonResponse.id,
             serviceName: "twitter"
           }, jsonResponse);
-        }, errorCallback);
+        }, function(response){
+            var errorObject = new SBW.Models.Error();
+            errorObject.message = JSON.parse(response.responseText).errors[0].message;
+            errorObject.code = JSON.parse(response.responseText).errors[0].code;
+            errorObject.serviceName = 'twitter';
+            errorObject.rawData = JSON.parse(response.responseText);
+
+            errorCallback(errorObject);
+        });
       },
       callback = (function (requestParameters, successCallback, errorCallback) {
         return function (isLoggedIn) {

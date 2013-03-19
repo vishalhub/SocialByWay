@@ -116,8 +116,21 @@
 		 */
 		shareForService: function (event, context) {
 			var sourceElement = event.srcElement || event.target,
-				service = sourceElement.dataset.service;
-			SBW.api.publishMessage([service], (context.options.url || document.url), function (response) {}, function (error) {});
+				service = sourceElement.dataset.service,
+                successCallback = function(response) {
+                    var elem = $("#share-widget").find(".sbw-success-message");
+                        if (elem.length !== 0) {
+                            elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.serviceName+ ".");
+                        } else {
+                            /*context.element*/$("#share-widget").append('<span class="sbw-success-message">Successfully shared on '/*+ response.message */+ response.serviceName+'.</span>');
+                        }
+                },
+                failureCallback = function(response) {
+                    /*.context.element*/$("#share-widget").append('<span class="sbw-error-message">'+ response.serviceName+ ' says,'+response.message+'.</span>');
+                };
+            /*context.element*/$("#share-widget").find(".sbw-success-message").remove();
+            /*context.element*/$("#share-widget").find(".sbw-error-message").remove();
+		  	SBW.api.publishMessage([service], (context.options.url || document.url),successCallback, failureCallback);
 		},
 		/**
 		 * @method

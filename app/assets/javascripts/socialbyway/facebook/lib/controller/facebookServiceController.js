@@ -112,13 +112,23 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     var service = this;
     if (service.facebookInit) {
       FB.getLoginStatus(function(response) {
+        service.user = service.user || new SBW.Models.User();
         if (response.status === 'connected') {
           // the user is logged in and connected to your
           // app, and response.authResponse supplies
           // the user's ID, a valid access token, a signed
           // request, and the time the access token
           // and signed request each expire
-          service.getAccessToken.call(service, response, callback);
+          service.getAccessToken.call(service, response, function(response) {
+                service.user.name = response.name;
+                service.user.id = response.id;
+                service.getProfilePic(null, function(response) {
+                  service.user.userImage = response;
+                }, function(error) {
+                  SBW.logger.debug("Could not fetch image url");
+                });
+                callback();
+              });
         } else {
           window._facebookopen = window.open;
           window.open = function(url, name, params) {
@@ -129,7 +139,6 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           // the user isn't even logged in to Facebook.
           FB.login(function(response) {
             if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
-              service.user = service.user || new SBW.Models.User();
               service.getAccessToken.call(service, response, function(response) {
                 service.user.name = response.name;
                 service.user.id = response.id;
@@ -565,11 +574,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         FB.api('/' + idObject.assetId + '/comments?access_token=' + service.accessObject['token'], 'post', {
           message: comment
         }, function(response) {
-          if (!response.id || !response.error) {
-            if (successCallback) {
-              successCallback(response);
-            }
-          } else {
+          if (response.error) {
             if (errorCallback) {
               var errorObject = new SBW.Models.Error({
                 message: response.error.message,
@@ -579,6 +584,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               });
               errorCallback(errorObject);
             }
+          } else {
+             if (successCallback) {
+              successCallback(response);
+            }
+            
 
           }
         });

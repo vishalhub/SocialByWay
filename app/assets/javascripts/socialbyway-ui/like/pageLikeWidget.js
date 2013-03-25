@@ -14,7 +14,7 @@
    * @constructor
    */
   $.widget("ui.PageLikeWidget", /** @lends LikeWidget.prototype */  {
-    count: {linkedin: 0, twitter: 0, facebook: 0, flickr: 0},
+    count: {linkedin: 0, twitter :0,facebook:0,flickr:0},
     /**
      * @desc Options for the widget.
      * @inner
@@ -23,7 +23,7 @@
      * @property {String} theme The theme for the widget.
      */
     options: {
-      services: '',
+      services:'',
       theme: 'default'
     },
     /**
@@ -32,11 +32,11 @@
      * @desc Constructor for the widget.
      */
     _create: function () {
-      var self = this,
-        theme = self.options.theme,
-        containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
+      var self = this;
+      var theme = self.options.theme;
+      var containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
       self.$serviceContainer = $('<div />').addClass('service-container');
-      var $likeButton = $('<span />').addClass('like-button');
+      var $likeButton = $('<span />').addClass( 'like-button');
       self.$likeCountContainer = $("<span />").addClass('count-container');
       var minAngle = 360 / this.options.services.length;
       $.each(this.options.services, function (index, service) {
@@ -119,9 +119,10 @@
           totalCount = totalCount + context.count[key];
         }
           context.$likeCountContainer.addClass('liked').html(totalCount)
+          successCallback(response);
       };
-      var likesFailureCallback = function () {
-        alert('Some problem occurred while getting likes');
+      var likesFailureCallback = function (response) {
+       failureCallback(response);
       };
       var unLikeSuccessCallback = function (response) {
         SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
@@ -130,18 +131,20 @@
         if(!(context.$serviceContainer.find('.liked').length > 2)){
           context.$serviceContainer.find('.like-button').removeClass('liked');
         }
+       successCallback(response);
       };
       var unLikeFailureCallback = function () {
-        alert('Some problem occurred while un liking post');
+          failureCallback(response);
       };
       var likeSuccessCallback = function (response) {
         context.$serviceContainer.find('.' + serviceName).addClass('liked');
         context.$serviceContainer.find('.like-button').addClass('liked');
         SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
+          successCallback(response);
       };
-      var likeFailureCallback = function () {
-        alert('Some problem occurred while liking post');
+      var likeFailureCallback = function (response) {
+          failureCallback(response);
       };
       if (context.$serviceContainer.find('.' + serviceName).hasClass('liked')) {
         SBW.api.unlike(serviceName, objectId, unLikeSuccessCallback,
@@ -150,6 +153,19 @@
         SBW.api.like(serviceName, objectId, likeSuccessCallback,
           likeFailureCallback);
       }
+       var  successCallback = function(response) {
+            var elem = context.element.find(".sbw-success-message");
+            if (elem.length !== 0) {
+                elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.message+ ".");
+            } else {
+                context.element.append('<span class="sbw-success-message">'+response.message+'</span>');
+            }
+           };
+        var failureCallback = function(response) {
+            context.element.append('<span class="sbw-error-message">'+response.message+'</span>');
+        };
+        context.element.find(".sbw-success-message").remove();
+        context.element.find(".sbw-error-message").remove();
     },
     /**
      * @method

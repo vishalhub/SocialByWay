@@ -427,6 +427,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       serviceName: 'twitter',
       likes: null,
       likeCount: null,
+      message: undefined,
       rawData: ''
     };
     successCallback(likesObject);
@@ -767,12 +768,21 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           errorCall = function (resp) {
             if (JSON.parse(resp.responseText).errors[0]['code'] == 139) {
               // error code 139 comes when the user has liked the tweet already
-              successCallback();
-            } else {
-              errorCallback();
+                var likesObject = {
+                    message: JSON.parse(resp.responseText).errors[0]['message']
+                };
+                errorCallback(likesObject);
             }
-          };
-        service.sendTwitterRequest(data, successCallback, errorCall);
+          },
+            successCall = function (resp) {
+
+                    var likesObject = {
+                             message: (resp.favorited)?"You have successfully favorited this status/page.":"Try again"
+                    };
+                successCallback(likesObject);
+
+            };
+        service.sendTwitterRequest(data, successCall, errorCall);
       },
       callback = (function (parameters, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -853,5 +863,4 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       successCallback(sbwObject);
     }, errorCallback);
   }
-
 });

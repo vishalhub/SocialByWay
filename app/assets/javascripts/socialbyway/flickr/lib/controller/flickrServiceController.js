@@ -26,7 +26,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
   /**
    *
    */
-  assetCollectionArray: [],
+  content: [],
   /**
    * @method
    * @desc initialize method to setup required items
@@ -834,8 +834,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         }
       };
       var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      if (service.assetCollectionArray.length > 0) {
-        successCallback(service.assetCollectionArray);
+      if (service.content.length > 0) {
+        successCallback(service.content);
       } else {
         SBW.Singletons.utils.ajax({
             url: url,
@@ -873,9 +873,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                 }
               });
               collection.id = collection.getID();
-              service.assetCollectionArray.push(collection);
+              service.content.push(collection);
             });
-            successCallback(service.assetCollectionArray);
+            successCallback(service.content);
           },
           errorCallback
         );
@@ -985,7 +985,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     };
     var url = service.signAndReturnUrl(service.flickrApiUrl, message);
     assetFound = false;
-    service.assetCollectionArray.forEach(function (collectionValue, collectionIndex, serviceContentArray) {
+    service.content.forEach(function (collectionValue, collectionIndex, serviceContentArray) {
       if (collectionValue.metadata.assetCollectionId === photoSetId) {
         if (collectionValue.assets.length > 0) {
           successCallback(collectionValue.assets);
@@ -1050,7 +1050,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
             collection.id = collection.getID();
             content.push(collection);
           });
-          service.assetCollectionArray.forEach(function (assetCollection) {
+          service.content.forEach(function (assetCollection) {
             if (assetCollection.metadata.assetCollectionId === photoSetId) {
               assetCollection.assets = content;
             }
@@ -1193,7 +1193,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           }
         });
         asset.id = asset.getID();
-        service.assetCollectionArray.forEach(function (assetCollection) {
+        service.content.forEach(function (assetCollection) {
           assetCollection.assets.forEach(function (ImageAsset, index, array) {
             if (ImageAsset.metadata.assetId === photoId) {
               array[index] = asset;

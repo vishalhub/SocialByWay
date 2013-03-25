@@ -140,6 +140,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
               rawData: error,
               code: error.errorCode
             });
+            SBW.logger.debug("Could not publish message");
             errorCallback(errorObject);
           });
       },
@@ -183,6 +184,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
               rawData: error,
               code: error.errorCode
             });
+            SBW.logger.debug("Could not post message");
             errorCallback(errorObject);
           });
       },

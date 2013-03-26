@@ -1,0 +1,44 @@
+<!DOCTYPE HTML >
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../site/style/default/socialbyway.ui.css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
+    <script type="text/javascript" src="../../app/assets/javascripts/socialbyway-ui/postshare/postShareWidget.js"></script>
+</head>
+<body>
+<div id="post-share-widget"></div>
+<script type='text/javascript'>
+    $(document).ready(function () {
+      SBW.init('../config/test-config.json', function () {
+        $("#post-share-widget").PostShareWidget();
+        var data = {
+          // title of the post
+//          message: 'message',
+          // picture/icon to be posted with the message
+          picture: 'http://www.socialbyway.com/style/images/logo.png',
+          // a link to the site
+          link: 'http://www.socialbyway.com',
+          // name of the site/application
+          name: 'Socialbyway',
+          // a caption to the site/application
+          caption: 'A new post Widget',
+          // description of the post
+//          description: 'description',
+          actions: {
+            // a name to the page to be viewed
+            'name': 'SBW',
+            // a link specific to the post on the site
+            'link': 'http://www.socialbyway.com/widget.html'
+          }
+        };
+        $("#post-share-widget").PostShareWidget('setData', data);
+          // To share it programmatically
+//        $("#post-share-widget").PostShareWidget('postShare');
+      });
+    });
+</script>
+
+</body>
+</html>

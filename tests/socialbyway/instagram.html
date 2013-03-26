@@ -22,7 +22,8 @@
             <input name="service" id='instagram' type="checkbox" value="instagram" checked="checked"/>
             <!-- <input name="service" type="checkbox" value="twitter"/>twitter
          <input name="service" type="checkbox" value="google"/>google-->
-            <button id="instagram_post" class="instagram-post">post</button>
+            <button id="instagram_post" class="instagram-post">post Likes</button>
+            <button id="instagram_post2" class="instagram-post">get media</button>
         </div>
     </div>
 </div>
@@ -43,8 +44,9 @@
         };
         var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
         var objectId = '341040070801031572_264679415';
+        var userId = '263731106';
         SBW.Singletons.serviceFactory.getService("instagram")
-                .getLikes(objectId,successCallback,failureCallback);
+                .unlike(objectId,successCallback,failureCallback);
     };
 
     var commentBox = document.getElementsByClassName('post-box');
@@ -58,6 +60,25 @@
         });
 
     }
+    document.getElementById("instagram_post2").onclick = function (event) {
+        var commentBox = document.getElementsByClassName('post-box')[0];
+        var serviceGrp = document.getElementsByClassName('post')[0];
+        var successCallback = function (response) {
+            console.log(response);
+        };
+        var failureCallback = function (response) {
+            console.log(response);
+            SBW.logger.error('fsfsdfsf');
+            alert('Some problem occurred while publishing message');
+        };
+        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+        var objectId = '341040070801031572_264679415';
+        var userId = '264679415';
+        SBW.Singletons.serviceFactory.getService("instagram")
+                .getLikes(undefined,successCallback,failureCallback);
+    };
+
+
 </script>
 </body>
 </html>

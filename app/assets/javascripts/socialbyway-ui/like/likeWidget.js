@@ -154,7 +154,7 @@
      * @ignore
      */
     destroy: function () {
-      $.Widget.prototype.destroy.call(this, arguments);
+      $.Widget.prototype.destroy.call(this);
     }
   });
 })(jQuery);

@@ -893,6 +893,28 @@
     },
     /**
      * @method
+     * @desc Fetches assets from the asset collection
+     * @param  {String} serviceName A name of registered services.
+     * @param  {String} assetCollectionId Id of the assetcollection
+     * @param  {String} assetId Id of the asset.
+     *
+     */
+    getAsset: function (serviceName, assetCollectionId, assetId) {
+      var assetArray = SBW.Singletons.serviceFactory.getService(serviceName) && SBW.Singletons.serviceFactory.getService(serviceName).content || [],
+        assetObj;
+      assetArray.forEach(function (value) {
+        if (value.metadata.assetCollectionId === assetCollectionId) {
+          value.assets.forEach(function (asset) {
+            if (asset.metadata.assetId === assetId) {
+              assetObj = asset;
+            }
+          });
+        }
+      });
+      return assetObj;
+    },
+    /**
+     * @method
      * @desc Upload the post onto the specified services
      * @param  {String[]} serviceArr An array of registered services.
      * @param  {Object} returnValue Object that holds the service response.

@@ -310,13 +310,13 @@
      * @method
      * @desc Posting comment on an object in the specified service.
      * @param {String} serviceName  Name of the registered service.
-     * @param {String} objectId  Id of the object liked i.e. post,comment etc..
+     * @param {Object} idObject  Id of the object liked i.e. post,comment etc..
      * @param {String} comment Comment to be posted on to the service.
      * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} to be executed on successful comment posting.
      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} to be executed on comment posting error.
      */
-    postComment: function (serviceName, objectId, comment, successCallback, errorCallback) {
-      SBW.Singletons.serviceFactory.getService(serviceName).postComment(objectId, comment, successCallback, errorCallback);
+    postComment: function (serviceName, idObject, comment, successCallback, errorCallback) {
+      SBW.Singletons.serviceFactory.getService(serviceName).postComment(idObject, comment, successCallback, errorCallback);
     },
     /**
      * This callback is displayed as part of the postComment method.

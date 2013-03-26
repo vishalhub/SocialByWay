@@ -151,6 +151,8 @@
        * @property {String} theme Theme for the upload widget
        * @property {String} display Display type of the widget
        * @property {String} functionality The functionality of the widget
+       * @property {Array} serviceArray Array of services to support
+       * @property {Object} sizeLimit The limit for the media to be uploaded
        */
       options: {
         theme: 'default',
@@ -160,7 +162,6 @@
         // limit in kilobytes
         sizeLimit: {image: 1024, video: 20480}
       },
-      services: 0,
       /**
        * @method
        * @desc Authenticate to the specified service to upload files.
@@ -186,7 +187,7 @@
           },
           successCallback = function (uploadStatus) {
             serviceCheck = serviceCheck + 1;
-            if (serviceCheck === self.services) {
+            if (serviceCheck === serviceArr.length) {
               self.$loader.hide();
             }
             if ((!self.$successText) || (self.$successText.text() === '')) {
@@ -198,7 +199,7 @@
           },
           errorCallback = function (uploadStatus) {
             serviceCheck = serviceCheck + 1;
-            if (serviceCheck === self.services) {
+            if (serviceCheck === serviceArr.length) {
               self.$loader.hide();
             }
             if ((!self.$failureText) || (self.$failureText.text() === '')) {
@@ -222,7 +223,6 @@
             self.$errorAlert.hide();
             if (serviceArr.length !== 0) {
               self.$loader.show();
-              self.services = serviceArr.length;
             }
             SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
           } else {
@@ -233,7 +233,6 @@
             self.$errorAlert.hide();
             if (serviceArr.length !== 0) {
               self.$loader.show();
-              self.services = serviceArr.length;
             }
             SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
           } else {

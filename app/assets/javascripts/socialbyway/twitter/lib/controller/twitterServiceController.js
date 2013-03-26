@@ -4,7 +4,7 @@
  * @augments ServiceController
  * @constructor
  **/
-SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.extend( /** @lends SBW.Controllers.Services.Twitter# */ {
+SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.extend(/** @lends SBW.Controllers.Services.Twitter# */ {
   /**
    * @constant
    * @type {string}
@@ -70,25 +70,26 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     var service = this;
     service.eraseCookie('twitterToken');
     var tokenListener = function (windowReference) {
-        if (!windowReference.closed) {
-          if (service.getCookie('twitterToken')) {
-            windowReference.close();
-              service.getAccessToken.call(service, callback);
-          } else {
-            setTimeout(function () {
-              tokenListener(windowReference);
-            }, 2000);
-          }
+      if (!windowReference.closed) {
+        if (service.getCookie('twitterToken')) {
+          windowReference.close();
+          service.getAccessToken.call(service, callback);
         } else {
-          service.isUserLoggingIn = false;
+          setTimeout(function () {
+            tokenListener(windowReference);
+          }, 2000);
         }
-      };
+      } else {
+        service.isUserLoggingIn = false;
+      }
+    };
     if (service.authWindowReference == null || service.authWindowReference.closed) {
       service.authWindowReference = window.open('', 'Twitter' + new Date().getTime(), service.getPopupWindowParams({
         height: 500,
         width: 400
       }));
-      service.authWindowReference.document.write("redirecting to Twitter"); /*The reference window is bounded with beforeunload event to see if the popup is closed using the window close button*/
+      service.authWindowReference.document.write("redirecting to Twitter");
+      /*The reference window is bounded with beforeunload event to see if the popup is closed using the window close button*/
       $(service.authWindowReference).bind("beforeunload", function (e) {
         var _window = this;
         setTimeout(function () {
@@ -107,18 +108,18 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       service.accessObject.access_token = null;
       service.accessObject.tokenSecret = null;
       var url = service.signAndReturnUrl(this.requestTokenUrl, message);
-        this.sendTwitterRequest({
-          url: url,
-          returnType: 'text'
-        }, function (response) {
-          var respJson = SBW.Singletons.utils.getJSONFromQueryParams(response);
-          service.accessObject.access_token = respJson.oauth_token;
-          service.accessObject.tokenSecret = respJson.oauth_token_secret;
-          service.authWindowReference.document.location.href = service.authorizeUrl + "?oauth_token=" + service.accessObject.access_token + "&perms=write";
-          tokenListener(service.authWindowReference);
-        }, function (response) {
-          console.log('Error: ', response);
-        });
+      this.sendTwitterRequest({
+        url: url,
+        returnType: 'text'
+      }, function (response) {
+        var respJson = SBW.Singletons.utils.getJSONFromQueryParams(response);
+        service.accessObject.access_token = respJson.oauth_token;
+        service.accessObject.tokenSecret = respJson.oauth_token_secret;
+        service.authWindowReference.document.location.href = service.authorizeUrl + "?oauth_token=" + service.accessObject.access_token + "&perms=write";
+        tokenListener(service.authWindowReference);
+      }, function (response) {
+        console.log('Error: ', response);
+      });
     } else {
       service.authWindowReference.focus();
     }
@@ -392,14 +393,14 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
             id: jsonResponse.id,
             serviceName: "twitter"
           }, jsonResponse);
-        }, function(response){
-            var errorObject = new SBW.Models.Error();
-            errorObject.message = JSON.parse(response.responseText).errors[0].message;
-            errorObject.code = JSON.parse(response.responseText).errors[0].code;
-            errorObject.serviceName = 'twitter';
-            errorObject.rawData = JSON.parse(response.responseText);
+        }, function (response) {
+          var errorObject = new SBW.Models.Error();
+          errorObject.message = JSON.parse(response.responseText).errors[0].message;
+          errorObject.code = JSON.parse(response.responseText).errors[0].code;
+          errorObject.serviceName = 'twitter';
+          errorObject.rawData = JSON.parse(response.responseText);
 
-            errorCallback(errorObject);
+          errorCallback(errorObject);
         });
       },
       callback = (function (requestParameters, successCallback, errorCallback) {
@@ -498,15 +499,15 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         contentType: false
       };
       var success = function (jsonResponse) {
-          var uploadStatus = new Array();
-          uploadStatus.push(new SBW.Models.UploadStatus({
-            id: jsonResponse.id,
-            serviceName: 'twitter',
-            status: 'success',
-            rawData: jsonResponse
-          }));
-          successCallback(uploadStatus)
-        };
+        var uploadStatus = new Array();
+        uploadStatus.push(new SBW.Models.UploadStatus({
+          id: jsonResponse.id,
+          serviceName: 'twitter',
+          status: 'success',
+          rawData: jsonResponse
+        }));
+        successCallback(uploadStatus)
+      };
       service.sendTwitterRequest(data, success, errorCallback);
     })
   },
@@ -768,20 +769,20 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           errorCall = function (resp) {
             if (JSON.parse(resp.responseText).errors[0]['code'] == 139) {
               // error code 139 comes when the user has liked the tweet already
-                var likesObject = {
-                    message: JSON.parse(resp.responseText).errors[0]['message']
-                };
-                errorCallback(likesObject);
+              var likesObject = {
+                message: JSON.parse(resp.responseText).errors[0]['message']
+              };
+              errorCallback(likesObject);
             }
           },
-            successCall = function (resp) {
+          successCall = function (resp) {
 
-                    var likesObject = {
-                             message: (resp.favorited)?"You have successfully favorited this status/page.":"Try again"
-                    };
-                successCallback(likesObject);
-
+            var likesObject = {
+              message: (resp.favorited) ? "You have successfully favorited this status/page." : "Try again"
             };
+            successCallback(likesObject);
+
+          };
         service.sendTwitterRequest(data, successCall, errorCall);
       },
       callback = (function (parameters, successCallback, errorCallback) {

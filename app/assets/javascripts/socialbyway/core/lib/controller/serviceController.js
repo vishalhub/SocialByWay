@@ -873,7 +873,7 @@
         service = this;
       service.fileStatus[serviceName] = service.fileStatus[serviceName] || [];
       for (i = 0; i < fileLength; i = i + 1) {
-        queueLength = i //service.fileStatus[serviceName].length
+        queueLength = i; //service.fileStatus[serviceName].length
         /*service.fileStatus[serviceName][queueLength] = {
          'file': fileData[i].file.name,
          'status': 'uploading'

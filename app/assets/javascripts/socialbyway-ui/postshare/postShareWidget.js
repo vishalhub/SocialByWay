@@ -23,13 +23,13 @@
       _create: function () {
         var self = this;
         self.shareObject = {
-          message: null,
-          picture: null,
-          link: null,
-          name: null,
-          caption: null,
-          description: null,
-          actions: {"name": null, "link": null}
+          message: self.options.message,
+          picture: self.options.icon,
+          link: self.options.link || window.location,
+          name: self.options.name,
+          caption: self.options.caption,
+          description: self.options.description,
+          actions: {"name": self.options.name, "link": (self.options.link || window.location)}
         };
         self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-postShare-widget-" + self.options.theme);
         self.$title = $('<textarea/>').attr({
@@ -41,55 +41,21 @@
           placeholder: 'Description'
         });
         self.$iconContainer = $('<div/>').addClass('icon-container');
-        self.$icon = $('<img/>').attr({ class: 'icon', src: '../../app/assets/images/default/logo.png'});
+        self.$icon = $('<img/>').attr({ class: 'icon', src: self.options.icon});
         self.$iconContainer.append(self.$icon);
         self.$shareButton = $('<button/>').addClass('share-button').text('Share');
 
         //Create the checkbox container...
-        self.$checkBoxContainer = $('<div/>').addClass('checkBox-container');
-        var $checkContainer = [];
-        self.options.serviceArray.forEach(function (value) {
-          var $serviceCheckbox = $('<div/>').addClass("check-container " + value)
-              .append($("<input/>", {
-                'type': 'checkbox',
-                'name': 'service',
-                'value': value
-              })),
-            $userView = $("<div/>").addClass("user-image "),
-            $serviceView = $('<div/>').addClass("service-container " + value);
-          $serviceCheckbox.append($userView, $serviceView);
-          $checkContainer.push($serviceCheckbox);
+        self.$checkBoxContainer = $('<div/>').addClass('checkboxContainer');
+        self.$checkBoxContainer.CheckBoxWidget({
+          services:self.options.services
         });
-        self.$checkBoxContainer.append($checkContainer);
-        self.$checkBoxContainer.append(self.$shareButton);
+        self.$checkBoxContainer.append(self.$shareButton,'<div class="clear"></div>');
         self.$postDescriptionContainer = $('<div/>').addClass('post-description-container');
         self.$postDescriptionContainer.append(self.$title, self.$description);
         self.$widgetContainer.append(self.$iconContainer, self.$postDescriptionContainer, self.$checkBoxContainer);
         self.element.append(self.$widgetContainer);
 
-        $(self.$checkBoxContainer).on('click', 'div.check-container input', function (e) {
-          var that = this;
-          self.service = this.value;
-          if ($(this).is("input:checked")) {
-            $(that).prop('checked', false);
-            var loginSuccessHandler = function (response) {
-              var userId = (response === undefined) ? undefined : response.id, picSuccess, picFailure;
-              $(that).siblings('div.service-container').toggleClass('selected');
-              $(that).prop('checked', true);
-              picSuccess = function (profilePicUrl) {
-                if (profilePicUrl) {
-                  $(self.$checkBoxContainer).find('.check-container' + '.' + self.service + ' .user-image').css({"background": 'url("' + profilePicUrl + '")', "background-size": '40px 40px'});
-                }
-              };
-              picFailure = function (error) {
-              };
-              SBW.api.getProfilePic(self.service, userId, picSuccess, picFailure);
-            };
-            self.authenticate(self.service, loginSuccessHandler);
-          } else {
-            $(that).siblings('div.service-container').toggleClass('selected');
-          }
-        });
         self.$shareButton.on("click", this, this.postShare);
         self.$postDescriptionContainer.change(function (param) {
           var key = param.target.className,
@@ -108,7 +74,8 @@
       options: {
         theme: 'default',
         serviceArray: ['facebook', 'twitter'],
-        shareButton: 'on'
+        shareButton: 'on',
+        icon:'http://www.socialbyway.com/style/images/logo.png'
       },
       /**
        * @method

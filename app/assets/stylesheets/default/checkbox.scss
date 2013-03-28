@@ -1,0 +1,71 @@
+.sbw-checkbox-widget-default{
+  .checkbox-container{
+    div.checkbox{
+      float: left;
+      padding: 0 20px 0 0;
+    }
+    .userimage{
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    height:40px;
+    width:40px;
+    background: url("images/profile_pic.png") no-repeat;
+    background-position: center center;
+  }
+  input{
+    height: 30px;
+    width: 30px;
+    margin-left: 9px;
+    background: url("images/checkbox_off.png") no-repeat 0 0;
+    -webkit-appearance: none;
+    -moz-appearance:none;
+      &:checked{
+        background: url("images/checkbox_on.png") no-repeat 0 0;
+      }
+      }
+      &:nth-child(1){
+        clear:left;
+      }
+      .service-container{
+    position: relative;
+    left: 1.5em;
+    top: -1.5em;
+    height: 2em;
+    width:2em;
+    &.facebook{
+      background: url("images/social_icons.png") no-repeat -40px 0px;
+      &:hover,&.selected{
+        background-position : 0px 0px;
+      }
+    }
+    &.twitter{
+      background: url("images/social_icons.png") no-repeat -40px -40px;
+      &:hover,&.selected{
+        background-position : 0px -40px;
+      }
+    }
+    &.picasa{
+      background: url("images/social_icons.png") no-repeat -40px -120px;
+      &:hover,&.selected{
+        background-position : 0px -120px;
+      }
+    }
+    &.flickr{
+      background: url("images/social_icons.png") no-repeat -40px -80px;
+      &:hover,&.selected{
+        background-position : 0px -80px;
+      }
+    }
+    &.linkedin{
+      background: url("images/social_icons.png") no-repeat -40px -160px;
+      &:hover,&.selected{
+        background-position : 0px -160px;
+      }
+    }
+  }
+  }
+
+  
+
+}

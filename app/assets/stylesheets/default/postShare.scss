@@ -1,22 +1,25 @@
 .sbw-postShare-widget-default {
-  width: 400px;
+  min-width: 400px;
+  max-width: 700px;
   border: 1px solid #c3c3c3;
-  height: 185px;
   background: #F8F8F8;
   color: #999999;
   padding: 10px;
   font-family: Georgia, Trebuchet MS, Arial, sans-serif;
   .icon-container {
-    width: 40%;
-    height: 60%;
+    img{
+      width: 100%;
+    }
+    width: 32%;
+    height: 115px;
     display: inline-block;
     img {
       height: 100%;
     }
   }
   .post-description-container {
-    width: 60%;
-    height: 60%;
+    width: 68%;
+    vertical-align: top;
     display: inline-block;
   }
   .check-container {
@@ -61,6 +64,10 @@
       }
     }
   }
+  .sbw-checkbox-widget-default{
+    float: left;
+  }
+
   .user-image {
     width: 40px;
     height: 40px;

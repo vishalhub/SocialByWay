@@ -315,8 +315,13 @@
      * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} to be executed on successful comment posting.
      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} to be executed on comment posting error.
      */
-    postComment: function (serviceName, idObject, comment, successCallback, errorCallback) {
-      SBW.Singletons.serviceFactory.getService(serviceName).postComment(idObject, comment, successCallback, errorCallback);
+		postComment: function(serviceArr, idObject, comment, successCallback, errorCallback) {
+			if (!(serviceArr instanceof Array)) {
+				serviceArr = [];
+			} // create an empty array if not passed
+			serviceArr.forEach(function(serviceName, index, serviceArr) {
+				SBW.Singletons.serviceFactory.getService(serviceName).postComment(idObject, comment, successCallback, errorCallback);
+			});
     },
     /**
      * This callback is displayed as part of the postComment method.
@@ -368,6 +373,27 @@
     /**
      * This callback is displayed as part of the getLikes method.
      * @callback SBW.Controllers.Services.ServiceController~getLikes-errorCallback
+		 * @param {Object} response JSON response from the service
+		 **/
+		/**
+		 * @method
+		 * @desc Deletes comments from the specified service that matches the object id.
+		 * @param {String} serviceName  Name of the registered service.
+		 * @param {String} objectId  Id of the object.
+		 * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~deleteComment-successCallback Callback} to be executed on successful comments retrieving.
+		 * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~deleteComment-errorCallback Callback} to be executed on retrieving comments error.
+		 */
+		deleteComment: function(serviceName, objectId, successCallback, errorCallback) {
+			SBW.Singletons.serviceFactory.getService(serviceName).deleteComment(objectId, successCallback, errorCallback);
+		},
+		/**
+		 * This callback is displayed as part of the deleteComment method.
+		 * @callback SBW.Controllers.Services.ServiceController~deleteComment-successCallback
+		 * @param {Boolean} response JSON response from the service
+		 **/
+		/**
+		 * This callback is displayed as part of the deleteComment method.
+		 * @callback SBW.Controllers.Services.ServiceController~deleteComment-errorCallback
      * @param {Object} response JSON response from the service
      **/
     /**
@@ -847,7 +873,7 @@
         service = this;
       service.fileStatus[serviceName] = service.fileStatus[serviceName] || [];
       for (i = 0; i < fileLength; i = i + 1) {
-        queueLength = i //service.fileStatus[serviceName].length
+        queueLength = i; //service.fileStatus[serviceName].length
         /*service.fileStatus[serviceName][queueLength] = {
          'file': fileData[i].file.name,
          'status': 'uploading'

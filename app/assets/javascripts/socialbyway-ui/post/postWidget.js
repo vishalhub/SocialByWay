@@ -88,7 +88,7 @@
                 self.$containerDiv.append(temp.join(''));
                 self.$containerDiv.find('.close').bind('click', function() {
                   $(this).parent('.link-preview').remove();
-                })
+                });
               }
             }, errorcallback = function(error) {};
             if (self.$containerDiv.find('.link-preview').length === 0)

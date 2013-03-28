@@ -271,6 +271,69 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   },
   /**
    * @method
+   * @desc Posts a message to facebook through FB API service
+   * @param {Object} postObject object containing the metaData to Post a message
+   * @example for the postObject
+      {
+        message: 'A Message'
+        picture: 'http://www.socialbyway.com/style/images/logo.png',
+        link :'http://www.socialbyway.com/',
+        name:'A dummy Post',
+        caption:'A simple caption for the post',
+        description:'A dummy description for a dummy post',
+        actions: {"name": "View on SBW", "link": "http://www.socialbyway.com/"}
+      }
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postShare-successCallback Callback} will be called if publishing is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postShare-errorCallback Callback} will be called in case of any error while publishing
+   */
+  postShare: function (postObject, successCallback, errorCallback) {
+    var service = this,
+      publish = function (postObject, successCallback, errorCallback) {
+        FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
+          message: postObject.message,
+          picture: postObject.picture,
+          link: postObject.link,
+          name: postObject.name,
+          caption: postObject.caption,
+          description: postObject.description,
+          actions: {name: postObject.actions.name, link: postObject.actions.link}
+        }, function (response) {
+          if (response.id !== undefined || response.error === null) {
+            if (successCallback) {
+              successCallback({
+                id: response.id,
+                serviceName: "facebook"
+              }, response);
+            }
+          } else {
+            if (errorCallback) {
+              var errorObject = new SBW.Models.Error({
+                message: response.error.message,
+                code: response.error.code,
+                serviceName: 'facebook',
+                rawData: response
+              });
+              errorCallback(errorObject);
+            }
+          }
+        })
+      },
+      callback = (function (postObject, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            publish(postObject, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(postObject, successCallback, errorCallback);
+            });
+          }
+        };
+      })(postObject, successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
    * @desc Subscribes to a post on the facebook Service.
    * @param  {String}  uid             id of the post
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~subscribe-successCallback Callback} will be called if successfully subscribes

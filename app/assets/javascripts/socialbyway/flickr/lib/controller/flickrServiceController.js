@@ -27,7 +27,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for Flickr.
    */
   
-  assetCollectionArray: [],
+  content: [],
   /**
    * @method
    * @desc initialize method to setup required items
@@ -283,15 +283,15 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
   /**
    * @method
    * @desc To comment on a photo.
-   * @param {Object} idObject contains ids of asssets.
+   * @param {String} objectId
    * @param {String} comment
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} will be called if posting is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
    */
-  postComment: function (idObject, comment, successCallback, errorCallback) {
+  postComment: function (objectId, comment, successCallback, errorCallback) {
     var service = this,
       apiKey = service.accessObject.consumerKey,
-      publish = function (idObject, comment, successCallback, errorCallback) {
+      publish = function (objectId, comment, successCallback, errorCallback) {
         var message = {
             action: service.flickrApiUrl,
             method: "POST",
@@ -299,7 +299,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               method: 'flickr.photos.comments.addComment',
               api_key: apiKey,
               format: 'json',
-              photo_id: idObject.assetId,
+              photo_id: objectId,
               perms: 'write',
               comment_text: comment,
               oauth_token: service.accessObject.access_token,
@@ -313,17 +313,17 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           dataType: "json"
         }, successCallback, errorCallback);
       },
-      callback = (function (idObject, comment, successCallback, errorCallback) {
+      callback = (function (objectId, comment, successCallback, errorCallback) {
         return function (isLoggedIn) {
           if (isLoggedIn) {
-            publish(idObject, comment, successCallback, errorCallback);
+            publish(objectId, comment, successCallback, errorCallback);
           } else {
             service.startActionHandler(function () {
-              publish(idObject, comment, successCallback, errorCallback);
+              publish(objectId, comment, successCallback, errorCallback);
             });
           }
         };
-      })(idObject, comment, successCallback, errorCallback);
+      })(objectId, comment, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
 
@@ -844,8 +844,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         }
       };
       var url = service.signAndReturnUrl(service.flickrApiUrl, message);
-      if (service.assetCollectionArray.length > 0) {
-        successCallback(service.assetCollectionArray);
+      if (service.content.length > 0) {
+        successCallback(service.content);
       } else {
         SBW.Singletons.utils.ajax({
             url: url,
@@ -892,9 +892,9 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                   }
                 });
                 collection.id = collection.getID();
-                service.assetCollectionArray.push(collection);
+                service.content.push(collection);
               });
-              successCallback(service.assetCollectionArray);
+              successCallback(service.content);
             }
           },
           errorCallback
@@ -1005,7 +1005,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     };
     var url = service.signAndReturnUrl(service.flickrApiUrl, message);
     assetFound = false;
-    service.assetCollectionArray.forEach(function (collectionValue, collectionIndex, serviceContentArray) {
+    service.content.forEach(function (collectionValue, collectionIndex, serviceContentArray) {
       if (collectionValue.metadata.assetCollectionId === photoSetId) {
         if (collectionValue.assets.length > 0) {
           successCallback(collectionValue.assets);
@@ -1079,7 +1079,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               collection.id = collection.getID();
               content.push(collection);
             });
-            service.assetCollectionArray.forEach(function (assetCollection) {
+            service.content.forEach(function (assetCollection) {
               if (assetCollection.metadata.assetCollectionId === photoSetId) {
                 assetCollection.assets = content;
               }
@@ -1239,7 +1239,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
             }
           });
           asset.id = asset.getID();
-          service.assetCollectionArray.forEach(function (assetCollection) {
+          service.content.forEach(function (assetCollection) {
             assetCollection.assets.forEach(function (ImageAsset, index, array) {
               if (ImageAsset.metadata.assetId === photoId) {
                 array[index] = asset;

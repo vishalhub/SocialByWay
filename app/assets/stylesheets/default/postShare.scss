@@ -1,0 +1,93 @@
+.sbw-postShare-widget-default {
+  width: 400px;
+  border: 1px solid #c3c3c3;
+  height: 185px;
+  background: #F8F8F8;
+  color: #999999;
+  padding: 10px;
+  font-family: Georgia, Trebuchet MS, Arial, sans-serif;
+  .icon-container {
+    width: 40%;
+    height: 60%;
+    display: inline-block;
+    img {
+      height: 100%;
+    }
+  }
+  .post-description-container {
+    width: 60%;
+    height: 60%;
+    display: inline-block;
+  }
+  .check-container {
+    float: left;
+    height: 44px;
+    width: 44px;
+    padding-bottom: 34px;
+    margin: 0px 15px 0 15px;
+    &:nth-child(1) {
+      clear: left;
+    }
+    input {
+      height: 20px;
+      width: 20px;
+      margin-left: 9px;
+      margin-top: 5px;
+      background: url("images/checkbox_off.png") no-repeat 0 0;
+      background-size: 20px 20px;
+      -webkit-appearance: none;
+      &:checked {
+        background: url("images/checkbox_on.png") no-repeat 0 0;
+        background-size: 20px 20px;
+      }
+    }
+  }
+  .service-container {
+    position: relative;
+    left: 1.5em;
+    top: -1.5em;
+    height: 2em;
+    width: 2em;
+    &.facebook {
+      background: url("images/social_icons.png") no-repeat -40px 0px;
+      &:hover, &.selected {
+        background-position: 0px 0px;
+      }
+    }
+    &.twitter {
+      background: url("images/social_icons.png") no-repeat -40px -40px;
+      &:hover, &.selected {
+        background-position: 0px -40px;
+      }
+    }
+  }
+  .user-image {
+    width: 40px;
+    height: 40px;
+    margin-top: -5px;
+    background: url("images/profile_pic.png") no-repeat;
+    background-size: 40px 40px;
+    border-radius: 2em;
+  }
+  .share-button {
+    float: right;
+    margin: 20px 3px 0 0;
+    padding: 10px 40px;
+    color: #ff417e;
+    border: 1px solid #dddddd;
+    background: #f5f5f5;
+  }
+  .message, .description,{
+    height: 20px;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    resize: none;
+    color: #999999;
+    width: 97%;
+  }
+  .description{
+    height: 64px;
+  }
+
+
+}

@@ -56,7 +56,11 @@
 
         // Define content in the tab container...
         self.$helpMessage = $("<p/>").text("Select media to upload");
+        self.$browseButtonWrapper = $('<div/>').addClass('browse-button-wrapper');
         self.$browseButton = $('<input/>').attr("type", "file").html("Choose file");
+        self.$browseButtonWrapper.append(self.$browseButton);
+        self.$dummyBrowseButton = "<div class='dummy-button'><div class='choose-file'>Choose File</div><div class='file-display'>No File Choosen</div></div>";
+        self.$browseButtonWrapper.append(self.$dummyBrowseButton);
         self.$errorAlert = $('<div/>').addClass('error-display').hide();
         self.$loader = $('<div/>').addClass('loader').hide();
         self.$mediaContainer = $('<div/>').addClass('media-container ');
@@ -72,11 +76,10 @@
           maxlength: 5000,
           placeholder: 'Title'
         });
-
-        self.$mediaContainer.append(self.$helpMessage, self.$browseButton, self.$errorAlert, self.$loader, self.$titleInput, self.$description);
+        self.$mediaContainer.append(self.$helpMessage, self.$browseButtonWrapper, self.$errorAlert, self.$loader, self.$titleInput, self.$description);
         self.$widgetContainer.append(self.$mediaContainer);
 
-        self.$uploadButton = $('<button/>').addClass('upload-button').text("publish");
+        self.$uploadButton = $('<button/>').addClass('upload-button').text("Publish");
 
         //Create the checkbox container...
         self.$checkBoxContainer = $('<div/>').addClass('checkBox-container');
@@ -101,13 +104,13 @@
           var $currentTab = $(this);
           $currentTab.addClass('selected').siblings('li').removeClass('selected');
           self.options.functionality = $currentTab.attr('value');
-          if ($currentTab.attr('value') == 'video') {
+          if ($currentTab.attr('value') === 'video') {
             self.$checkBoxContainer.find('.check-container.twitter').hide();
           } else {
             self.$checkBoxContainer.find('.check-container.twitter').show();
           }
         });
-        if (self.options.functionality == 'video') {
+        if (self.options.functionality === 'video') {
           self.$checkBoxContainer.find('.check-container.twitter').hide();
         } else {
           self.$checkBoxContainer.find('.check-container.twitter').show();
@@ -135,6 +138,11 @@
             $(that).siblings('div.service-container').toggleClass('selected');
           }
         });
+        self.$browseButton.change(function () {
+          var filePath = this.value.replace("C:\\fakepath\\", "");
+          $('.file-display').html(filePath);
+        });
+
       },
       /**
        * @desc Options for the widget.
@@ -143,6 +151,8 @@
        * @property {String} theme Theme for the upload widget
        * @property {String} display Display type of the widget
        * @property {String} functionality The functionality of the widget
+       * @property {Array} serviceArray Array of services to support
+       * @property {Object} sizeLimit The limit for the media to be uploaded
        */
       options: {
         theme: 'default',
@@ -152,7 +162,6 @@
         // limit in kilobytes
         sizeLimit: {image: 1024, video: 20480}
       },
-      services: 0,
       /**
        * @method
        * @desc Authenticate to the specified service to upload files.
@@ -175,9 +184,10 @@
             'title': title,
             'location': '',
             'file': self.$browseButton[0].files[0]
-          }, successCallback = function (uploadStatus) {
+          },
+          successCallback = function (uploadStatus) {
             serviceCheck = serviceCheck + 1;
-            if (serviceCheck === self.services) {
+            if (serviceCheck === serviceArr.length) {
               self.$loader.hide();
             }
             if ((!self.$successText) || (self.$successText.text() === '')) {
@@ -186,9 +196,10 @@
             } else {
               self.$successText.text(self.$successText.text() + ', ' + uploadStatus[0].serviceName);
             }
-          }, errorCallback = function (uploadStatus) {
+          },
+          errorCallback = function (uploadStatus) {
             serviceCheck = serviceCheck + 1;
-            if (serviceCheck === self.services) {
+            if (serviceCheck === serviceArr.length) {
               self.$loader.hide();
             }
             if ((!self.$failureText) || (self.$failureText.text() === '')) {
@@ -212,22 +223,20 @@
             self.$errorAlert.hide();
             if (serviceArr.length !== 0) {
               self.$loader.show();
-              self.services = serviceArr.length;
             }
             SBW.api.uploadPhoto(serviceArr, [fileData], successCallback, errorCallback);
           } else {
-            self.$errorAlert.show().text('Maximum upload size for image : 1MB')
+            self.$errorAlert.show().text('Maximum upload size for image : 1MB');
           }
         } else {
           if (self.$browseButton[0].files[0].size / 1024 < self.options.sizeLimit.video) {
             self.$errorAlert.hide();
             if (serviceArr.length !== 0) {
               self.$loader.show();
-              self.services = serviceArr.length;
             }
             SBW.api.uploadVideo(serviceArr, [fileData], successCallback, errorCallback);
           } else {
-            self.$errorAlert.show().text('Maximum upload size for video : 20MB')
+            self.$errorAlert.show().text('Maximum upload size for video : 20MB');
           }
         }
       }

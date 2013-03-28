@@ -320,9 +320,9 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
       serviceName: 'picasa',
       src: media.content.src,
       metadata: {
-        dateUpdated: media.updated.$t,
+        dateUpdated: new Date(media.updated.$t).toDateString(),
         downloadUrl: media.content.src,
-        dateUploaded: media.published.$t,
+        dateUploaded: new Date(media.published.$t).toDateString(),
         size: media.gphoto$size.$t,
         assetId: media.gphoto$id.$t,
         assetCollectionId: media.gphoto$albumid.$t,
@@ -343,15 +343,14 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc Post comment on the photo referred by the given albumId and photoId.
    * @param  {String}   comment         Comment text to be posted.
-   * @param  {String}   albumId         Album Id of the photo.
-   * @param  {String}   photoId         Photo Id of the photo.
+   * @param  {Object}   idObject        Cotanins Asset Id and AssetCollection Id for the asset.
    * @param  {Callback} successCallback  {@link SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} to be executed on successful comment posting.
    * @param  {Callback} errorCallback  {@link SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} to be executed on comment posting error.
    */
-  postComment: function(comment, albumId, photoId, successCallback, errorCallback) {
+  postComment: function(idObject, comment, successCallback, errorCallback) {
     var service = this,
-      postCommentCallback = function(comment, albumId, photoId, successCallback, errorCallback) {
-        var feedUrl = service.feedUrl + '/albumid/' + albumId + '/photoid/' + photoId + '?access_token=' + service.accessObject.access_token + '&alt=json',
+      postCommentCallback = function(comment, idObject, successCallback, errorCallback) {
+        var feedUrl = service.feedUrl + '/albumid/' + idObject.assetCollectionId + '/photoid/' + idObject.assetId + '?access_token=' + service.accessObject.access_token + '&alt=json',
           url = SBW.Singletons.config.proxyURL + '?url=' + encodeURIComponent(feedUrl),
           data = "<?xml version='1.0' encoding='UTF-8'?> <entry xmlns='http://www.w3.org/2005/Atom'><content>" + comment + "</content><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/photos/2007#comment' /></entry>";
         SBW.Singletons.utils.ajax({
@@ -363,17 +362,17 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           processData: false
         }, successCallback, errorCallback);
       },
-      callback = (function(comment, albumId, photoId, successCallback, errorCallback) {
+      callback = (function(comment, idObject, successCallback, errorCallback) {
         return function(isLoggedIn) {
           if (isLoggedIn) {
-            postCommentCallback(comment, albumId, photoId, successCallback, errorCallback);
+            postCommentCallback(comment, idObject, successCallback, errorCallback);
           } else {
             service.startActionHandler(function() {
-              postCommentCallback(comment, albumId, photoId, successCallback, errorCallback);
+              postCommentCallback(comment, idObject, successCallback, errorCallback);
             });
           }
         };
-      })(comment, albumId, photoId, successCallback, errorCallback);
+      })(comment, idObject, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -381,49 +380,50 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
   /**
    * @method
    * @desc Fetch comments for the given photo from the given album
-   * @param {String}   photoId          photo Id of the photo.
-   * @param {String}   albumId          Album Id of the photo.
+   * @param  {Object}   idObject        Cotanins Asset Id and AssetCollection Id for the asset.
    * @param {Callback} successCallback  {@link SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} to be executed on successful comments retrieving.
    * @param {Callback} errorCallback  {@link SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} to be executed on retrieving comments error.
    */
-  getComments: function(photoId, albumId, successCallback, errorCallback) {
+  getComments: function(idObject, successCallback, errorCallback) {
     var service = this,
-      getCommentsCallback = function(photoId, albumId, successCallback, errorCallback) {
-        var url = service.feedUrl + '/albumid/' + albumId + '/photoid/' + photoId + '?access_token=' + service.accessObject.access_token + '&alt=json';
-        SBW.Singletons.utils.ajax({
-          url: url,
-          crossDomain: false,
-          type: "GET",
-          dataType: "json"
-        }, function(response) {
-          var commentsArray = [];
-          if (response.feed.entry) {
-            $.each(response.feed.entry, function(key, value) {
-              var comment = new SBW.Models.Comment();
-              comment.text = value.content.$t;
-              comment.createdTime = value.updated.$t;
-              comment.fromUser = new SBW.Models.User({
-                id: value.author[0].gphoto$user.$t,
-                name: value.author[0].name.$t
+      getCommentsCallback = function(idObject, successCallback, errorCallback) {
+        var url = service.feedUrl + '/albumid/' + idObject.assetCollectionId + '/photoid/' + idObject.assetId + '?access_token=' + service.accessObject.access_token + '&alt=json',
+          cachedAsset = service.getAsset('picasa', idObject.assetCollectionId, idObject.assetId);
+        if (cachedAsset === undefined || cachedAsset.metadata.comments === null || cachedAsset.metadata.comments === undefined) {
+          SBW.Singletons.utils.ajax({
+            url: url,
+            crossDomain: false,
+            type: "GET",
+            dataType: "json"
+          }, function(response) {
+            var commentsArray = [];
+            if (response.feed.entry) {
+              $.each(response.feed.entry, function(key, value) {
+                var comment = new SBW.Models.Comment();
+                comment.text = value.content.$t;
+                comment.createdTime = value.updated.$t;
+                comment.fromUser = value.author[0].name.$t;
+                commentsArray.push(comment);
               });
-              commentsArray.push(comment);
-            });
-            service._populateComments(albumId, photoId, commentsArray);
-          }
-          successCallback(commentsArray);
-        }, errorCallback);
+              service._populateComments(idObject.assetCollectionId, idObject.assetId, commentsArray);
+            }
+            successCallback(commentsArray);
+          }, errorCallback);
+        } else {
+          successCallback(cachedAsset.metadata.commentsArray);
+        }
       },
-      callback = (function(photoId, albumId, successCallback, errorCallback) {
+      callback = (function(idObject, successCallback, errorCallback) {
         return function(isLoggedIn) {
           if (isLoggedIn) {
-            getCommentsCallback(photoId, albumId, successCallback, errorCallback);
+            getCommentsCallback(idObject, successCallback, errorCallback);
           } else {
             service.startActionHandler(function() {
-              getCommentsCallback(photoId, albumId, successCallback, errorCallback);
+              getCommentsCallback(idObject, successCallback, errorCallback);
             });
           }
         };
-      })(photoId, albumId, successCallback, errorCallback);
+      })(idObject, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },

@@ -4,16 +4,16 @@
   /*jslint plusplus: true */
   /*global console, SBW*/
   /**
-   * @class LikeWidget
-   * @namespace LikeWidget
-   * @classdesc SocialByWay Like Widget to get the Like count and functionality to like a page
+   * @class PageLikeWidget
+   * @namespace PageLikeWidget
+   * @classdesc SocialByWay Page Like Widget to get the Like count and functionality to like a page
    * @property {Number} count
    * @property {Object} options
    * @augments JQuery.Widget
-   * @alias LikeWidget
+   * @alias PageLikeWidget
    * @constructor
    */
-  $.widget("ui.PageLikeWidget", /** @lends LikeWidget.prototype */  {
+  $.widget("ui.PageLikeWidget", /** @lends PageLikeWidget.prototype */  {
     count: {linkedin: 0, twitter :0,facebook:0,flickr:0},
     /**
      * @desc Options for the widget.
@@ -173,7 +173,7 @@
      * @ignore
      */
     destroy: function () {
-      $.Widget.prototype.destroy.call(this, arguments);
+      $.Widget.prototype.destroy.call(this);
     }
   });
 })(jQuery);

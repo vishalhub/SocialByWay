@@ -1,10 +1,16 @@
 <html>
 <head>
-  <!--<link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>-->
+    <!--<link rel="stylesheet" type="text/css" href="../../www/socialbyway/css/default/socialbyway.ui.css"/>-->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
-
+    <style>
+        .user-images {
+            display: inline-block;
+            width: 110px;
+            height: 110px;
+        }
+    </style>
 </head>
 <body>
 <div id="post-container">
@@ -23,49 +29,71 @@
         </div>
     </div>
     <div id="in-root"></div>
-    <form  onsubmit="upload()" action="javascript:void(0)" name="fileinfo">
-        <input type="file" name="source" multiple="multiple" > <!-- name must be file -->
+    <form onsubmit="upload()" action="javascript:void(0)" name="fileinfo">
+        <input type="file" name="source" multiple="multiple"> <!-- name must be file -->
         <input type="submit" value="Submit"/>
     </form>
+    <button onclick="getAlbums()">getAlbums</button>
+    <button onclick="getPhotoInfo()">getPhotoInfo</button>
 </div>
 <div id="statusDiv"></div>
 <script type="text/javascript">
-  $(document).ready(function(){
-  SBW.init('../config/test-config.json', function() {
-  });  })
-    function upload(){
-    var data=$('[name="source"]')[0].files;
-    var commentBox = document.getElementsByClassName('post-box')[0];
-    var serviceGrp = document.getElementsByClassName('post')[0];
-    var successCallback = function (response) {
-    console.log(response);
-    console.log('Successfully published message');
-    };
-    var failureCallback = function () {
-    console.log('Some problem occurred while publishing message');
-    };
-    var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
-    var objectId = '8219507855';  <!--photo id of user kiranParvathaneni -->
-    var image = 'image.jpg';
-    var userId ='90090088@N04';
-    var galleryId = '90057949-72157632690477181';
-    var photoId = '8220512690';
-    var title = 'dummy title';
-    var description = 'dummy description';
-    var metadata = { 'title':title,'description':description,'location':'','file':data[0] };
+    $(document).ready(function () {
+        SBW.init('../config/test-config.json', function () {
+        });
+    });
+    function upload() {
+        var data = $('[name="source"]')[0].files;
+        var commentBox = document.getElementsByClassName('post-box')[0];
+        var serviceGrp = document.getElementsByClassName('post')[0];
+        var successCallback = function (response) {
+            console.log(response);
+// displaying the user photos using method getPhotos
+//        response.forEach(function(element){
+//           var image = $('<div/>').addClass('user-images').css({'background-image' : 'url("'+element+'")','background-size' : '105px auto','background-repeat':'no-repeat'});
+//           $(document.getElementById('statusDiv')).append(image)
+//        })
+            console.log('Successfully published message');
+        };
+        var failureCallback = function () {
+            console.log('Some problem occurred while publishing message');
+        };
+        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
+        var objectId = '8219507855';
+        <!--photo id of user kiranParvathaneni -->
+        var userId = '90090088@N04';
+        var galleryId = '90057949-72157632690477181';
+        var photoId = '8219406003';
+        var title = 'dummy title';
+        var description = 'dummy description';
+        var albumId = '72157632100974683';
+        var metadata = { 'title': title, 'description': description, 'location': '', 'file': data[0] };
         console.log(metadata);
-    SBW.Singletons.serviceFactory.getService('flickr').uploadPhoto( [metadata],successCallback,failureCallback);
-    var commentBox = document.getElementsByClassName('post-box');
-    for (var j = 0; j < commentBox.length; j++) {
-    commentBox[j].addEventListener('focus', function (e) {
-    e.target.value = "";
-    });
-    commentBox[j].addEventListener('blur', function (e) {
-    if (e.target.value == "")
-    e.target.value = "Add a Post...";
-    });
+        SBW.Singletons.serviceFactory.getService('flickr').getPhotosFromAlbum(albumId, successCallback, failureCallback);
+        var commentBox = document.getElementsByClassName('post-box');
     }
+    function getAlbums() {
+        var successCallback = function (response) {
+            console.log(response);
+            console.log('Successfully published message');
+        };
+        var failureCallback = function () {
+            console.log('Some problem occurred while publishing message');
+        };
+        SBW.Singletons.serviceFactory.getService('flickr').getAlbums( successCallback, failureCallback,'90090088@N04');
     }
+    function getPhotoInfo() {
+        var successCallback = function (response) {
+            console.log(response);
+            console.log('Successfully published message');
+        };
+        var failureCallback = function (response) {
+            console.log(response);
+            console.log('Some problem occurred while publishing message');
+        };
+        SBW.Singletons.serviceFactory.getService('flickr').getLikes('8219406003', successCallback, failureCallback);
+    }
+
 </script>
 </body>
 </html>

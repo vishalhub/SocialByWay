@@ -262,6 +262,69 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   },
   /**
    * @method
+   * @desc Posts a message to facebook through FB API service
+   * @param {Object} postObject object containing the metaData to Post a message
+   * @example for the postObject
+      {
+        message: 'A Message'
+        picture: 'http://www.socialbyway.com/style/images/logo.png',
+        link :'http://www.socialbyway.com/',
+        name:'A dummy Post',
+        caption:'A simple caption for the post',
+        description:'A dummy description for a dummy post',
+        actions: {"name": "View on SBW", "link": "http://www.socialbyway.com/"}
+      }
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postShare-successCallback Callback} will be called if publishing is successful
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postShare-errorCallback Callback} will be called in case of any error while publishing
+   */
+  postShare: function (postObject, successCallback, errorCallback) {
+    var service = this,
+      publish = function (postObject, successCallback, errorCallback) {
+        FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
+          message: postObject.message,
+          picture: postObject.picture,
+          link: postObject.link,
+          name: postObject.name,
+          caption: postObject.caption,
+          description: postObject.description,
+          actions: {name: postObject.actions.name, link: postObject.actions.link}
+        }, function (response) {
+          if (response.id !== undefined || response.error === null) {
+            if (successCallback) {
+              successCallback({
+                id: response.id,
+                serviceName: "facebook"
+              }, response);
+            }
+          } else {
+            if (errorCallback) {
+              var errorObject = new SBW.Models.Error({
+                message: response.error.message,
+                code: response.error.code,
+                serviceName: 'facebook',
+                rawData: response
+              });
+              errorCallback(errorObject);
+            }
+          }
+        })
+      },
+      callback = (function (postObject, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            publish(postObject, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              publish(postObject, successCallback, errorCallback);
+            });
+          }
+        };
+      })(postObject, successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
    * @desc Subscribes to a post on the facebook Service.
    * @param  {String}  uid             id of the post
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~subscribe-successCallback Callback} will be called if successfully subscribes
@@ -554,15 +617,15 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @desc Posts a comment to facebook through FB API service
-   * @param objectId Id of the object on to which comment should be posted.
+   * @param {Object} idObject Contains Ids of assets.
    * @param {String} comment
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} will be called if posting is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} will be called in case of any error while posting
    */
-  postComment: function(objectId, comment, successCallback, errorCallback) {
+  postComment: function(idObject, comment, successCallback, errorCallback) {
     var service = this,
-      publish = function(objectId, comment, successCallback, errorCallback) {
-        FB.api('/' + objectId + '/comments?access_token=' + service.accessObject['token'], 'post', {
+      publish = function(idObject, comment, successCallback, errorCallback) {
+        FB.api('/' + idObject.assetId + '/comments?access_token=' + service.accessObject['token'], 'post', {
           message: comment
         }, function(response) {
           if (!response.id || !response.error) {
@@ -583,17 +646,17 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         });
       },
-      callback = (function(objectId, comment, successCallback, errorCallback) {
+      callback = (function(idObject, comment, successCallback, errorCallback) {
         return function(isLoggedIn) {
           if (isLoggedIn) {
-            publish(objectId, comment, successCallback, errorCallback);
+            publish(idObject, comment, successCallback, errorCallback);
           } else {
             service.startActionHandler(function() {
-              publish(objectId, comment, successCallback, errorCallback);
+              publish(idObject, comment, successCallback, errorCallback);
             });
           }
         };
-      })(objectId, comment, successCallback, errorCallback);
+      })(idObject, comment, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },
@@ -936,8 +999,8 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                 rawData: value,
                 serviceName: 'facebook',
                 metadata: {
-                  dateUpdated: value.updated_time,
-                  dateUploaded: value.created_time,
+                  dateUpdated: new Date(value.updated_time).toDateString(),
+                  dateUploaded: new Date(value.created_time).toDateString(),
                   size: null,
                   assetId: value.id,
                   assetCollectionId: value.albumId,

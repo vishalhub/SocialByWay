@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="../../site/style/default/socialbyway.ui.css"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="../../site/js/socialbyway.min.js"></script>
+    <script type="text/javascript" src="../../site/js/socialbyway.js"></script>
     <script type="text/javascript" src="../../site/js/socialbyway.ui.min.js"></script>
 </head>
 <body>
@@ -42,7 +42,7 @@
         };
 //        var serviceArr = SBW.Singletons.utils.getSelectedCheckboxValue(serviceGrp);
         SBW.Singletons.serviceFactory.getService("facebook")
-                .publishMessage(commentBox.value, successCallback, failureCallback);
+                .postShare(commentBox.value, successCallback, failureCallback);
     };
 
     var commentBox = document.getElementsByClassName('post-box');

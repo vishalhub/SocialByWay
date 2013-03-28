@@ -14,7 +14,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    **/
   name: 'facebook',
   /**
-   * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for picasa.
+   * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for Facebook.
    */
   content: [],
   /**
@@ -120,15 +120,15 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           // request, and the time the access token
           // and signed request each expire
           service.getAccessToken.call(service, response, function(response) {
-                service.user.name = response.name;
-                service.user.id = response.id;
-                service.getProfilePic(null, function(response) {
-                  service.user.userImage = response;
-                }, function(error) {
-                  SBW.logger.debug("Could not fetch image url");
-                });
-                callback();
-              });
+            service.user.name = response.name;
+            service.user.id = response.id;
+            service.getProfilePic(null, function(response) {
+              service.user.userImage = response;
+            }, function(error) {
+              SBW.logger.debug("Could not fetch image url");
+            });
+            callback();
+          });
         } else {
           window._facebookopen = window.open;
           window.open = function(url, name, params) {
@@ -585,10 +585,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               errorCallback(errorObject);
             }
           } else {
-             if (successCallback) {
+            if (successCallback) {
               successCallback(response);
             }
-            
+
 
           }
         });
@@ -806,14 +806,14 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   _populateAlbumThumbnail: function(successCallback, errorCallback) {
     var service = this,
       getPhoto = function(successCallback, errorCallback) {
-        var i=0;
-        service.content.forEach(function(value, index,a) {
+        var i = 0;
+        service.content.forEach(function(value, index, a) {
           FB.api('/' + value.metadata.coverid + "?access_token=" + service.accessObject['token'], 'get', function(response) {
             i++;
             if (response && !response.error) {
               value.metadata.thumbnail = response.picture || '';
             }
-            if(i ===a.length) {
+            if (i === a.length) {
               successCallback(service.content);
             }
           })
@@ -835,10 +835,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   },
   /**
    * @method
-   * @desc Fetches album details of the logged in user from picasa through picasa API service.
+   * @desc Fetches album details of the logged in user from Facebook through Facebook API service.
    * The method doesn't require any authentication.
-   * @param {SBW.Controllers.Services.Picasa~getAlbums-successCallback} successCallback callback function to be called with the json response after successfully fetching the album details.
-   * @param {SBW.Controllers.Services.Picasa~getAlbums-errorCallback} errorCallback callback function to be called in case of error while fetching the album details.
+   * @param {SBW.Controllers.Services.Facebook~getAlbums-successCallback} successCallback callback function to be called with the json response after successfully fetching the album details.
+   * @param {SBW.Controllers.Services.Facebook~getAlbums-errorCallback} errorCallback callback function to be called in case of error while fetching the album details.
    */
   getAlbums: function(successCallback, errorCallback) {
     var service = this,
@@ -882,10 +882,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               service.content.push(collection);
               service.collectionSetRawData = response;
             });
-            service._populateAlbumThumbnail(function (response) {
+            service._populateAlbumThumbnail(function(response) {
               successCallback(response);
             }, errorCallback);
-            
+
           } else {
             if (errorCallback) {
               var errorObject = new SBW.Models.Error({
@@ -917,20 +917,20 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   },
   /**
    * Success Callback for getAlbums method.
-   * @callback SBW.Controllers.Services.Picasa~getAlbums-successCallback
+   * @callback SBW.Controllers.Services.Facebook~getAlbums-successCallback
    * @param {Object} response JSON response from the service
    **/
   /**
    * Error Callback for getAlbums method.
-   * @callback SBW.Controllers.Services.Picasa~getAlbums-errorCallback
+   * @callback SBW.Controllers.Services.Facebook~getAlbums-errorCallback
    * @param {Object} response JSON response from the service
    **/
   /**
    * @method
    * @desc Fetch photo details from album
    * @param {String}   albumId          Album Id from which to fetch the photo details.
-   * @param {SBW.Controllers.Services.Picasa~getPhotosFromAlbum-successCallback} successCallback  callback function to be called with json response after fetching the photo details successfully.
-   * @param {SBW.Controllers.Services.Picasa~getPhotosFromAlbum-errorCallback} errorCallback  callback function to be called in case of error while fetching photo details.
+   * @param {SBW.Controllers.Services.Facebook~getPhotosFromAlbum-successCallback} successCallback  callback function to be called with json response after fetching the photo details successfully.
+   * @param {SBW.Controllers.Services.Facebook~getPhotosFromAlbum-errorCallback} errorCallback  callback function to be called in case of error while fetching photo details.
    */
   getPhotosFromAlbum: function(albumId, successCallback, errorCallback) {
     var service = this,
@@ -1023,15 +1023,44 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     });
   },
   /**
-   * Success Callback for getPhotosFromAlbum method.
-   * @callback SBW.Controllers.Services.Picasa~getPhotosFromAlbum-successCallback
-   * @param {Array} response Array of photos {@Link SBW.Models.ImageAsset} from the service
-   **/
-  /**
-   * Error Callback for getPhotosFromAlbum method.
-   * @callback SBW.Controllers.Services.Picasa~getPhotosFromAlbum-errorCallback
-   * @param {Object} response JSON response from the service
-   **/
+   * @method
+   * @desc Deletes Comments for an object through FB API service
+   * @param objectId
+   * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~deleteComment-successCallback Callback} will be called if data is fetched successfully
+   * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~deleteComment-errorCallback Callback} will be called in case of any error while fetching data
+   */
+  deleteComment: function(objectId, successCallback, errorCallback) {
+    var service = this,
+      purgeComment = function(objectId, successCallback, errorCallback) {
+        FB.api('/' + objectId, 'delete', function(response) {
+          if (response.error) {
+            var errorObject = new SBW.Models.Error({
+              message: response.error.message,
+              code: response.error.code,
+              serviceName: 'facebook',
+              rawData: response
+            });
+            errorCallback(errorObject);
+          } else {
+            successCallback(response);
+          }
+        });
+      },
+      callback = (function(objectId, successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          if (isLoggedIn) {
+            purgeComment(objectId, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function() {
+              purgeComment(objectId, successCallback, errorCallback);
+            });
+          }
+        };
+      })(objectId, successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+
+  },
   /**
    * @method
    * @desc Fetches Comments for an object through FB API service

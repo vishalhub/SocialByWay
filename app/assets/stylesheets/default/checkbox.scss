@@ -1,6 +1,6 @@
 .sbw-checkbox-widget-default{
   .checkbox-container{
-    div.checkbox{
+    div.check-container{
       float: left;
       padding: 0 20px 0 0;
     }
@@ -12,6 +12,7 @@
     width:40px;
     background: url("images/profile_pic.png") no-repeat;
     background-position: center center;
+    background-size: 40px;
   }
   input{
     height: 30px;

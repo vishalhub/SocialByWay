@@ -15,13 +15,13 @@
       var self = this;
       self.serviceFactory = SBW.Singletons.serviceFactory;
       // Tabs UI
-      self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-checkbox-widget-" + self.options.class);
+      self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-checkbox-widget-" + self.options.theme);
       
       self.$actionStrip = $('<div/>', {
         'class': "checkbox-container"
       });
 
-      self.$tabsDiv.on('click', '.checkbox input', function(e) {
+      self.$tabsDiv.on('click', '.check-container input', function(e) {
         var that = this,
           value = that.value;
         if ($(that).is(":checked")) {
@@ -31,7 +31,7 @@
             self.$actionStrip.find(".service-container." + value).addClass('selected');
             SBW.api.getProfilePic([value], null, function(response) {
               if (response) {
-                self.$actionStrip.find('.' + value + " .userimage").css('background', 'url(' + response + ')');
+                self.$actionStrip.find('.' + value + " .userimage").css({"background": 'url("' + response + '")', "background-size": '40px 40px'});
               }
             }, function(error) {});
           });
@@ -41,7 +41,7 @@
       });
 
       self.options.services.forEach(function(value) {
-        var temp = $('<div/>').addClass("checkbox " + value).
+        var temp = $('<div/>').addClass("check-container " + value).
         append("<input type='checkbox' name='service' value='" + value + "'/>").
         append("<div class='userimage'></div>").
         append("<div class='service-container " + value + "'></div>");
@@ -61,13 +61,28 @@
      */
     options: {
       services: ['facebook'],
-      class: "default"
+      theme: "default"
+    },
+    /**
+     * @method
+     * @desc Method to check user is logged in(has a authenticated session to service).
+     * @param {Array} serviceArray Array of services to check for user's authenticated session.
+     * @param {Callback} callback will be called after user's authenticated session to service is checked.
+     * @private
+     */
+    checkUserLoggedIn: function (serviceArray, callback) {
+      serviceArray.forEach(function (service) {
+        var Callback = function (response) {
+          callback({service: service, userLoggedIn: response});
+        };
+        SBW.api.checkUserLoggedIn(service, Callback);
+      });
     },
     /**
      * @method
      * @desc Removes the widget from display
      */
-    destroy: function() {
+    destroy: function () {
       this.$tabsDiv.remove();
       $.Widget.prototype.destroy.call(this);
     }

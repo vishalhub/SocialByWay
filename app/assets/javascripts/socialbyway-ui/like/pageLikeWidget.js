@@ -34,7 +34,7 @@
     _create: function () {
       var self = this;
       var theme = self.options.theme;
-      var containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
+      var containerDiv = $('<div />').addClass('sbw-widget sbw-pagelike-widget-' + theme);
       self.$serviceContainer = $('<div />').addClass('service-container');
       var $likeButton = $('<span />').addClass( 'like-button');
       self.$likeCountContainer = $("<span />").addClass('count-container');

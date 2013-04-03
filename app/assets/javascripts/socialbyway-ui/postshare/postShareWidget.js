@@ -31,7 +31,7 @@
           description: null,
           actions: {"name": self.options.action.name, "link": self.options.action.link}
         };
-        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-postShare-widget-" + self.options.theme);
+        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-postshare-widget-" + self.options.theme);
         self.$title = $('<textarea/>').attr({
           'class': 'message',
           placeholder: 'Title'
@@ -76,7 +76,7 @@
        */
       options: {
         theme: 'default',
-        serviceArray: ['facebook', 'twitter'],
+        serviceArray: ['facebook'],
         shareButton: 'on',
         link: '',
         name: '',

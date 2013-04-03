@@ -879,7 +879,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             if (i === a.length) {
               successCallback(service.content);
             }
-          })
+          });
         });
       },
       callback = (function(successCallback, errorCallback) {
@@ -1520,6 +1520,29 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
       })(description, imageUrl, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
+  },
+  /**
+     * @method
+     * @desc Logs user out of service.
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+  logout: function(successCallback,errorCallback){
+    var service = this;
+    service.accessObject.token = null;
+    FB.logout(function(response) {
+        if(response.error){
+           var errorObject = new SBW.Models.Error({
+          message: response.error.message,
+          code: response.error.code,
+          serviceName: 'facebook',
+          rawData: response
+        });
+        errorCallback(errorObject);
+        }else{
+          successCallback(response);
+        }
+    });
   },
   /**
    * @method

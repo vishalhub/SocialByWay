@@ -180,10 +180,10 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Checks whether user is logged in(has a authenticated session to service).
    * @param {Callback} callback Callback function that will be called after checking login status
    */
-  checkUserLoggedIn: function(callback) {
+  checkUserLoggedIn: function (callback) {
     var service = this;
     if (service.facebookInit) {
-      FB.api('/me?access_token=' + service.accessObject['token'], "post", function(response) {
+      FB.api('/me?access_token=' + service.accessObject['token'], function(response) {
         if (response.name !== undefined || response.error === null) {
           callback(true);
         } else {
@@ -290,13 +290,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     var service = this,
       publish = function (postObject, successCallback, errorCallback) {
         FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
-          message: postObject.message,
-          picture: postObject.picture,
-          link: postObject.link,
-          name: postObject.name,
-          caption: postObject.caption,
-          description: postObject.description,
-          actions: {name: postObject.actions.name, link: postObject.actions.link}
+          message: postObject.message || null,
+          picture: postObject.picture || null,
+          link: postObject.link || null,
+          name: postObject.name || null,
+          caption: postObject.caption || null,
+          description: postObject.description || null,
+          actions:(postObject.actions.name&& postObject.actions.link) ? {name: postObject.actions.name, link: postObject.actions.link} : null
         }, function (response) {
           if (response.id !== undefined || response.error === null) {
             if (successCallback) {

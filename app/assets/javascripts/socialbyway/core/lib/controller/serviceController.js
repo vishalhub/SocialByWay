@@ -91,9 +91,11 @@
     /**
      * @method
      * @desc Checks whether the user is logged in / has a authenticated session to service.
-     * @param {Function} callbackFn  Callback function to be executed once the user is logged in.
+     * @param {String} service Service to check for user's authenticated session.
+     * @param {Function} callback  Callback function to be executed once the user is logged in.
      */
-    checkUserLoggedIn: function (callbackFn) {
+    checkUserLoggedIn: function (service, callback) {
+      SBW.Singletons.serviceFactory.getService(service).checkUserLoggedIn(callback);
     },
     /**
      * @method

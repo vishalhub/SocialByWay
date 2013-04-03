@@ -23,13 +23,13 @@
       _create: function () {
         var self = this;
         self.shareObject = {
-          message: self.options.message,
+          message: null,
           picture: self.options.icon,
-          link: self.options.link || window.location,
+          link: self.options.link,
           name: self.options.name,
           caption: self.options.caption,
-          description: self.options.description,
-          actions: {"name": self.options.name, "link": (self.options.link || window.location)}
+          description: null,
+          actions: {"name": self.options.action.name, "link": self.options.action.link}
         };
         self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-postShare-widget-" + self.options.theme);
         self.$title = $('<textarea/>').attr({
@@ -46,11 +46,14 @@
         self.$shareButton = $('<button/>').addClass('share-button').text('Share');
 
         //Create the checkbox container...
-        self.$checkBoxContainer = $('<div/>').addClass('checkboxContainer');
+        self.$checkBoxContainer = $('<div/>').addClass('checkbox-widget-container');
         self.$checkBoxContainer.CheckBoxWidget({
-          services:self.options.services
+          services: self.options.serviceArray
         });
-        self.$checkBoxContainer.append(self.$shareButton,'<div class="clear"></div>');
+        self.$checkBoxContainer.append(self.$shareButton);
+        if (self.options.shareButton !== 'on') {
+          self.$shareButton.hide();
+        }
         self.$postDescriptionContainer = $('<div/>').addClass('post-description-container');
         self.$postDescriptionContainer.append(self.$title, self.$description);
         self.$widgetContainer.append(self.$iconContainer, self.$postDescriptionContainer, self.$checkBoxContainer);
@@ -75,7 +78,11 @@
         theme: 'default',
         serviceArray: ['facebook', 'twitter'],
         shareButton: 'on',
-        icon:'http://www.socialbyway.com/style/images/logo.png'
+        link: '',
+        name: '',
+        action : {name: '', link: ''},
+        icon: 'http://www.socialbyway.com/style/images/logo.png',
+        caption: ''
       },
       /**
        * @method
@@ -126,7 +133,6 @@
         this.shareObject.link = metaData.link;
         this.shareObject.name = metaData.name;
         this.shareObject.caption = metaData.name;
-        this.$title.caption(caption);
       },
       /**
        * @method
@@ -166,7 +172,7 @@
        */
       postShare: function (context) {
         var self = context.data || this, serviceArr = [],
-         postShareData = self.shareObject,
+          postShareData = self.shareObject,
           successCallback = function (response) {
             console.log(response);
           },

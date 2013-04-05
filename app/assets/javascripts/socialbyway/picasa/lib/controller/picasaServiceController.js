@@ -54,23 +54,16 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
             }, 2000);
           }
         }
-      },
-      callbackLogin = function(callback) {
-        if (service.authWindowReference === undefined || service.authWindowReference === null || service.authWindowReference.closed) {
-          window._picasaopen.location = (service.accessObject.accessTokenUrl);
-          service.authWindowReference = window._picasaopen;
-          accessTokenListner(service.authWindowReference);
-        } else {
-          service.authWindowReference.focus();
-        }
       };
-    service.checkUserLoggedIn(function(response) {
-      if (!response) {
-        callbackLogin(callback);
-      } else {
-        callback();
-      }
-    });
+    if (service.authWindowReference === undefined || service.authWindowReference === null || service.authWindowReference.closed) {
+      service.authWindowReference = window.open(service.accessObject.accessTokenUrl, 'picasa' + new Date().getTime(), service.getPopupWindowParams({
+        height: 500,
+        width: 400
+      }));
+      accessTokenListner(service.authWindowReference);
+    } else {
+      service.authWindowReference.focus();
+    }
   },
   /**
    * @method
@@ -80,9 +73,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
   checkUserLoggedIn: function(callback) {
     var service = this,
       access_token = service.accessObject.access_token,
-      url = "https://accounts.google.com/o/oauth2/tokeninfo?v=2.1&access_token=" + access_token,
-      strWindowFeatures = "height=300,width=500";
-    window._picasaopen = window.open('', 'Login', strWindowFeatures);
+      url = "https://accounts.google.com/o/oauth2/tokeninfo?v=2.1&access_token=" + access_token;
     SBW.Singletons.utils.ajax({
       url: url,
       type: "GET",
@@ -92,7 +83,6 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
         service.eraseCookie('picasaToken');
         callback(false);
       } else {
-        window._picasaopen.close();
         callback(true);
       }
     }, function(response) {

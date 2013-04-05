@@ -175,7 +175,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           }, function(response) {
             var collection = null;
             service.content = [];
-            $.each(response.feed.entry, function(key, value) {
+            response.feed.entry && $.each(response.feed.entry, function(key, value) {
               collection = new SBW.Models.AssetCollection({
                 title: this.title.$t,
                 createdTime: new Date().getTime(),
@@ -608,6 +608,19 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
         getProfilePicCallback(successCallback, errorCallback);
       }, errorCallback);
     }
+  },
+  /**
+   * @method
+   * @desc Logs user out of service.
+   * @param {Function} successCallback  Callback to be executed on successful logging out.
+   * @param {Function} errorCallback  Callback to be executed on logging out error.
+   */
+  logout: function(successCallback, errorCallback) {
+    var service = this;
+    service.accessObject.token = null;
+    service.eraseCookie('picasaToken');
+    service.content = [];
+    successCallback();
   },
 
   /**

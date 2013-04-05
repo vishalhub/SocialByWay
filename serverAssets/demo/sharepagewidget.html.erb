@@ -8,14 +8,14 @@
     <script type="text/javascript" src="../js/<%= @sbwuiminjs %>"></script>
 </head>
 <body>
-<!-- Define the parent element on which the share widget must be initialized. -->
-<div id="share-widget"></div>
+<!-- Define the parent element on which the share page widget must be initialized. -->
+<div id="share-page-widget"></div>
 <script type='text/javascript'>
     $(function(){
     	/* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
         SBW.init('../config/config.json', function () {
-        	/* Initialize share widget in the callback. */
-        	$('#share-widget').ShareWidget({url: 'http://www.example.com'});
+        	/* Initialize share page widget in the callback. */
+        	$('#share-page-widget').SharePageWidget({url: 'http://www.example.com'});
         });
     });
 </script>

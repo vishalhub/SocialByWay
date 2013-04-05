@@ -14,7 +14,7 @@
     $(function(){
         /* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
          SBW.init('../config/config.json', function () {
-        /* Initialize Like widget in the callback. */
+        /* Initialize like widget in the callback. */
             $("#like-widget-comment-view").LikeWidget({objectId:'100004207443785_161177570699157',service:'facebook',objectType: 'comment'});
             $("#like-widget-post-view").LikeWidget({objectId:'100004207443785_161177570699157',service:'facebook',objectType: 'POST'});
         });

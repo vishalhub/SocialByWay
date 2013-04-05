@@ -80,7 +80,6 @@
     margin-left: 9px;
     background: url("images/checkbox_off.png") no-repeat 0 0;
     -webkit-appearance: none;
-    -moz-appearance:none;
       &:checked{
         background: url("images/checkbox_on.png") no-repeat 0 0;
       }

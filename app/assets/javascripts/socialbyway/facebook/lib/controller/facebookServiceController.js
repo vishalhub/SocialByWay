@@ -286,9 +286,9 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postShare-successCallback Callback} will be called if publishing is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postShare-errorCallback Callback} will be called in case of any error while publishing
    */
-  postShare: function (postObject, successCallback, errorCallback) {
+  postShare: function(postObject, successCallback, errorCallback) {
     var service = this,
-      publish = function (postObject, successCallback, errorCallback) {
+      publish = function(postObject, successCallback, errorCallback) {
         FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
           message: postObject.message || null,
           picture: postObject.picture || null,
@@ -296,8 +296,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           name: postObject.name || null,
           caption: postObject.caption || null,
           description: postObject.description || null,
-          actions:(postObject.actions.name&& postObject.actions.link) ? {name: postObject.actions.name, link: postObject.actions.link} : null
-        }, function (response) {
+          actions: (postObject.actions.name && postObject.actions.link) ? {
+            name: postObject.actions.name,
+            link: postObject.actions.link
+          } : null
+        }, function(response) {
           if (response.id !== undefined || response.error === null) {
             if (successCallback) {
               successCallback({
@@ -318,12 +321,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         })
       },
-      callback = (function (postObject, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(postObject, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(postObject, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(postObject, successCallback, errorCallback);
             });
           }
@@ -780,46 +783,46 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getLikes: function(objectId, successCallback, errorCallback) {
+  getLikes: function (objectId, successCallback, errorCallback) {
     var service = this,
-      callback = (function(successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          var likeSuccess = function(response) {
-            var likesData = [];
-            for (var i = 0; i < response.length; i++) {
-              var user = new SBW.Models.User({
-                name: response[i].name,
-                id: response[i].id
-              });
-              likesData[i] = new SBW.Models.Like({
-                user: user,
-                rawData: response[i]
-              });
-            }
-            var likesObject = {
-              serviceName: 'facebook',
-              rawData: response,
-              likes: likesData,
-              likeCount: likesData.length
-            };
-            // Todo Populating the asset object with the like and user objects
-            successCallback(likesObject);
-          };
-          if (isLoggedIn) {
+      likeSuccess = function (response) {
+        var likesData = [];
+        for (var i = 0; i < response.length; i++) {
+          var user = new SBW.Models.User({
+            name: response[i].name,
+            id: response[i].id
+          });
+          likesData[i] = new SBW.Models.Like({
+            user: user,
+            rawData: response[i]
+          });
+        }
+        var likesObject = {
+          serviceName: 'facebook',
+          rawData: response,
+          likes: likesData,
+          likeCount: likesData.length
+        };
+        // Todo Populating the asset object with the like and user objects
+        successCallback(likesObject);
+      },
+    callback = (function (successCallback, errorCallback) {
+      return function (isLoggedIn) {
+        if (isLoggedIn) {
+          service._getAllData({
+            type: 'likes',
+            id: objectId
+          }, likeSuccess, errorCallback);
+        } else {
+          service.startActionHandler(function () {
             service._getAllData({
               type: 'likes',
               id: objectId
-            }, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              service._getAllData({
-                type: 'likes',
-                id: objectId
-              }, likeSuccess, errorCallback);
-            });
-          }
-        };
-      })(successCallback, errorCallback);
+            }, likeSuccess, errorCallback);
+          });
+        }
+      };
+    })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
@@ -1028,7 +1031,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                 comment = new SBW.Models.Comment({
                   text: value.message,
                   createdTime: value.created_time,
-                  fromUser: value.from.name,
+                  fromUser: value.from.name || 'unknownn',
                   likeCount: value.like_count,
                   profilePic: null,
                   serviceName: 'facebook',
@@ -1520,6 +1523,30 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
       })(description, imageUrl, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
+   * @desc Logs user out of service.
+   * @param {Function} successCallback  Callback to be executed on successful logging out.
+   * @param {Function} errorCallback  Callback to be executed on logging out error.
+   */
+  logout: function(successCallback, errorCallback) {
+    var service = this;
+    service.accessObject.token = null;
+    service.content = [];
+    FB.logout(function(response) {
+      if (response.error) {
+        var errorObject = new SBW.Models.Error({
+          message: response.error.message,
+          code: response.error.code,
+          serviceName: 'facebook',
+          rawData: response
+        });
+        errorCallback(errorObject);
+      } else {
+        successCallback(response);
+      }
+    });
   },
   /**
    * @method

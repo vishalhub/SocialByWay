@@ -130,11 +130,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             callback();
           });
         } else {
-          window._facebookopen = window.open;
-          window.open = function(url, name, params) {
-            service.authWindowReference = window._facebookopen(url, name, params);
-            return service.authWindowReference;
-          };
+
 
           // the user isn't even logged in to Facebook.
           FB.login(function(response) {
@@ -158,9 +154,6 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             scope: 'user_photos,user_videos,publish_stream,read_stream,publish_actions,user_events,create_event,user_groups,user_notes'
           });
 
-          window.open = window._facebookopen;
-          window._facebookopen = null;
-
           var intervalId = setInterval(function() {
             if (service.authWindowReference.closed) {
               service.isUserLoggingIn = false;
@@ -180,11 +173,21 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @desc Checks whether user is logged in(has a authenticated session to service).
    * @param {Callback} callback Callback function that will be called after checking login status
    */
-  checkUserLoggedIn: function (callback) {
-    var service = this;
+  checkUserLoggedIn: function(callback) {
+    var service = this,
+    strWindowFeatures = "height=300,width=500";
+    window._facebookopen = window.open('', 'Login', strWindowFeatures);
+    window._facebookopen.document.write("<p>Please wait...</p>");
+    window._facebookopen.document.close();
+    window.open = function(url, name, params) {
+      if (url !== '') window._facebookopen.location = (url);
+      service.authWindowReference = window._facebookopen;
+      return service.authWindowReference;
+    };
     if (service.facebookInit) {
       FB.api('/me?access_token=' + service.accessObject['token'], function(response) {
         if (response.name !== undefined || response.error === null) {
+          window._facebookopen.close();
           callback(true);
         } else {
           callback(false);
@@ -286,9 +289,9 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~postShare-successCallback Callback} will be called if publishing is successful
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~postShare-errorCallback Callback} will be called in case of any error while publishing
    */
-  postShare: function (postObject, successCallback, errorCallback) {
+  postShare: function(postObject, successCallback, errorCallback) {
     var service = this,
-      publish = function (postObject, successCallback, errorCallback) {
+      publish = function(postObject, successCallback, errorCallback) {
         FB.api('/me/feed?access_token=' + service.accessObject['token'], 'post', {
           message: postObject.message || null,
           picture: postObject.picture || null,
@@ -296,8 +299,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           name: postObject.name || null,
           caption: postObject.caption || null,
           description: postObject.description || null,
-          actions:(postObject.actions.name&& postObject.actions.link) ? {name: postObject.actions.name, link: postObject.actions.link} : null
-        }, function (response) {
+          actions: (postObject.actions.name && postObject.actions.link) ? {
+            name: postObject.actions.name,
+            link: postObject.actions.link
+          } : null
+        }, function(response) {
           if (response.id !== undefined || response.error === null) {
             if (successCallback) {
               successCallback({
@@ -318,12 +324,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
         })
       },
-      callback = (function (postObject, successCallback, errorCallback) {
-        return function (isLoggedIn) {
+      callback = (function(postObject, successCallback, errorCallback) {
+        return function(isLoggedIn) {
           if (isLoggedIn) {
             publish(postObject, successCallback, errorCallback);
           } else {
-            service.startActionHandler(function () {
+            service.startActionHandler(function() {
               publish(postObject, successCallback, errorCallback);
             });
           }
@@ -1028,7 +1034,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                 comment = new SBW.Models.Comment({
                   text: value.message,
                   createdTime: value.created_time,
-                  fromUser: value.from.name,
+                  fromUser: value.from.name || 'unknownn',
                   likeCount: value.like_count,
                   profilePic: null,
                   serviceName: 'facebook',
@@ -1522,26 +1528,27 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     service.checkUserLoggedIn(callback);
   },
   /**
-     * @method
-     * @desc Logs user out of service.
-     * @param {Function} successCallback  Callback to be executed on successful logging out.
-     * @param {Function} errorCallback  Callback to be executed on logging out error.
-     */
-  logout: function(successCallback,errorCallback){
+   * @method
+   * @desc Logs user out of service.
+   * @param {Function} successCallback  Callback to be executed on successful logging out.
+   * @param {Function} errorCallback  Callback to be executed on logging out error.
+   */
+  logout: function(successCallback, errorCallback) {
     var service = this;
     service.accessObject.token = null;
+    service.content = [];
     FB.logout(function(response) {
-        if(response.error){
-           var errorObject = new SBW.Models.Error({
+      if (response.error) {
+        var errorObject = new SBW.Models.Error({
           message: response.error.message,
           code: response.error.code,
           serviceName: 'facebook',
           rawData: response
         });
         errorCallback(errorObject);
-        }else{
-          successCallback(response);
-        }
+      } else {
+        successCallback(response);
+      }
     });
   },
   /**

@@ -922,6 +922,7 @@
     /**
      * @method
      * @desc Fetches assets from the asset collection
+     * @param {String} serviceName  Name of the registered service.
      * @param  {String} serviceName A name of registered services.
      * @param  {String} assetCollectionId Id of the assetcollection
      * @param  {String} assetId Id of the asset.
@@ -941,6 +942,16 @@
       });
       return assetObj;
     },
+    /**
+     * @method
+     * @desc Logs user out of service.
+     * @param {String} serviceName  Name of the registered service.
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+    logout: function(serviceName,successCallback,errorCallback){
+       SBW.Singletons.serviceFactory.getService(serviceName).logout(successCallback,errorCallback);
+    },    
     /**
      * @method
      * @desc Upload the post onto the specified services

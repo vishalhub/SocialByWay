@@ -56,7 +56,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
         }
       };
     if (service.authWindowReference === undefined || service.authWindowReference === null || service.authWindowReference.closed) {
-      window._picasaopen.location.href = (service.accessObject.accessTokenUrl);
+      window._picasaopen.location = (service.accessObject.accessTokenUrl);
       service.authWindowReference = window._picasaopen;
       accessTokenListner(service.authWindowReference);
   } else {
@@ -74,8 +74,6 @@ checkUserLoggedIn: function(callback) {
     url = "https://accounts.google.com/o/oauth2/tokeninfo?v=2.1&access_token=" + access_token,
     strWindowFeatures = "height=300,width=500";
   window._picasaopen = window.open('', 'Login', strWindowFeatures);
-  window._picasaopen.document.write("<p>Please wait...</p>");
-  window._picasaopen.document.close();
   SBW.Singletons.utils.ajax({
     url: url,
     type: "GET",
@@ -85,6 +83,7 @@ checkUserLoggedIn: function(callback) {
       service.eraseCookie('picasaToken');
       callback(false);
     } else {
+      window._picasaopen.close();
       callback(true);
     }
   }, function(response) {

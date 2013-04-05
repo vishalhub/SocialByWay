@@ -177,8 +177,6 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
     var service = this,
     strWindowFeatures = "height=300,width=500";
     window._facebookopen = window.open('', 'Login', strWindowFeatures);
-    window._facebookopen.document.write("<p>Please wait...</p>");
-    window._facebookopen.document.close();
     window.open = function(url, name, params) {
       if (url !== '') window._facebookopen.location = (url);
       service.authWindowReference = window._facebookopen;

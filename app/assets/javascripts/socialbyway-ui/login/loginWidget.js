@@ -2,20 +2,20 @@
   /*jslint plusplus: true */
   /*global console, SBW*/
   /**
-   * @class checkboxWidget
-   * @namespace checkboxWidget
+   * @class LoginWidget
+   * @namespace LoginWidget
    * @classdesc SocialByWay Post Widget to  Post messages on to social sites
    * @augments JQuery.Widget
-   * @alias checkboxWidget
+   * @alias LoginWidget
    * @constructor
    */
   "use strict";
-  $.widget("ui.CheckBoxWidget", /** @lends checkboxWidget.prototype */ {
+  $.widget("ui.LoginWidget", /** @lends LoginWidget.prototype */ {
     _create: function() {
       var self = this;
       self.serviceFactory = SBW.Singletons.serviceFactory;
       // Tabs UI
-      self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-checkbox-widget-" + self.options.theme);
+      self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-login-widget-" + self.options.theme);
       
       self.$actionStrip = $('<div/>', {
         'class': "checkbox-container"
@@ -58,10 +58,12 @@
      * @type {Object}
      * @property {String[]} services Name of the registered services.
      * @property {String} theme The theme for the widget.
+     * @property {String} type The type of view.
      */
     options: {
       services: ['facebook'],
-      theme: "default"
+      theme: "default",
+      type : "checkbox"
     },
     /**
      * @method

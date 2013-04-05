@@ -31,7 +31,7 @@
           description: null,
           actions: {"name": self.options.action.name, "link": self.options.action.link}
         };
-        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-postshare-widget-" + self.options.theme);
+        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-post-share-widget-" + self.options.theme);
         self.$title = $('<textarea/>').attr({
           'class': 'message',
           placeholder: 'Title'
@@ -47,7 +47,7 @@
 
         //Create the checkbox container...
         self.$checkBoxContainer = $('<div/>').addClass('checkbox-widget-container');
-        self.$checkBoxContainer.CheckBoxWidget({
+        self.$checkBoxContainer.LoginWidget({
           services: self.options.serviceArray
         });
         self.$checkBoxContainer.append(self.$shareButton);

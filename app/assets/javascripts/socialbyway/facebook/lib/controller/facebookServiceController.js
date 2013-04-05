@@ -780,46 +780,46 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getLikes: function(objectId, successCallback, errorCallback) {
+  getLikes: function (objectId, successCallback, errorCallback) {
     var service = this,
-      callback = (function(successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          var likeSuccess = function(response) {
-            var likesData = [];
-            for (var i = 0; i < response.length; i++) {
-              var user = new SBW.Models.User({
-                name: response[i].name,
-                id: response[i].id
-              });
-              likesData[i] = new SBW.Models.Like({
-                user: user,
-                rawData: response[i]
-              });
-            }
-            var likesObject = {
-              serviceName: 'facebook',
-              rawData: response,
-              likes: likesData,
-              likeCount: likesData.length
-            };
-            // Todo Populating the asset object with the like and user objects
-            successCallback(likesObject);
-          };
-          if (isLoggedIn) {
+      likeSuccess = function (response) {
+        var likesData = [];
+        for (var i = 0; i < response.length; i++) {
+          var user = new SBW.Models.User({
+            name: response[i].name,
+            id: response[i].id
+          });
+          likesData[i] = new SBW.Models.Like({
+            user: user,
+            rawData: response[i]
+          });
+        }
+        var likesObject = {
+          serviceName: 'facebook',
+          rawData: response,
+          likes: likesData,
+          likeCount: likesData.length
+        };
+        // Todo Populating the asset object with the like and user objects
+        successCallback(likesObject);
+      },
+    callback = (function (successCallback, errorCallback) {
+      return function (isLoggedIn) {
+        if (isLoggedIn) {
+          service._getAllData({
+            type: 'likes',
+            id: objectId
+          }, likeSuccess, errorCallback);
+        } else {
+          service.startActionHandler(function () {
             service._getAllData({
               type: 'likes',
               id: objectId
-            }, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              service._getAllData({
-                type: 'likes',
-                id: objectId
-              }, likeSuccess, errorCallback);
-            });
-          }
-        };
-      })(successCallback, errorCallback);
+            }, likeSuccess, errorCallback);
+          });
+        }
+      };
+    })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**

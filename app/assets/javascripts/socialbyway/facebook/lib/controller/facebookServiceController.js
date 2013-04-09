@@ -176,8 +176,6 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         }else{
           callback();
         }
-        
-
       });
 
   },
@@ -188,11 +186,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    */
   checkUserLoggedIn: function(callback) {
     var service = this,
-      strWindowFeatures = "height=300,width=500";
+      strWindowFeatures = "height=300,width=500",
+      temp=window.open;
     window._facebookopen = window.open('', 'Login', strWindowFeatures);
     window.open = function(url, name, params) {
       if (url !== '') window._facebookopen.location = (url);
       service.authWindowReference = window._facebookopen;
+      window.open=temp;
       return service.authWindowReference;
     };
     if (service.facebookInit) {

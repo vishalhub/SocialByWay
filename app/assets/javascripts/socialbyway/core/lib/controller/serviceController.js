@@ -467,6 +467,15 @@
      * @param {Object} options The service options to retrieve the comments.
      * @param {Function} successCallback {@link SBW.Controllers.Services.ServiceController~getCommentsForUrl-successCallback Callback} to be executed on successful comments retrieving.
      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getCommentsForUrl-errorCallback Callback} to be executed on retrieving comments error.
+     * @example
+     * Usage:
+     *  SBW.api
+     *        .getCommentsForUrl(['Facebook','Flickr'], { url: 'www.example.com',  limit: 10,  offset: 0},
+     *           function(response) {
+     *              // Success callback logic...
+     *            }, function(response) {
+     *              // Error callback logic...
+     *            });
      */
     getCommentsForUrl: function (serviceArr, options, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {

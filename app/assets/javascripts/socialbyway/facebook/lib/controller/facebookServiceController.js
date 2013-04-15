@@ -102,43 +102,23 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
       var head = document.getElementsByTagName("head")[0] || document.documentElement;
       head.insertBefore(scriptEle, head.firstChild);
     });
-  },
-  /**
+  }, /**
    * @method
    * @desc Triggers authentication process to the facebook service using FB.api call to method permissions.request. Disables start button.
    * @param {Callback} callback Callback will be executed on successful authentication
    */
   startActionHandler: function(callback) {
-    var service = this;
-    if (service.facebookInit) {
-      FB.getLoginStatus(function(response) {
-        service.user = service.user || new SBW.Models.User();
-        if (response.status === 'connected') {
-          // the user is logged in and connected to your
-          // app, and response.authResponse supplies
-          // the user's ID, a valid access token, a signed
-          // request, and the time the access token
-          // and signed request each expire
-          service.getAccessToken.call(service, response, function(response) {
-            service.user.name = response.name;
-            service.user.id = response.id;
-            service.getProfilePic(null, function(response) {
-              service.user.userImage = response;
-            }, function(error) {
-              SBW.logger.debug("Could not fetch image url");
-            });
-            callback();
-          });
-        } else {
-          window._facebookopen = window.open;
-          window.open = function(url, name, params) {
-            service.authWindowReference = window._facebookopen(url, name, params);
-            return service.authWindowReference;
-          };
-
-          // the user isn't even logged in to Facebook.
-          FB.login(function(response) {
-            if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
+    var service = this,
+      callbackLogin = function(callback) {
+        if (service.facebookInit) {
+          FB.getLoginStatus(function(response) {
+            service.user = service.user || new SBW.Models.User();
+            if (response.status === 'connected') {
+              // the user is logged in and connected to your
+              // app, and response.authResponse supplies
+              // the user's ID, a valid access token, a signed
+              // request, and the time the access token
+              // and signed request each expire
               service.getAccessToken.call(service, response, function(response) {
                 service.user.name = response.name;
                 service.user.id = response.id;
@@ -151,37 +131,60 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               });
             } else {
 
-              service.isUserLoggingIn = false;
-              service.authWindowReference.close();
+
+              // the user isn't even logged in to Facebook.
+              FB.login(function(response) {
+                if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
+                  service.getAccessToken.call(service, response, function(response) {
+                    service.user.name = response.name;
+                    service.user.id = response.id;
+                    service.getProfilePic(null, function(response) {
+                      service.user.userImage = response;
+                    }, function(error) {
+                      SBW.logger.debug("Could not fetch image url");
+                    });
+                    callback();
+                  });
+                } else {
+
+                  service.isUserLoggingIn = false;
+                  service.authWindowReference.close();
+                }
+              }, {
+                scope: 'user_photos,user_videos,publish_stream,read_stream,publish_actions,user_events,create_event,user_groups,user_notes'
+              });
+
+              var intervalId = setInterval(function() {
+                if (service.authWindowReference && service.authWindowReference.closed) {
+                  service.isUserLoggingIn = false;
+                  clearInterval(intervalId);
+                }
+              }, 1000);
             }
-          }, {
-            scope: 'user_photos,user_videos,publish_stream,read_stream,publish_actions,user_events,create_event,user_groups,user_notes'
           });
-
-          window.open = window._facebookopen;
-          window._facebookopen = null;
-
-          var intervalId = setInterval(function() {
-            if (service.authWindowReference.closed) {
-              service.isUserLoggingIn = false;
-              clearInterval(intervalId);
-            }
+        } else {
+          setTimeout(function() {
+            service.startActionHandler();
           }, 1000);
         }
+      };
+
+      service.checkUserLoggedIn(function(response){
+        if(!response){
+          callbackLogin(callback);
+        }else{
+          callback();
+        }
       });
-    } else {
-      setTimeout(function() {
-        service.startActionHandler();
-      }, 1000);
-    }
+
   },
   /**
    * @method
    * @desc Checks whether user is logged in(has a authenticated session to service).
    * @param {Callback} callback Callback function that will be called after checking login status
    */
-  checkUserLoggedIn: function (callback) {
-    var service = this;
+  checkUserLoggedIn: function(callback) {
+    var service = this,
       strWindowFeatures = "height=300,width=500",
       temp=window.open;
     window._facebookopen = window.open('', 'Login', strWindowFeatures);

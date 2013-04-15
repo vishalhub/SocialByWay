@@ -3,17 +3,17 @@
 	/*jslint plusplus: true */
 	/*global console, SBW*/
 	/**
-	 * @class FollowWidget
-	 * @namespace FollowWidget
+	 * @class FollowPageWidget
+	 * @namespace FollowPageWidget
 	 * @classdesc SocialByWay Follow Widget to get the follow count based on the service and gives interaction to follow a page/UI
 	 * @property {Number} count - The aggregated follow count for all services.
 	 * @property {Object} options - The options for the widget.
 	 * @property {Object} serviceCount - An object containing the follow count of each service.
 	 * @augments JQuery.Widget
-	 * @alias FollowWidget
+	 * @alias FollowPageWidget
 	 * @constructor
 	 */
-	$.widget("ui.FollowWidget", /** @lends FollowWidget.prototype */
+	$.widget("ui.FollowPageWidget", /** @lends FollowPageWidget.prototype */
 	{
 		count : 0,
 		options : {
@@ -29,7 +29,7 @@
 		 */
 		_create : function() {
 			var self = this, serviceFollowCountContainer, theme = self.options.theme, containerDiv = $("<div />", {
-				'class' : 'sbw-widget sbw-follow-widget-' + theme
+				'class' : 'sbw-widget sbw-follow-page-widget-' + theme
 			}), serviceDiv = $("<div />", {
 				'class' : 'service-container'
 			}), followButton = $('<span />', {
@@ -79,7 +79,7 @@
 		 * @desc Function to show services on mouse hover.
 		 */
 		showServices : function() {
-			var serviceContainer = $('#follow-widget div.service-container');
+			var serviceContainer = $('#followpage-widget div.service-container');
 			serviceContainer.find('div').show();
 			serviceContainer.find("div.count-container").hide();
 		},
@@ -88,7 +88,7 @@
 		 * @desc Function to hide services when the widget loses focus.
 		 */
 		hideServices : function() {
-			var serviceContainer = $('#follow-widget div.service-container');
+			var serviceContainer = $('#followpage-widget div.service-container');
 			serviceContainer.find('div').hide();
 			serviceContainer.find("div.count-container").show();
 		},
@@ -99,7 +99,7 @@
 		updateForService : function(service) {
 			var self = this;
 			SBW.api.getFollowCount(service, self.options.userDetails[service], function(response) {
-				var targetContainer = $('#follow-widget div.service-container');
+				var targetContainer = $('#followpage-widget div.service-container');
 				if (response && response.count) {
 					if (self.serviceCount[service]) {
 						self.count -= self.serviceCount[service];

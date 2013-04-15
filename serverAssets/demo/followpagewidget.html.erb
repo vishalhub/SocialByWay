@@ -8,14 +8,14 @@
     <script type="text/javascript" src="../js/<%= @sbwuiminjs %>"></script>
 </head>
 <body>
-<!-- Define the parent element on which the follow widget must be initialized. -->
-<div id="follow-widget"></div>
+<!-- Define the parent element on which the follow page widget must be initialized. -->
+<div id="follow-page-widget"></div>
 <script type='text/javascript'>
     $(function(){
     	/* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
         SBW.init('../config/config.json', function () {
-        /* Initialize Follow widget in the callback. */
-          $('#follow-widget').FollowWidget({userDetails: {twitter: 'ndtv'}, services: ['facebook', 'twitter']});
+        /* Initialize follow page widget in the callback. */
+          $('#follow-page-widget').FollowPageWidget({userDetails: {twitter: 'ndtv'}, services: ['facebook', 'twitter']});
         });
     });
 </script>

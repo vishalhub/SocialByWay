@@ -37,6 +37,9 @@
 			 * @desc Returns the service from the list of registered services if exists.
 			 * @param {String} serviceName  Name of the registered service.
 			 * @returns {SBW.Controllers.Services.ServiceController} serviceObject Instance of ServiceController.
+			 * @example
+			 * Usage:
+			 * SBW.Singletons.serviceFactory.getService('Twitter');
 			 */
 			getService : function(serviceName) {
 				return this._services[serviceName];

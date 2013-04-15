@@ -54,11 +54,20 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
             }, 2000);
           }
         }
+      };
+    if (service.authWindowReference === undefined || service.authWindowReference === null || service.authWindowReference.closed) {
+      service.authWindowReference = window.open(service.accessObject.accessTokenUrl, 'picasa' + new Date().getTime(), service.getPopupWindowParams({
       },
       callbackLogin = function(callback) {
         if (service.authWindowReference === undefined || service.authWindowReference === null || service.authWindowReference.closed) {
           window._picasaopen.location = (service.accessObject.accessTokenUrl);
           window.open=window.temp;
+        width: 400
+      }));
+      accessTokenListner(service.authWindowReference);
+    } else {
+      service.authWindowReference.focus();
+    }
           service.authWindowReference = window._picasaopen;
           accessTokenListner(service.authWindowReference);
         } else {
@@ -81,8 +90,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
   checkUserLoggedIn: function(callback) {
     var service = this,
       access_token = service.accessObject.access_token,
-      url = "https://accounts.google.com/o/oauth2/tokeninfo?v=2.1&access_token=" + access_token,
-      strWindowFeatures = "height=300,width=500";
+      url = "https://accounts.google.com/o/oauth2/tokeninfo?v=2.1&access_token=" + access_token;
       window.temp=window.open;
     window._picasaopen = window.open('', 'Login', strWindowFeatures);
     SBW.Singletons.utils.ajax({

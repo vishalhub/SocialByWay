@@ -34,7 +34,7 @@
     _create: function () {
       var self = this;
       var theme = self.options.theme;
-      var containerDiv = $('<div />').addClass('sbw-widget sbw-pageLike-widget-' + theme);
+      var containerDiv = $('<div />').addClass('sbw-widget sbw-page-like-widget-' + theme);
       self.$serviceContainer = $('<div />').addClass('service-container');
       var $likeButton = $('<span />').addClass( 'like-button');
       self.$likeCountContainer = $("<span />").addClass('count-container');
@@ -119,7 +119,6 @@
           totalCount = totalCount + context.count[key];
         }
           context.$likeCountContainer.addClass('liked').html(totalCount)
-          successCallback(response);
       };
       var likesFailureCallback = function (response) {
        failureCallback(response);
@@ -131,7 +130,6 @@
         if(!(context.$serviceContainer.find('.liked').length > 2)){
           context.$serviceContainer.find('.like-button').removeClass('liked');
         }
-       successCallback(response);
       };
       var unLikeFailureCallback = function () {
           failureCallback(response);
@@ -141,7 +139,6 @@
         context.$serviceContainer.find('.like-button').addClass('liked');
         SBW.api.getLikes(serviceName, objectId, likesSuccessCallback,
           likesFailureCallback);
-          successCallback(response);
       };
       var likeFailureCallback = function (response) {
           failureCallback(response);
@@ -153,14 +150,6 @@
         SBW.api.like(serviceName, objectId, likeSuccessCallback,
           likeFailureCallback);
       }
-       var  successCallback = function(response) {
-            var elem = context.element.find(".sbw-success-message");
-            if (elem.length !== 0) {
-                elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.message+ ".");
-            } else {
-                context.element.append('<span class="sbw-success-message">'+response.message+'</span>');
-            }
-           };
         var failureCallback = function(response) {
             context.element.append('<span class="sbw-error-message">'+response.message+'</span>');
         };

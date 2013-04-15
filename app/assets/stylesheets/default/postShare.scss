@@ -1,4 +1,4 @@
-.sbw-postShare-widget-default {
+.sbw-post-share-widget-default {
   min-width: 400px;
   max-width: 500px;
   border: 1px solid #c3c3c3;
@@ -34,7 +34,7 @@
       height: 80px;
     }
   }
-  .sbw-checkbox-widget-default{
+  .sbw-login-widget-default{
     display: inline-block;
     height: 65px;
     margin-left: 15px;
@@ -59,5 +59,8 @@
     color: #ff417e;
     border: 1px solid #dddddd;
     background: #f5f5f5;
+  }
+  p{
+    margin: 5px 0;
   }
 }

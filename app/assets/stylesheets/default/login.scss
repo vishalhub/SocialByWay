@@ -1,8 +1,8 @@
-.sbw-checkbox-widget-default{
+.sbw-login-widget-default{
   .checkbox-container{
     div.check-container{
       float: left;
-      padding: 0 20px 0 0;
+      padding: 0 25px 0 0;
     }
     .userimage{
     -webkit-border-radius: 20px;
@@ -17,10 +17,9 @@
   input{
     height: 30px;
     width: 30px;
-    margin-left: 9px;
+    margin-left: 5px;
     background: url("images/checkbox_off.png") no-repeat 0 0;
     -webkit-appearance: none;
-    -moz-appearance:none;
       &:checked{
         background: url("images/checkbox_on.png") no-repeat 0 0;
       }

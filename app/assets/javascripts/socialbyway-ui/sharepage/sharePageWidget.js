@@ -4,17 +4,17 @@
   /*jslint plusplus: true */
   /*global console, SBW*/
   /**
-   * @class ShareWidget
-   * @namespace ShareWidget
-   * @classdesc SocialByWay Share Widget to get the Share count based on the service and gives interaction to Share a page/UI
+   * @class SharePageWidget
+   * @namespace SharePageWidget
+   * @classdesc SocialByWay Share Page Widget to get the Share count based on the service and gives interaction to Share a page/UI
    * @property {Number} count - The aggregated Share count for all services.
    * @property {Object} options - The options for the widget.
    * @property {Object} serviceCount - An object containing the Share count of each service.
    * @augments JQuery.Widget
-   * @alias ShareWidget
+   * @alias SharePageWidget
    * @constructor
    */
-  $.widget("ui.ShareWidget", /** @lends ShareWidget.prototype */ {
+  $.widget("ui.SharePageWidget", /** @lends SharePageWidget.prototype */ {
     count: 0,
     /**
      * @desc Options for the widget.
@@ -39,7 +39,7 @@
         serviceShareCountContainer, theme, containerDiv, serviceDiv, shareButton, shareCountContainer, minAngle;
       theme = self.options.theme;
       containerDiv = $("<div />", {
-        'class': 'sbw-widget sbw-share-widget-' + theme
+        'class': 'sbw-widget sbw-share-page-widget-' + theme
       });
       serviceDiv = $("<div />", {
         'class': 'service-container'
@@ -54,7 +54,7 @@
       minAngle = 360 / this.options.services.length;
       $.each(this.options.services, function (index, service) {
         var serviceContainer = self.createServiceElement(service, serviceDiv, (minAngle * index), self);
-        SBW.Singletons.serviceFactory.getService(service).getShareCount(self.options.url, function (response) {
+        SBW.api.getShareCount([service], self.options.url, function (response) {
           if (response && response.count) {
             self.count += response.count;
             serviceShareCountContainer = $("<div />", {
@@ -68,6 +68,7 @@
       $(serviceDiv).append(shareButton, shareCountContainer);
       $(containerDiv).append(serviceDiv);
       $(self.element).append(containerDiv);
+      self.hideServices();
       $(containerDiv).hover(self.showServices, self.hideServices);
     },
     /**

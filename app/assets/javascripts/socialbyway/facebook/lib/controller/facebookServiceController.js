@@ -109,17 +109,36 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} callback Callback will be executed on successful authentication
    */
   startActionHandler: function(callback) {
-    var service = this,
-      callbackLogin = function(callback) {
-        if (service.facebookInit) {
-          FB.getLoginStatus(function(response) {
-            service.user = service.user || new SBW.Models.User();
-            if (response.status === 'connected') {
-              // the user is logged in and connected to your
-              // app, and response.authResponse supplies
-              // the user's ID, a valid access token, a signed
-              // request, and the time the access token
-              // and signed request each expire
+    var service = this;
+    if (service.facebookInit) {
+      FB.getLoginStatus(function(response) {
+        service.user = service.user || new SBW.Models.User();
+        if (response.status === 'connected') {
+          // the user is logged in and connected to your
+          // app, and response.authResponse supplies
+          // the user's ID, a valid access token, a signed
+          // request, and the time the access token
+          // and signed request each expire
+          service.getAccessToken.call(service, response, function(response) {
+            service.user.name = response.name;
+            service.user.id = response.id;
+            service.getProfilePic(null, function(response) {
+              service.user.userImage = response;
+            }, function(error) {
+              SBW.logger.debug("Could not fetch image url");
+            });
+            callback();
+          });
+        } else {
+          window._facebookopen = window.open;
+          window.open = function(url, name, params) {
+            service.authWindowReference = window._facebookopen(url, name, params);
+            return service.authWindowReference;
+          };
+
+          // the user isn't even logged in to Facebook.
+          FB.login(function(response) {
+            if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
               service.getAccessToken.call(service, response, function(response) {
                 service.user.name = response.name;
                 service.user.id = response.id;
@@ -132,60 +151,37 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               });
             } else {
 
-
-              // the user isn't even logged in to Facebook.
-              FB.login(function(response) {
-                if (response.authResponse !== null && !$.isEmptyObject(response.authResponse)) {
-                  service.getAccessToken.call(service, response, function(response) {
-                    service.user.name = response.name;
-                    service.user.id = response.id;
-                    service.getProfilePic(null, function(response) {
-                      service.user.userImage = response;
-                    }, function(error) {
-                      SBW.logger.debug("Could not fetch image url");
-                    });
-                    callback();
-                  });
-                } else {
-
-                  service.isUserLoggingIn = false;
-                  service.authWindowReference.close();
-                }
-              }, {
-                scope: 'user_photos,user_videos,publish_stream,read_stream,publish_actions,user_events,create_event,user_groups,user_notes'
-              });
-
-              var intervalId = setInterval(function() {
-                if (service.authWindowReference && service.authWindowReference.closed) {
-                  service.isUserLoggingIn = false;
-                  clearInterval(intervalId);
-                }
-              }, 1000);
+              service.isUserLoggingIn = false;
+              service.authWindowReference.close();
             }
+          }, {
+            scope: 'user_photos,user_videos,publish_stream,read_stream,publish_actions,user_events,create_event,user_groups,user_notes'
           });
-        } else {
-          setTimeout(function() {
-            service.startActionHandler();
+
+          window.open = window._facebookopen;
+          window._facebookopen = null;
+
+          var intervalId = setInterval(function() {
+            if (service.authWindowReference.closed) {
+              service.isUserLoggingIn = false;
+              clearInterval(intervalId);
+            }
           }, 1000);
         }
-      };
-
-      service.checkUserLoggedIn(function(response){
-        if(!response){
-          callbackLogin(callback);
-        }else{
-          callback();
-        }
       });
-
+    } else {
+      setTimeout(function() {
+        service.startActionHandler();
+      }, 1000);
+    }
   },
   /**
    * @method
    * @desc Checks whether user is logged in(has a authenticated session to service).
    * @param {Callback} callback Callback function that will be called after checking login status
    */
-  checkUserLoggedIn: function(callback) {
-    var service = this,
+  checkUserLoggedIn: function (callback) {
+    var service = this;
       strWindowFeatures = "height=300,width=500",
       temp=window.open;
     window._facebookopen = window.open('', 'Login', strWindowFeatures);
@@ -797,46 +793,46 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getLikes-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getLikes: function(objectId, successCallback, errorCallback) {
+  getLikes: function (objectId, successCallback, errorCallback) {
     var service = this,
-      callback = (function(successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          var likeSuccess = function(response) {
-            var likesData = [];
-            for (var i = 0; i < response.length; i++) {
-              var user = new SBW.Models.User({
-                name: response[i].name,
-                id: response[i].id
-              });
-              likesData[i] = new SBW.Models.Like({
-                user: user,
-                rawData: response[i]
-              });
-            }
-            var likesObject = {
-              serviceName: 'facebook',
-              rawData: response,
-              likes: likesData,
-              likeCount: likesData.length
-            };
-            // Todo Populating the asset object with the like and user objects
-            successCallback(likesObject);
-          };
-          if (isLoggedIn) {
+      likeSuccess = function (response) {
+        var likesData = [];
+        for (var i = 0; i < response.length; i++) {
+          var user = new SBW.Models.User({
+            name: response[i].name,
+            id: response[i].id
+          });
+          likesData[i] = new SBW.Models.Like({
+            user: user,
+            rawData: response[i]
+          });
+        }
+        var likesObject = {
+          serviceName: 'facebook',
+          rawData: response,
+          likes: likesData,
+          likeCount: likesData.length
+        };
+        // Todo Populating the asset object with the like and user objects
+        successCallback(likesObject);
+      },
+    callback = (function (successCallback, errorCallback) {
+      return function (isLoggedIn) {
+        if (isLoggedIn) {
+          service._getAllData({
+            type: 'likes',
+            id: objectId
+          }, likeSuccess, errorCallback);
+        } else {
+          service.startActionHandler(function () {
             service._getAllData({
               type: 'likes',
               id: objectId
-            }, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              service._getAllData({
-                type: 'likes',
-                id: objectId
-              }, likeSuccess, errorCallback);
-            });
-          }
-        };
-      })(successCallback, errorCallback);
+            }, likeSuccess, errorCallback);
+          });
+        }
+      };
+    })(successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**
@@ -896,7 +892,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
             if (i === a.length) {
               successCallback(service.content);
             }
-          });
+          })
         });
       },
       callback = (function(successCallback, errorCallback) {

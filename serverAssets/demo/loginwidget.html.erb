@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html>
-<head>
+<head>    
     <link rel="stylesheet" type="text/css" href="../style/default/<%= @sbwuimincss %>"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
@@ -8,21 +8,15 @@
     <script type="text/javascript" src="../js/<%= @sbwuiminjs %>"></script>
 </head>
 <body>
-<!-- Define the parent element on which the page like widget must be initialized. -->
-<div id="page-like-widget"></div>
+<!-- Define the parent element on which the login widget must be initialized. -->
+<div id="login-widget"></div>
 <script type='text/javascript'>
     $(function(){
         /* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
         SBW.init('../config/config.json', function () {
-        /* Initialize page like widget in the callback. */
-          $('#page-like-widget').PageLikeWidget({services:[
-                {serviceName: 'linkedin', objectId: 'UNIU-214108097-5681285247195418624-SHARE'},
-                {serviceName: 'twitter', objectId: '302413460564762624'},
-                {serviceName: 'facebook', objectId: '100004207443785_161177570699157'},
-           /*   {serviceName: 'instagram', objectId: ''},                    */
-                {serviceName: 'flickr', objectId: '8443995831'}
-            ]});
-        });
+        /* Initialize login widget in the callback. */
+          $('#login-widget').LoginWidget({services: ['facebook','twitter','picasa','flickr','linkedin']});
+        });            
     });
 </script>
 </body>

@@ -31,7 +31,7 @@
           description: null,
           actions: {"name": self.options.action.name, "link": self.options.action.link}
         };
-        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-postShare-widget-" + self.options.theme);
+        self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-post-share-widget-" + self.options.theme);
         self.$title = $('<textarea/>').attr({
           'class': 'message',
           placeholder: 'Title'
@@ -47,7 +47,7 @@
 
         //Create the checkbox container...
         self.$checkBoxContainer = $('<div/>').addClass('checkbox-widget-container');
-        self.$checkBoxContainer.CheckBoxWidget({
+        self.$checkBoxContainer.LoginWidget({
           services: self.options.serviceArray
         });
         self.$checkBoxContainer.append(self.$shareButton);
@@ -76,7 +76,7 @@
        */
       options: {
         theme: 'default',
-        serviceArray: ['facebook', 'twitter'],
+        serviceArray: ['facebook'],
         shareButton: 'on',
         link: '',
         name: '',
@@ -97,7 +97,6 @@
        * @method
        * @desc Method to set the icon.
        * @param iconUrl The url of the icon.
-       * @private
        */
       setIcon: function (iconUrl) {
         this.shareObject.picture = iconUrl;
@@ -107,7 +106,6 @@
        * @method
        * @desc Method to set the title.
        * @param title The title to be set for the share.
-       * @private
        */
       setTitle: function (title) {
         this.shareObject.message = title;
@@ -117,7 +115,6 @@
        * @method
        * @desc Method to set the description.
        * @param description The description of the share.
-       * @private
        */
       setDescription: function (description) {
         this.shareObject.description = description;
@@ -125,9 +122,8 @@
       },
       /**
        * @method
-       * @desc Method to set the description.
+       * @desc Method to set the metadata.
        * @param {Object} metaData MetaData({link: null, name : null, caption : null}) of for the PostShare.
-       * @private
        */
       setMetaData: function (metaData) {
         this.shareObject.link = metaData.link;
@@ -136,9 +132,8 @@
       },
       /**
        * @method
-       * @desc Method to set the description.
+       * @desc Method to set the action.
        * @param {Object} action MetaData( actions: {"name": null, "link": null} ) of for the PostShare.
-       * @private
        */
       setAction: function (action) {
         this.shareObject.actions.link = action.link;
@@ -146,11 +141,10 @@
       },
       /**
        * @method
-       * @desc Method to set the description.
+       * @desc Method to set the data.
        * @param {Object} postData
        * postData = { message: null, picture: null, link: null, name: null, caption: null, description: null, actions: {"name": null, "link": null} };
        * postData of for the PostShare.
-       * @private
        */
       setData: function (postData) {
         this.shareObject = {
@@ -168,16 +162,24 @@
       /**
        * @method
        * @desc Method to share the post.
-       * @private
        */
       postShare: function (context) {
         var self = context.data || this, serviceArr = [],
           postShareData = self.shareObject,
           successCallback = function (response) {
-            console.log(response);
+            if (self.$successText) {
+              self.$successText.empty();
+            }
+            self.$successText = $("<p/>").text("Successfully posted in " + response.serviceName);
+            self.$widgetContainer.append(self.$successText);
+            self.$successText.delay(1000).fadeOut();
           },
           failureCallback = function (response) {
-            console.log(response);
+            if (self.$failureText) {
+              self.$failureText.empty();
+            }
+            self.$failureText = $("<p/>").text("Error while publishing media in " + response.serviceName);
+            self.$widgetContainer.append(self.$failureText);
           };
         self.$checkBoxContainer.find("input:checked").each(function () {
           serviceArr.push(this.value);

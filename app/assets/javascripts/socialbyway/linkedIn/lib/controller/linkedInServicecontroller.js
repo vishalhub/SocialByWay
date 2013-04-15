@@ -563,7 +563,8 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
         IN.API.Raw()
           .url(url)
           .result(function (result) {
-            result.values.forEach(function (value) {
+            if(result.values){
+              result.values.forEach(function (value) {
               if (Number(companyId) === Number(value.id)) {
                 unfollowFlag = true;
                 IN.API.Raw()
@@ -579,6 +580,7 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
                   });
               }
             });
+          }
             if (!unfollowFlag) {
               IN.API.Raw()
                 .url(url)

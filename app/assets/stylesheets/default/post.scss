@@ -62,7 +62,7 @@
   }
   .comment-box,.post-box{
     padding: 5px 0 0 8px;
-    border: 1px solid #dddddd;
+    border: 1px solid #eeeeee;
   }
   .comment-box{
     margin: 19px 0 20px 34px;
@@ -80,7 +80,6 @@
     margin-left: 9px;
     background: url("images/checkbox_off.png") no-repeat 0 0;
     -webkit-appearance: none;
-    -moz-appearance:none;
       &:checked{
         background: url("images/checkbox_on.png") no-repeat 0 0;
       }

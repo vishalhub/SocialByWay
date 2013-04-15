@@ -2,8 +2,8 @@
     "protocol": "http:",
     "host": "www.socialbyway-test.com",
     "env": "www",
-    "proxyURL": "/SocialByWay/site/proxy/proxy.php",
-    "callbackDirectory": "/SocialByWay/site/callback",
+    "proxyURL": "/site/proxy/proxy.php",
+    "callbackDirectory": "/site/callback",
     "debug": "true",
     "services": {
         "GooglePlus": {
@@ -14,7 +14,7 @@
             "clientID": "86902642297.apps.googleusercontent.com"
         },
         "Facebook": {
-            "appID": "302428246862094337"
+            "appID": "310352505754735"
         },
         "Flickr": {
             "apiKey": "a246932ba1b47c84aac1e29b57976737",

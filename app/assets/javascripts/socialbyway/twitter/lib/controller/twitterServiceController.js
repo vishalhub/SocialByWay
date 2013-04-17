@@ -130,7 +130,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} callback
    */
   checkUserLoggedIn: function (callback) {
-    if (this.accessObject.tokenSecret && this.accessObject.consumerSecret && this.accessObject.access_token) {
+    if (this.accessObject.tokenSecret  && this.accessObject.access_token && this.isUserLoggingIn) {
       callback(true);
     } else {
       callback(false);
@@ -183,6 +183,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           name: decodeURIComponent(jsonResp.screen_name),
           id: service.accessObject.user_id
         });
+        service.isUserLoggingIn = true;
         if (user.id !== undefined) {
           callback();
         }

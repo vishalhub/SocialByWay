@@ -127,7 +127,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    **/
   checkUserLoggedIn: function (callback) {
     var service = this;
-    if (this.accessObject.access_token !== null && this.accessObject.access_token !== undefined) {
+    if (this.accessObject.access_token !== null && this.accessObject.access_token !== undefined && service.isUserLoggingIn) {
       callback(true);
     } else {
       callback(false);
@@ -184,6 +184,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
             id: decodeURIComponent(jsonResp.user_nsid)
           });
           service.populateUserInformation.call(service, user);
+          service.isUserLoggingIn = true;
           callback(response);
         }
       });

@@ -256,18 +256,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         })
       },
       callback = (function(message, successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          if (isLoggedIn) {
+        return function() {
             publish(message, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              publish(message, successCallback, errorCallback);
-            });
-          }
         };
       })(message, successCallback, errorCallback);
 
-    service.checkUserLoggedIn(callback);
+    service.startActionHandler(callback);
   },
   /**
    * @method
@@ -412,18 +406,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         });
       },
       callback = (function(message, successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          if (isLoggedIn) {
+        return function() {
             publish(message, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              publish(message, successCallback, errorCallback);
-            });
-          }
         };
       })(link, successCallback, errorCallback);
 
-    service.checkUserLoggedIn(callback);
+    service.startActionHandler(callback);
   },
   /**
    * @method
@@ -571,18 +559,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         });
       },
       callback = (function(objectId, successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          if (isLoggedIn) {
+        return function() {
             postLike(objectId, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              postLike(objectId, successCallback, errorCallback);
-            });
-          }
         };
       })(objectId, successCallback, errorCallback);
 
-    service.checkUserLoggedIn(callback);
+    service.startActionHandler(callback);
   },
   /**
    * @method
@@ -613,18 +595,12 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
         });
       },
       callback = (function(objectId, successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          if (isLoggedIn) {
+        return function() {
             postUnlike(objectId, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              postUnlike(objectId, successCallback, errorCallback);
-            });
-          }
         };
       })(objectId, successCallback, errorCallback);
 
-    service.checkUserLoggedIn(callback);
+    service.startActionHandler(callback);
   },
   /**
    * @method

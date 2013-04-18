@@ -23,13 +23,13 @@
       _create: function () {
         var self = this;
         self.shareObject = {
-          message: null,
+          message: self.options.message,
           picture: self.options.icon,
           link: self.options.link,
           name: self.options.name,
           caption: self.options.caption,
-          description: null,
-          actions: {"name": self.options.action.name, "link": self.options.action.link}
+          description: self.options.description,
+          actions: {"name": self.options.actions.name, "link": self.options.actions.link}
         };
         self.$widgetContainer = $('<div/>').addClass("sbw-widget sbw-post-share-widget-" + self.options.theme);
         self.$title = $('<textarea/>').attr({
@@ -78,11 +78,13 @@
         theme: 'default',
         serviceArray: ['facebook'],
         shareButton: 'on',
-        link: '',
-        name: '',
-        action : {name: '', link: ''},
+        message: '',
         icon: 'http://www.socialbyway.com/style/images/logo.png',
-        caption: ''
+        link: '',
+        caption: '',
+        name: '',
+        description: '',
+        actions : {name: '', link: ''}
       },
       /**
        * @method
@@ -133,11 +135,11 @@
       /**
        * @method
        * @desc Method to set the action.
-       * @param {Object} action MetaData( actions: {"name": null, "link": null} ) of for the PostShare.
+       * @param {Object} actions MetaData( actions: {"name": null, "link": null} ) of for the PostShare.
        */
-      setAction: function (action) {
-        this.shareObject.actions.link = action.link;
-        this.shareObject.actions.name = "View on " + action.name;
+      setAction: function (actions) {
+        this.shareObject.actions.link = actions.link;
+        this.shareObject.actions.name = "View on " + actions.name;
       },
       /**
        * @method
@@ -158,6 +160,39 @@
         };
         this.$title.text(postData.message);
         this.$description.text(postData.description);
+      },
+      /**
+       * @method
+       * @desc Method to set the data.
+       * @param {String} attribute
+       * @param {Object} data
+       * @example
+       * PostShareWidget('set','title','A sample Title')
+       */
+      set: function (attribute, data) {
+        if (typeof data === "object") {
+          if (attribute !== 'actions') {
+            for (var key in data){
+              this.shareObject[key]=data[key];
+              if(key === 'message'){
+                this.$title.text(data[key]);
+              }else if(key === 'description'){
+                this.$description.text(data[key]);
+              }
+            }
+          }else{
+            for (var key in data){
+              this.shareObject[attribute][key]=data[key];
+            }
+          }
+        } else {
+          this.shareObject[attribute] = data;
+          if(attribute === 'message'){
+            this.$title.text(data);
+          }else if(attribute === 'description'){
+            this.$description.text(data);
+          }
+        }
       },
       /**
        * @method

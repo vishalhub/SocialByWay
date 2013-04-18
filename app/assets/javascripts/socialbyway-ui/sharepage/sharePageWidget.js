@@ -116,7 +116,6 @@
      * @param {Object} context The scope of the calling function.
      */
     shareForService: function (event, context) {
-      console.log("after change");
       var sourceElement = event.srcElement || event.target,
         service = sourceElement.dataset.service,
         successCallback = function (response) {

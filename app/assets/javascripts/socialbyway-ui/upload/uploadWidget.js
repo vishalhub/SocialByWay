@@ -169,14 +169,7 @@
        * @param {Function} loginSuccessHandler The callback to be executed on successful login.
        */
       authenticate: function (service, loginSuccessHandler) {
-        var callback = function (userLoggedIn) {
-          if (userLoggedIn) {
-            loginSuccessHandler();
-          } else {
-            SBW.Singletons.serviceFactory.getService(service).startActionHandler(loginSuccessHandler);
-          }
-        };
-        SBW.api.checkUserLoggedIn(service, callback);
+        SBW.Singletons.serviceFactory.getService(service).startActionHandler(loginSuccessHandler);
       },
       /**
        * @method

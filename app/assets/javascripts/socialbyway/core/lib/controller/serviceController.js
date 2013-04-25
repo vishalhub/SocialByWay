@@ -402,12 +402,12 @@
      * @method
      * @desc Retrieving the comments from the specified service that matches the object id.
      * @param {String} serviceName  Name of the registered service.
-     * @param {String} objectId  Id of the object.
+     * @param {String} idObject  Id  object.
      * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} to be executed on successful comments retrieving.
      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} to be executed on retrieving comments error.
      */
-    getComments: function (serviceName, objectId, successCallback, errorCallback) {
-      SBW.Singletons.serviceFactory.getService(serviceName).getComments(objectId, successCallback, errorCallback);
+    getComments: function (serviceName, idObject, successCallback, errorCallback) {
+      SBW.Singletons.serviceFactory.getService(serviceName).getComments(idObject, successCallback, errorCallback);
     },
     /**
      * This callback is displayed as part of the getComments method.

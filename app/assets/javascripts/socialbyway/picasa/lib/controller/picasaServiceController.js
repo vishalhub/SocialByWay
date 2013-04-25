@@ -202,18 +202,12 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
         }
       },
       callback = (function(successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          if (isLoggedIn) {
-            getAlbumsCallback(successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              getAlbumsCallback(successCallback, errorCallback);
-            });
-          }
+        return function(isLoggedIn) {            
+            getAlbumsCallback(successCallback, errorCallback);            
         };
       })(successCallback, errorCallback);
 
-    service.checkUserLoggedIn(callback);
+    service.startActionHandler(callback);
   },
   /**
    * Success Callback for getAlbums method.

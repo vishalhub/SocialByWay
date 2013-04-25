@@ -130,15 +130,15 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
    * @method
    * @desc To get comments of a Photo through Instagram API service
    * method doesn't require any authentication
-   * @param {String} mediaId
+   * @param {Object} idObject
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getComments: function (mediaId, successCallback, errorCallback) {
+  getComments: function (idObject, successCallback, errorCallback) {
     var service = this,
-      publish = function (mediaId, successCallback, errorCallback) {
+      publish = function (idObject, successCallback, errorCallback) {
         SBW.Singletons.utils.ajax({
-            url: service.apiUrl + '/media/' + mediaId + '/comments',
+            url: service.apiUrl + '/media/' + idObject.assetId + '/comments',
             type: 'GET',
             dataType: "jsonp",
             data: {access_token: service.accessObject.access_token}
@@ -146,17 +146,17 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
           errorCallback
         );
       },
-      callback = (function (mediaId, successCallback, errorCallback) {
+      callback = (function (idObject, successCallback, errorCallback) {
         return function (isLoggedIn) {
           if (isLoggedIn) {
-            publish(mediaId, successCallback, errorCallback);
+            publish(idObject, successCallback, errorCallback);
           } else {
             service.startActionHandler(function () {
-              publish(mediaId, successCallback, errorCallback);
+              publish(idObject, successCallback, errorCallback);
             });
           }
         };
-      })(mediaId, successCallback, errorCallback);
+      })(idObject, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
   },
   /**

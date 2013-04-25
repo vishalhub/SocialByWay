@@ -324,14 +324,14 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @desc To get comments posted on an object(post) of a LinkedIn user through its API service
-   * @param  objectId the id of the object, against which comments posted are to retrieved
+   * @param  {Object} idObject the id  object, against which comments posted are to retrieved
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if comments are fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching comments
    */
-  getComments: function (objectId, successCallback, errorCallback) {
+  getComments: function (idObject, successCallback, errorCallback) {
     var service = this,
-      comments = function (objectId, successCallback, errorCallback) {
-        IN.API.Raw("/people/~/network/updates/key=" + objectId + "/update-comments")
+      comments = function (idObject, successCallback, errorCallback) {
+        IN.API.Raw("/people/~/network/updates/key=" + idObject.assetId + "/update-comments")
           .result(function (result) {
             var commentsData = [], comments = result.values;
             for (var i = 0; i < comments.length; i++) {
@@ -349,17 +349,17 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
             errorCallback(errorObject);
           });
       },
-      callback = (function (objectId, successCallback, errorCallback) {
+      callback = (function (idObject, successCallback, errorCallback) {
         return function (isLoggedIn) {
           if (isLoggedIn) {
-            comments(objectId, successCallback, errorCallback);
+            comments(idObject, successCallback, errorCallback);
           } else {
             service.startActionHandler(function () {
-              comments(objectId, successCallback, errorCallback);
+              comments(idObject, successCallback, errorCallback);
             });
           }
         };
-      })(objectId, successCallback, errorCallback);
+      })(idObject, successCallback, errorCallback);
 
     service.checkUserLoggedIn(callback);
   },

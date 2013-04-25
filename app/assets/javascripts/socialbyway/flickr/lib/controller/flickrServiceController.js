@@ -300,7 +300,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               method: 'flickr.photos.comments.addComment',
               api_key: apiKey,
               format: 'json',
-              photo_id: objectId,
+              photo_id: objectId.assetId,
               perms: 'write',
               comment_text: comment,
               oauth_token: service.accessObject.access_token,
@@ -747,11 +747,11 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc To get comments of a Photo through Flickr API service
    * method doesn't require any authentication
-   * @param {String} objectId
+   * @param {Object} idObject
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getComments: function (objectId, successCallback, errorCallback) {
+  getComments: function (idObject, successCallback, errorCallback) {
     var service = this;
     var apiKey = service.accessObject.consumerKey;
     var message = {
@@ -760,18 +760,34 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       parameters: {
         method: 'flickr.photos.comments.getList',
         format: 'json',
-        photo_id: objectId,
+        photo_id: idObject.assetId,
         api_key: apiKey,
         nojsoncallback: 1
       }
     };
+    var commentSuccess = function(result) {
+            var commentsData = [];
+            for (var i = 0; i < result.comments.comment.length; i++) {
+              commentsData[i] = new SBW.Models.Comment({
+                createdTime: result.comments.comment[i].datecreate,
+                fromUser: result.comments.comment[i].authorname,
+                likeCount: null,
+                text: result.comments.comment[i]._content,
+                rawData: result.comments.comment[i],
+                serviceName: "flickr",
+                id: result.comments.comment[i].id,
+                profilePic: 'http://flickr.com/buddyicons/' + result.comments.comment[i].author + '.jpg'
+              });
+            }
+            successCallback(commentsData);
+          };
     var url = service.signAndReturnUrl(service.flickrApiUrl, message);
     SBW.Singletons.utils.ajax({
         url: url,
         type: 'GET',
         dataType: 'json'
       },
-      successCallback,
+      commentSuccess,
       errorCallback);
   },
   /**

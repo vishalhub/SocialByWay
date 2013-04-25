@@ -166,19 +166,19 @@ SBW.Controllers.Services.GooglePlus = SBW.Controllers.Services.ServiceController
   },
   /**
    *  Method getComments : Retrieves comments of an activity
-   * @param activityID
+   * @param {Object} idObject
    * @param {callback} successCallback - success callback will get called if data is fetched successfully
    * @param {callback} errorCallback - failure callback will get called in case of any error while fetching data
    */
-  getComments: function (activityID, successCallback, errorCallback) {
+  getComments: function (idObject, successCallback, errorCallback) {
     var service = this;
     var callback = (function (successCallback, errorCallback) {
       return function (isLoggedIn) {
         if (isLoggedIn) {
-          service._getAllData({type: 'comments', method: 'list', id: activityID}, successCallback, errorCallback);
+          service._getAllData({type: 'comments', method: 'list', id: idObject.assetId}, successCallback, errorCallback);
         } else {
           service.startActionHandler(function () {
-            service._getAllData({type: 'comments', method: 'list', id: activityID}, successCallback, errorCallback);
+            service._getAllData({type: 'comments', method: 'list', id: idObject.assetId}, successCallback, errorCallback);
           });
         }
       };

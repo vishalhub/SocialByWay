@@ -181,7 +181,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           service.accessObject.tokenSecret = jsonResp.oauth_token_secret;
           user = new SBW.Models.User({
             name: jsonResp.username,
-            id: decodeURIComponent(jsonResp.user_nsid)
+            id: decodeURIComponent(jsonResp.user_nsid),
+            userImage:'http://flickr.com/buddyicons/' + decodeURIComponent(jsonResp.user_nsid) + '.jpg'
           });
           service.populateUserInformation.call(service, user);
           service.isUserLoggingIn = true;
@@ -776,7 +777,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                 rawData: result.comments.comment[i],
                 serviceName: "flickr",
                 id: result.comments.comment[i].id,
-                profilePic: 'http://flickr.com/buddyicons/' + result.comments.comment[i].author + '.jpg'
+                userImage: 'http://flickr.com/buddyicons/' + result.comments.comment[i].author + '.jpg'
               });
             }
             successCallback(commentsData);
@@ -877,7 +878,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                 rawData: response,
                 code: response.code
               });
-              errorCallback(errorObject);
+              errorCallback(errorObject)  ;
             } else {
               var albums = response.photosets.photoset;
               albums.forEach(function (album) {
@@ -1119,7 +1120,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     var getData = function (successCallback, errorCallback) {
       var userId = service.accessObject.id;
       var apiKey = service.accessObject.consumerKey;
-      var photoUrlArray = [];
+      var imageArray = [];
       var message = {
         action: service.flickrApiUrl,
         method: "GET",
@@ -1144,12 +1145,56 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         } else {
           var photoArray = response.photos.photo;
           for (var i = 0; i < photoArray.length; i++) {
-            var photoUrl = 'http://farm' + photoArray[i].farm + '.staticflickr.com/' + photoArray[i].server + '/' + photoArray[i].id + '_' + photoArray[i].secret + '.jpg'
-            photoUrlArray[i] = photoUrl;
+            imageArray[i] = new SBW.Models.ImageAsset({
+              src: 'http://farm' + photoArray[i].farm + '.staticflickr.com/' + photoArray[i].server + '/' + photoArray[i].id + '_' + photoArray[i].secret + '.jpg',
+              id: '',
+              title: photoArray[i].title,
+              createdTime: new Date().getTime(),
+              serviceName: 'flickr',
+              rawData: photoArray[i],
+              imgSizes: {t: '', s: '', m: '', l: ''},
+              metadata: {
+                caption: null,
+                type: null,
+                dateTaken: null,
+                dateUpdated: null,
+                dateUploaded: null,
+                comments: null,
+                size: null,
+                assetId: photoArray[i].id,
+                assetCollectionId: null,
+                height: null,
+                width: null,
+                commentCount: '',
+                category: null,
+                exifMake: null,
+                exifModel: null,
+                iptcKeywords: null,
+                orientation: '',
+                tags: '',
+                downloadUrl: null,
+                originalFormat: '',
+                fileName: null,
+                version: null,
+                description: '',
+                thumbnail: null,
+                previewUrl: 'http://farm' + photoArray[i].farm + '.staticflickr.com/' + photoArray[i].server + '/' + photoArray[i].id + '_' + photoArray[i].secret + '.jpg',
+                author: new SBW.Models.User({
+                  name: service.user.name,
+                  id: photoArray[i].owner,
+                  userImage: 'http://flickr.com/buddyicons/' + photoArray[i].owner + '.jpg'
+                }),
+                authorAvatar: null,
+                likeCount: '',
+                likes: null
+              }
+            });
+            imageArray[i].id = imageArray[i].getID();
           }
-          successCallback(photoUrlArray);
+          successCallback(imageArray);
         }
-      };
+        ;
+      }
       SBW.Singletons.utils.ajax({
           url: url,
           type: 'GET',

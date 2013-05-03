@@ -441,6 +441,26 @@
      **/
     /**
      * @method
+     * @desc get albums for the logged in user from the specified service.
+     * @param {String} serviceName  Name of the registered service.
+     * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getPhotos-successCallback Callback} to be executed on successful retrieval of albums.
+     * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getPhotos-errorCallback Callback} to be executed on error while retrieving albums.
+     */
+    getPhotos: function (serviceName, successCallback, errorCallback) {
+      SBW.Singletons.serviceFactory.getService(serviceName).getPhotos(successCallback, errorCallback);
+    },
+    /**
+     * This callback is displayed as part of the getAlbums method.
+     * @callback SBW.Controllers.Services.ServiceController~getAlbums-successCallback
+     * @param {Array} response
+     **/
+    /**
+     * This callback is displayed as part of the getAlbums method.
+     * @callback SBW.Controllers.Services.ServiceController~getAlbums-errorCallback
+     * @param {SBW.Models.Error} response JSON response from the service
+     **/
+    /**
+     * @method
      * @desc Fetch photo details from album for the specified service.
      * @param {String} serviceName  Name of the registered service.
      * @param {String}   albumId Album Id from which to fetch the photo details.

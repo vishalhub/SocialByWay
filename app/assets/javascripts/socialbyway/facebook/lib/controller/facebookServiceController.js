@@ -914,7 +914,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   createdTime: value.created_time,
                   fromUser: value.from.name,
                   likeCount: value.like_count,
-                  profilePic: '',
+                  userImage: '',
                   serviceName: 'facebook',
                   rawData: value
                 });
@@ -1009,7 +1009,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   createdTime: value.created_time,
                   fromUser: value.from.name || 'unknownn',
                   likeCount: value.like_count,
-                  profilePic: null,
+                  userImage: null,
                   serviceName: 'facebook',
                   rawData: value
                 });
@@ -1543,7 +1543,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               fromUser: value['from']['name'],
               likeCount: value['like_count'],
               text: value['message'],
-              picUrl: picResponse,
+              userImage: picResponse,
               rawData: value,
               serviceName: "facebook"
             });

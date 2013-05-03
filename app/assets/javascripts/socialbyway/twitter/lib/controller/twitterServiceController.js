@@ -855,7 +855,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
               fromUser: tweet.from_user,
               likeCount: 0,
               text: tweet.text,
-              picUrl: tweet.profile_image_url,
+              userImage: tweet.profile_image_url,
               serviceName: "twitter"
             });
             sbwObject.push(sbwTweetObject);

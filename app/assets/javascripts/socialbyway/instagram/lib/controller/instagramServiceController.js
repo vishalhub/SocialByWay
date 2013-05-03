@@ -366,7 +366,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
                     createdTime: comment.created_time,
                     fromUser: comment.from.full_name,
                     likeCount: null,
-                    profilePic: comment.from.profile_picture,
+                    userImage: comment.from.profile_picture,
                     rawData: comment,
                     serviceName: 'instagram'
                   });

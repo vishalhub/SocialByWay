@@ -73,10 +73,17 @@
      * @private
      */
     checkUserLoggedIn: function (serviceArray, callback) {
+      var aggregateResponse = [],i = serviceArray.length,j=0;
       serviceArray.forEach(function (service) {
-        var Callback = function (response) {
-          callback({service: service, userLoggedIn: response});
-        };
+        
+       var Callback = function (response) {
+        j=j+1;
+        aggregateResponse.push({service: service, userLoggedIn: response});
+        if(j==i){
+          callback(aggregateResponse);
+        }; 
+      }
+      
         SBW.api.checkUserLoggedIn(service, Callback);
       });
     },

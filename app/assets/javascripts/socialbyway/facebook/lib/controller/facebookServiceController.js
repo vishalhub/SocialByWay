@@ -1106,11 +1106,11 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   /**
    * @method
    * @desc Fetches Comments for an object through FB API service
-   * @param objectId
+   * @param {Object} idObject
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getComments: function(objectId, successCallback, errorCallback) {
+  getComments: function(idObject, successCallback, errorCallback) {
     var service = this,
       callback = (function(successCallback, errorCallback) {
         return function(isLoggedIn) {
@@ -1131,13 +1131,13 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           if (isLoggedIn) {
             service._getAllData({
               type: 'comments',
-              id: objectId
+              id: idObject.assetId
             }, commentSuccess, errorCallback);
           } else {
             service.startActionHandler(function() {
               service._getAllData({
                 type: 'comments',
-                id: objectId
+                id: idObject.assetId
               }, commentSuccess, errorCallback);
             });
           }

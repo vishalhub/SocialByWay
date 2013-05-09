@@ -115,12 +115,14 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
    * @return {Binary} Buffer
    * @ignore
    */
-  _generateMultipart: function(title, description, image, mimetype) {
-    image = new Uint8Array(image); // Wrap in view to get data
+  _generateMultipart: function(title, description, image, mimetype, isRaw) {
+    if(!isRaw){
+      image = new Uint8Array(image); // Wrap in view to get data
+    }
 
     var before = ['Media multipart posting', "   \n", '--END_OF_PART', "\n", 'Content-Type: application/atom+xml', "\n", "\n", "<entry xmlns='http://www.w3.org/2005/Atom'>", '<title>', title, '</title>', '<summary>', description, '</summary>', '<category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/photos/2007#photo" />', '</entry>', "\n", '--END_OF_PART', "\n", 'Content-Type:', mimetype, "\n\n"].join(''),
-      after = '\n--END_OF_PART--',
-      size = before.length + image.byteLength + after.length,
+      after = '\n--END_OF_PART--', imageSize = isRaw ? image.length : image.byteLength,
+      size = before.length + imageSize + after.length,
       uint8array = new Uint8Array(size),
       i = 0,
       j = 0;
@@ -131,8 +133,8 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
     }
 
     // Append the binary data.
-    for (j; j < image.byteLength; i = i + 1, j = j + 1) {
-      uint8array[i] = image[j];
+    for (j; j < imageSize; i = i + 1, j = j + 1) {
+      uint8array[i] = isRaw ?  image.charCodeAt(j) : image[j];
     }
 
     // Append the remaining string
@@ -202,18 +204,12 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
         }
       },
       callback = (function(successCallback, errorCallback) {
-        return function(isLoggedIn) {
-          if (isLoggedIn) {
-            getAlbumsCallback(successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function() {
-              getAlbumsCallback(successCallback, errorCallback);
-            });
-          }
+        return function(isLoggedIn) {            
+            getAlbumsCallback(successCallback, errorCallback);            
         };
       })(successCallback, errorCallback);
 
-    service.checkUserLoggedIn(callback);
+    service.startActionHandler(callback);
   },
   /**
    * Success Callback for getAlbums method.
@@ -247,7 +243,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
             return function(e) {
               SBW.Singletons.utils.ajax({
                 url: url,
-                data: service._generateMultipart(mediaData.title, mediaData.description, e.target.result, mediaData.file.type),
+                data: service._generateMultipart(mediaData.title, mediaData.description, e.target.result, mediaData.file.type, false),
                 contentType: 'multipart/related; boundary="END_OF_PART"',
                 crossDomain: false,
                 type: "POST",
@@ -622,6 +618,67 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
     service.content = [];
     successCallback();
   },
+
+    /**
+     * @method
+     * @desc uploads raw image     
+     * @param {Array} mediaData array of image meta data objects
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+    uploadRawImage: function(mediaData, successCallback,errorCallback){
+      var service = this,
+      mediaDataLength = mediaData.length,
+      upload = function(mediaData, successCallback, errorCallback) {
+        var feedUrl = service.feedUrl + '/albumid/default?access_token=' + service.accessObject.access_token + '&alt=json',
+          url = SBW.Singletons.config.proxyURL + '?url=' + encodeURIComponent(feedUrl),
+          uploadStatus = [];
+          $.each(mediaData, function() {
+              var filedata = this;
+
+              SBW.Singletons.utils.ajax({
+                url: url,
+                data: service._generateMultipart(filedata.title, filedata.description, filedata.file, "image/jpeg", true),
+                contentType: 'multipart/related; boundary="END_OF_PART"',
+                crossDomain: false,
+                type: "POST",
+                dataType: "json",
+                processData: false
+              }, function(response) {
+                uploadStatus.push(new SBW.Models.UploadStatus({
+                  serviceName: 'picasa',
+                  id: response.entry.gphoto$id.$t,
+                  rawData: response
+                }));
+                if (uploadStatus.length === mediaDataLength) {
+                  successCallback(uploadStatus);
+                }
+              }, function() {
+                uploadStatus.push(new SBW.Models.Error({
+                  serviceName: 'picasa',
+                  rawData: value
+                }));
+                if (uploadStatus.length === mediaData.length) {
+                  errorCallback(uploadStatus);
+                }
+              });
+        });
+      },
+      callback = (function(mediaData, successCallback, errorCallback) {
+        return function(isLoggedIn) {
+          if (isLoggedIn) {
+            upload(mediaData, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function() {
+              upload(mediaData, successCallback, errorCallback);
+            });
+          }
+        };
+      })(mediaData, successCallback, errorCallback);
+
+    service.checkUserLoggedIn(callback);
+    },   
+
 
   /**
    * @method

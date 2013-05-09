@@ -148,6 +148,31 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     return link;
   },
 
+    /**
+     * @method
+     * @desc uploads raw image     
+     * @param {Array} mediaData array of image meta data objects
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+    uploadRawImage: function(mediaData, successCallback,errorCallback){
+     var service = this; 
+    var tempMedia = JSON.parse(JSON.stringify(mediaData));
+     tempMedia.forEach(function(fileData){
+          var photo = fileData["file"];
+          var length = photo.length;
+          var arrayBuffer = new ArrayBuffer(length);
+          var unit8Array = new Uint8Array(arrayBuffer);
+          for(var i=0; i<length; i++){
+              unit8Array[i] = photo.charCodeAt(i);
+          }        
+        fileData["file"] = new Blob([arrayBuffer], {"type":"image/jpeg"});
+     }); 
+
+      service.uploadPhoto(tempMedia, successCallback, errorCallback);
+    },
+
+
   /**
    * @method
    * @desc Retrieves access tokens from the response, sends request to flickr service to fetch user details using Flickr method and call successLoginHandler on successful response.
@@ -300,7 +325,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
               method: 'flickr.photos.comments.addComment',
               api_key: apiKey,
               format: 'json',
-              photo_id: objectId,
+              photo_id: objectId.assetId,
               perms: 'write',
               comment_text: comment,
               oauth_token: service.accessObject.access_token,
@@ -747,11 +772,11 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    * @method
    * @desc To get comments of a Photo through Flickr API service
    * method doesn't require any authentication
-   * @param {String} objectId
+   * @param {Object} idObject
    * @param {Callback} successCallback {@link  SBW.Controllers.Services.ServiceController~getComments-successCallback Callback} will be called if data is fetched successfully
    * @param {Callback} errorCallback {@link  SBW.Controllers.Services.ServiceController~getComments-errorCallback Callback} will be called in case of any error while fetching data
    */
-  getComments: function (objectId, successCallback, errorCallback) {
+  getComments: function (idObject, successCallback, errorCallback) {
     var service = this;
     var apiKey = service.accessObject.consumerKey;
     var message = {
@@ -760,18 +785,34 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
       parameters: {
         method: 'flickr.photos.comments.getList',
         format: 'json',
-        photo_id: objectId,
+        photo_id: idObject.assetId,
         api_key: apiKey,
         nojsoncallback: 1
       }
     };
+    var commentSuccess = function(result) {
+            var commentsData = [];
+            for (var i = 0; i < result.comments.comment.length; i++) {
+              commentsData[i] = new SBW.Models.Comment({
+                createdTime: result.comments.comment[i].datecreate,
+                fromUser: result.comments.comment[i].authorname,
+                likeCount: null,
+                text: result.comments.comment[i]._content,
+                rawData: result.comments.comment[i],
+                serviceName: "flickr",
+                id: result.comments.comment[i].id,
+                profilePic: 'http://flickr.com/buddyicons/' + result.comments.comment[i].author + '.jpg'
+              });
+            }
+            successCallback(commentsData);
+          };
     var url = service.signAndReturnUrl(service.flickrApiUrl, message);
     SBW.Singletons.utils.ajax({
         url: url,
         type: 'GET',
         dataType: 'json'
       },
-      successCallback,
+      commentSuccess,
       errorCallback);
   },
   /**
@@ -1261,8 +1302,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : service.accessObject.id );
-    if (userId !== undefined) {
+    userId = ((userId) ? userId : service.accessObject.id );
+    if (userId) {
       var profilePicUrl = 'http://flickr.com/buddyicons/' + userId + '.jpg';
       successCallback(profilePicUrl);
     } else {

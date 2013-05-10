@@ -1524,6 +1524,31 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
       }
     });
   },
+
+    /**
+     * @method
+     * @desc uploads raw image     
+     * @param {Array} mediaData array of image meta data objects
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+    uploadRawImage: function(mediaData, successCallback,errorCallback){
+     var service = this; 
+    var tempMedia = JSON.parse(JSON.stringify(mediaData));
+     tempMedia.forEach(function(fileData){
+          var photo = fileData["file"];
+          var length = photo.length;
+          var arrayBuffer = new ArrayBuffer(length);
+          var unit8Array = new Uint8Array(arrayBuffer);
+          for(var i=0; i<length; i++){
+              unit8Array[i] = photo.charCodeAt(i);
+          }        
+        fileData["file"] = new Blob([arrayBuffer], {"type":"image/jpeg"});
+     }); 
+
+      service.uploadPhoto(tempMedia, successCallback, errorCallback);
+    },
+
   /**
    * @method
    * @desc Fetches comments for a url on facebook

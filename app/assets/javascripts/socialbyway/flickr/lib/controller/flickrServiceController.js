@@ -148,6 +148,31 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     return link;
   },
 
+    /**
+     * @method
+     * @desc uploads raw image     
+     * @param {Array} mediaData array of image meta data objects
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+    uploadRawImage: function(mediaData, successCallback,errorCallback){
+     var service = this; 
+    var tempMedia = JSON.parse(JSON.stringify(mediaData));
+     tempMedia.forEach(function(fileData){
+          var photo = fileData["file"];
+          var length = photo.length;
+          var arrayBuffer = new ArrayBuffer(length);
+          var unit8Array = new Uint8Array(arrayBuffer);
+          for(var i=0; i<length; i++){
+              unit8Array[i] = photo.charCodeAt(i);
+          }        
+        fileData["file"] = new Blob([arrayBuffer], {"type":"image/jpeg"});
+     }); 
+
+      service.uploadPhoto(tempMedia, successCallback, errorCallback);
+    },
+
+
   /**
    * @method
    * @desc Retrieves access tokens from the response, sends request to flickr service to fetch user details using Flickr method and call successLoginHandler on successful response.
@@ -1322,8 +1347,8 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
    */
   getProfilePic: function (userId, successCallback, errorCallback) {
     var service = this;
-    userId = ((userId !== undefined) ? userId : service.accessObject.id );
-    if (userId !== undefined) {
+    userId = ((userId) ? userId : service.accessObject.id );
+    if (userId) {
       var profilePicUrl = 'http://flickr.com/buddyicons/' + userId + '.jpg';
       successCallback(profilePicUrl);
     } else {

@@ -971,6 +971,7 @@
       });
       return assetObj;
     },
+
     /**
      * @method
      * @desc Logs user out of service.
@@ -1005,7 +1006,25 @@
           SBW.Singletons.serviceFactory.getService(data).postUpload(returnValue, successCallback, errorCallback);
         });
       }
-    }
+    },    
+    /**
+     * @method
+     * @desc uploads raw image
+     * @param {String[]} serviceArr An array of registered services.
+     * @param {Array} mediaData array of image meta data objects
+     * @param {Function} successCallback  Callback to be executed on successful logging out.
+     * @param {Function} errorCallback  Callback to be executed on logging out error.
+     */
+    uploadRawImage: function(serviceArr, mediaData, successCallback,errorCallback){
+       if (!(serviceArr instanceof Array)) {
+        SBW.Singletons.serviceFactory.getService(serviceArr).uploadRawImage(mediaData, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {  
+            SBW.Singletons.serviceFactory.getService(data).uploadRawImage(mediaData, successCallback,errorCallback);
+        });
+      }
+    }   
+
   });
 }());
 // End of IIFE

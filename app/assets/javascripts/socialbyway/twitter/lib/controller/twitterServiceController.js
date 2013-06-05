@@ -54,12 +54,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       consumerSecret: SBW.Singletons.config.services.Twitter.consumerSecret,
       user_id: null
     };
-    this.userObject = {
-      id: null,
-      name: null,
-      screen_name: null,
-      profile_image_url: null
-    };
+    this.user = new SBW.Models.User({});
   },
   /**
    * @method
@@ -130,7 +125,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} callback
    */
   checkUserLoggedIn: function (callback) {
-    if (this.accessObject.tokenSecret  && this.accessObject.access_token && this.isUserLoggingIn) {
+    if (this.accessObject.tokenSecret && this.accessObject.access_token && this.isUserLoggingIn) {
       callback(true);
     } else {
       callback(false);
@@ -176,15 +171,10 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         service.accessObject.user_id = jsonResp.user_id;
         service.accessObject.access_token = jsonResp.oauth_token;
         service.accessObject.tokenSecret = jsonResp.oauth_token_secret;
-        service.userObject.id = jsonResp.user_id;
-        service.userObject.screen_name = jsonResp.screen_name;
-        // setting user id and name as we need this to construct url
-        var user = new SBW.Models.User({
-          name: decodeURIComponent(jsonResp.screen_name),
-          id: service.accessObject.user_id
-        });
+        service.user.id = jsonResp.user_id;
+        service.user.screenName = jsonResp.screen_name;
         service.isUserLoggingIn = true;
-        if (user.id !== undefined) {
+        if (service.user.id !== undefined) {
           callback();
         }
       }, function (response) {
@@ -213,9 +203,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   sendTwitterRequest: function (data, successCallback, errorCallback) {
-    var service = this,
-      index, headerLength, header;
-    var headers = {};
+    var service = this, index, headerLength, header, headers = {}, options;
     if (data.header) {
       headerLength = data.header.length;
       for (index = 0; index < headerLength; index++) {
@@ -225,7 +213,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         }
       }
     }
-    var options = {
+    options = {
       url: service.proxyUrl + '?url=' + encodeURIComponent(data.url),
       type: (data.type || 'GET'),
       data: data.parameters || '',
@@ -258,10 +246,10 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     };
 
     OAuth.SignatureMethod.sign(message, accessor);
-    var normalizedParameters = OAuth.SignatureMethod.normalizeParameters(message.parameters);
-    var signatureBaseString = OAuth.SignatureMethod.getBaseString(message);
-    var signature = OAuth.getParameter(message.parameters, "oauth_signature");
-    var authorizationHeader = OAuth.getAuthorizationHeader("", message.parameters);
+    var normalizedParameters = OAuth.SignatureMethod.normalizeParameters(message.parameters),
+      signatureBaseString = OAuth.SignatureMethod.getBaseString(message),
+      signature = OAuth.getParameter(message.parameters, "oauth_signature"),
+      authorizationHeader = OAuth.getAuthorizationHeader("", message.parameters);
 
     return 'Authorization: ' + authorizationHeader;
   },
@@ -274,8 +262,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @return {Object} An object containing the request url, type, parameters and headers..
    */
   getDataForRequest: function (url, parameters, type) {
-    var requestParameters = [];
-    var key;
+    var requestParameters = [], key;
     if (parameters) {
       for (key in parameters) {
         if (parameters.hasOwnProperty(key)) {
@@ -284,11 +271,11 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       }
     }
     var message = {
-      action: url,
-      method: type,
-      parameters: requestParameters
-    };
-    var authorizationHeader = this.getAuthorizationHeader(message);
+        action: url,
+        method: type,
+        parameters: requestParameters
+      },
+      authorizationHeader = this.getAuthorizationHeader(message);
     return {
       url: url + ((type === "GET") ? ('?' + OAuth.formEncode(parameters)) : ''),
       type: type,
@@ -300,28 +287,81 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @method
    * @desc Function to get the home time line for a user.
    * @param {Object} parameters An object that contains the parameters for the request.
+   * @example parameter object
+      {
+        count:12           optional
+        since_id:12345     optional
+        max_id:12345       optional
+        contributor_details:true optional
+      }
+      there are many other optional parameters to filter the search results
    * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   getHomeTimeLine: function (parameters, successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.homeTimelineUrl, parameters, 'GET');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+    var service = this, data,
+      getTimeLine = function (parameters, successCallback, errorCallback) {
+        data = service.getDataForRequest(service.homeTimelineUrl, parameters, 'GET');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (parameters, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            getTimeLine(parameters, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              getTimeLine(parameters, successCallback, errorCallback);
+            });
+          }
+        };
+      })(parameters, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
    * @desc Function to get the mentions time line for a user.
    * @param {Object} parameters An object that contains the parameters for the request.
+   * @example parameter object
+     {
+       count:12           optional
+       since_id:12345     optional
+       max_id:12345       optional
+       contributor_details:true optional
+     }
+     there are many other optional parameters to filter the search results
    * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   getMentionsTimeLine: function (parameters, successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.mentionsTimelineUrl, parameters, 'GET');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+    var service = this, data,
+      getTimeLine = function (parameters, successCallback, errorCallback) {
+        data = service.getDataForRequest(service.mentionsTimelineUrl, parameters, 'GET');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (parameters, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            getTimeLine(parameters, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              getTimeLine(parameters, successCallback, errorCallback);
+            });
+          }
+        };
+      })(parameters, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
    * @desc Function to search twitter for a particular search string. No authentication is required for this request.
    * @param {Object} parameters An object that contains the parameters for the request.
+   * @example parameter object
+     { q:socialbyway+imaginea   required
+       result_type:recent       optional
+       show_user:true           optional
+       until:2013-03-28         optional
+     }
+     there are many other optional parameters to filter the search results
    * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
@@ -352,19 +392,58 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   search: function (parameters, successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.apiSearchUrl, parameters, 'GET');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+    var service = this, data,
+      searchTweets = function (parameters, successCallback, errorCallback) {
+        data = service.getDataForRequest(service.apiSearchUrl, parameters, 'GET');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (parameters, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            searchTweets(parameters, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              searchTweets(parameters, successCallback, errorCallback);
+            });
+          }
+        };
+      })(parameters, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
    * @desc Function to get the users timeline.
    * @param {Object} parameters An object that contains the parameters for the request.
+   * @example parameter object
+     {
+       user_id:12345              optional
+       screen_name:'socialbyway'  optional
+       count:20                   optional
+       since_id:12345             optional
+       max_id:12345               optional
+       contributor_details:true   optional
+     }
    * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   getUserTimeline: function (parameters, successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.userTimelineUrl, parameters, 'GET');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+    var service = this, data,
+      getTimeLine = function (parameters, successCallback, errorCallback) {
+        data = service.getDataForRequest(service.userTimelineUrl, parameters, 'GET');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (parameters, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            getTimeLine(parameters, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              getTimeLine(parameters, successCallback, errorCallback);
+            });
+          }
+        };
+      })(parameters, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
@@ -373,8 +452,23 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   getAccountSettings: function (successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.accountSettingsUrl, null, 'GET');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+    var service = this, data,
+      getSettings = function (successCallback, errorCallback) {
+        data = service.getDataForRequest(service.accountSettingsUrl, null, 'GET');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            getSettings(successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              getSettings(successCallback, errorCallback);
+            });
+          }
+        };
+      })(successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method
@@ -389,7 +483,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         status: message
       },
       publishMessageCallback = function (requestParameters, successCallback, errorCallback) {
-        service.post(requestParameters, function (jsonResponse) {
+        var data = service.getDataForRequest(service.postUrl, requestParameters, 'POST');
+        service.sendTwitterRequest(data, function (jsonResponse) {
           successCallback({
             id: jsonResponse.id,
             serviceName: "twitter"
@@ -400,7 +495,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           errorObject.code = JSON.parse(response.responseText).errors[0].code;
           errorObject.serviceName = 'twitter';
           errorObject.rawData = JSON.parse(response.responseText);
-
           errorCallback(errorObject);
         });
       },
@@ -452,32 +546,20 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
   },
   /**
    * @method
-   * @desc Function to post a tweet on twitter.
-   * @param {Object} parameters An object that contains the parameters for the request.
-   * @param {callback} successcallback Function to be executed in case of success response from twitter.
-   * @param {callback} errorCallback Function to be executed in case of error response from twitter.
-   */
-  post: function (parameters, successcallback, errorCallback) {
-    var data = this.getDataForRequest(this.postUrl, parameters, 'POST');
-    this.sendTwitterRequest(data, successcallback, errorCallback);
-  },
-  /**
-   * @method
    * @desc Function to post a tweet with an image on twitter.
    * @param {Array} parameterArray An array that contains the parameters for the request.
    * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   updateWithMedia: function (parameterArray, successCallback, errorCallback) {
-    var service = this;
+    var service = this, requestParameters = [];
     parameterArray.forEach(function (parameters) {
       var formData = new FormData(),
-        key;
-      var file = parameters.file,
+        key,
+        file = parameters.file,
         fileData = {};
       formData.append('media[]', file);
       fileData.status = parameters.title + ' - ' + parameters.description;
-      var requestParameters = [];
       for (key in fileData) {
         if (fileData.hasOwnProperty(key)) {
           requestParameters.push([key, fileData[key]]);
@@ -485,32 +567,32 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         }
       }
       var message = {
-        action: 'https://api.twitter.com/1.1/statuses/update_with_media.json',
-        method: "POST",
-        parameters: requestParameters
-      };
-      var authorizationHeader = service.getAuthorizationHeader(message);
-      var queryString = OAuth.formEncode(fileData);
-      var data = {
-        url: 'https://api.twitter.com/1.1/statuses/update_with_media.json?' + queryString,
-        header: [authorizationHeader],
-        type: 'POST',
-        parameters: formData,
-        processData: false,
-        contentType: false
-      };
-      var success = function (jsonResponse) {
-        var uploadStatus = new Array();
-        uploadStatus.push(new SBW.Models.UploadStatus({
-          id: jsonResponse.id,
-          serviceName: 'twitter',
-          status: 'success',
-          rawData: jsonResponse
-        }));
-        successCallback(uploadStatus)
-      };
+          action: 'https://api.twitter.com/1.1/statuses/update_with_media.json',
+          method: "POST",
+          parameters: requestParameters
+        },
+        authorizationHeader = service.getAuthorizationHeader(message),
+        queryString = OAuth.formEncode(fileData),
+        data = {
+          url: 'https://api.twitter.com/1.1/statuses/update_with_media.json?' + queryString,
+          header: [authorizationHeader],
+          type: 'POST',
+          parameters: formData,
+          processData: false,
+          contentType: false
+        },
+        success = function (jsonResponse) {
+          var uploadStatus = new Array();
+          uploadStatus.push(new SBW.Models.UploadStatus({
+            id: jsonResponse.id,
+            serviceName: 'twitter',
+            status: 'success',
+            rawData: jsonResponse
+          }));
+          successCallback(uploadStatus);
+        };
       service.sendTwitterRequest(data, success, errorCallback);
-    })
+    });
   },
   /**
    * @method
@@ -526,26 +608,26 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @method
    * @desc Function to get the profile picture of the logged in user.
    * @param {String} userId The twitter user id of the user.
-   * @param {callback} successcallback Function to be executed in case of success response from twitter.
+   * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
-  getProfilePic: function (userId, successcallback, errorCallback) {
-    var service = this;
-    var parameters = {};
-    if (service.userObject.profile_image_url) {
-      successcallback(service.userObject.profile_image_url);
+  getProfilePic: function (userId, successCallback, errorCallback) {
+    var service = this,
+      parameters = {};
+    if (service.user.userImage) {
+      successCallback(service.user.userImage);
     } else {
       if (userId) {
         parameters['user_id'] = userId;
       } else {
-        if (service.userObject.id) {
-          parameters['user_id'] = service.userObject.id;
-        } else if (service.userObject.screen_name) {
-          parameters['screen_name'] = service.userObject.screen_name;
+        if (service.user.id) {
+          parameters['user_id'] = service.user.id;
+        } else if (service.user.screenName) {
+          parameters['screen_name'] = service.user.screenName;
         }
       }
       service.getProfile(parameters, function () {
-        successcallback(service.userObject.profile_image_url);
+        successCallback(service.user.userImage);
       }, errorCallback);
     }
   },
@@ -553,22 +635,42 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @method
    * @desc Function to get the user profile information.
    * @param {Object} parameters An object that contains the parameters for the request.
-   * @param {callback} successcallback Function to be executed in case of success response from twitter.
+   * @example parameter object
+       {
+         user_id:12345              optional
+         screen_name:'socialbyway'  optional
+         include_entities:false     optional
+       }
+   * @param {callback} successCallback Function to be executed in case of success response from twitter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
-  getProfile: function (parameters, successcallback, errorCallback) {
-    var service = this;
-    if (service.userObject.id && service.userObject.name && service.userObject.screen_name && service.userObject.profile_image_url) {
-      successcallback(service.userObject);
+  getProfile: function (parameters, successCallback, errorCallback) {
+    var service = this, data;
+    if (service.user.id && service.user.name && service.user.screenName && service.user.userImage) {
+      successCallback(service.user);
     } else {
-      var data = this.getDataForRequest(this.profileUrl, parameters, 'GET');
-      this.sendTwitterRequest(data, function (jsonResponse) {
-        service.userObject.id = jsonResponse.id;
-        service.userObject.name = jsonResponse.name;
-        service.userObject.screen_name = jsonResponse.screen_name;
-        service.userObject.profile_image_url = jsonResponse.profile_image_url;
-        successcallback(jsonResponse);
-      }, errorCallback);
+      var getProfileData = function (parameters, successCallback, errorCallback) {
+          data = service.getDataForRequest(service.profileUrl, parameters, 'GET');
+          service.sendTwitterRequest(data, function (jsonResponse) {
+            service.user.id = jsonResponse.id;
+            service.user.name = jsonResponse.name;
+            service.user.screenName = jsonResponse.screen_name;
+            service.user.userImage = jsonResponse.profile_image_url;
+            successCallback(jsonResponse);
+          }, errorCallback);
+        },
+        callback = (function (parameters, successCallback, errorCallback) {
+          return function (isLoggedIn) {
+            if (isLoggedIn) {
+              getProfileData(parameters, successCallback, errorCallback);
+            } else {
+              service.startActionHandler(function () {
+                getProfileData(parameters, successCallback, errorCallback);
+              });
+            }
+          };
+        })(parameters, successCallback, errorCallback);
+      service.checkUserLoggedIn(callback);
     }
   },
   /**
@@ -579,42 +681,28 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   follow: function (name, successCallback, errorCallback) {
-    var service = this,
-      followCallback = function (name, successCallback, errorCallback) {
-        service.checkFollowStatus(name, function (isFollowing) {
-          if (isFollowing === true) {
-            service.unSubscribe({
-              screen_name: name
-            }, successCallback, function (error) {
-              errorCallback(new SBW.Models.Error({
-                serviceName: 'twitter'
-              }));
-            });
-          } else {
-            service.subscribe({
-              screen_name: name
-            }, successCallback, function (error) {
-              errorCallback(new SBW.Models.Error({
-                serviceName: 'twitter'
-              }));
-            });
-          }
-        }, function (error) {
-          SBW.logger.error("In checkFollowStatus method - Twitter");
+    var service = this;
+    service.checkFollowStatus(name, function (isFollowing) {
+      if (isFollowing === true) {
+        service.unSubscribe({
+          screen_name: name
+        }, successCallback, function (error) {
+          errorCallback(new SBW.Models.Error({
+            serviceName: 'twitter'
+          }));
         });
-      },
-      callback = (function (name, successCallback, errorCallback) {
-        return function (isLoggedIn) {
-          if (isLoggedIn) {
-            followCallback(name, successCallback, errorCallback);
-          } else {
-            service.startActionHandler(function () {
-              followCallback(name, successCallback, errorCallback);
-            });
-          }
-        };
-      })(name, successCallback, errorCallback);
-    service.checkUserLoggedIn(callback);
+      } else {
+        service.subscribe({
+          screen_name: name
+        }, successCallback, function (error) {
+          errorCallback(new SBW.Models.Error({
+            serviceName: 'twitter'
+          }));
+        });
+      }
+    }, function (error) {
+      SBW.logger.error("In checkFollowStatus method - Twitter");
+    });
   },
   /**
    * @method
@@ -628,7 +716,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     var service = this,
       data, checkFollowStatusCallback = function (targetScreenName, successCallback, errorCallback) {
         data = service.getDataForRequest(service.followStatusUrl, {
-          source_screen_name: service.userObject.screen_name,
+          source_screen_name: service.user.screenName,
           target_screen_name: targetScreenName
         }, 'GET');
         service.sendTwitterRequest(data, function (response) {
@@ -697,27 +785,30 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   getShareCount: function (url, successCallback, errorCallback) {
-    this.getCount({
-      url: url
-    }, function (response) {
-      successCallback(response);
-    }, errorCallback);
+    var data = {
+      url: this.countUrl + ('?' + OAuth.formEncode({ url: url })),
+      type: 'GET',
+      header: [],
+      parameters: ''
+    };
+    this.sendTwitterRequest(data, successCallback, errorCallback);
   },
   /**
    * @method
    * @desc Function to get the tweet count of a particular url.
    * @param {Object} parameters An object that contains the parameters for the request.
-   * @param {callback} successcallback Function to be executed in case of success response from twitter. Contains a count object as parameter.
+   * @param {callback} successCallback Function to be executed in case of success response from twitter. Contains a count object as parameter.
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
-  getCount: function (parameters, successcallback, errorCallback) {
+  getCount: function (parameters, successCallback, errorCallback) {
     var data = {
       url: this.countUrl + ('?' + OAuth.formEncode(parameters)),
       type: 'GET',
       header: [],
       parameters: ''
     };
-    this.sendTwitterRequest(data, successcallback, errorCallback);
+    this.sendTwitterRequest(data, successCallback, errorCallback);
+    // todo usability of this method, as getShareCount already present
   },
   /**
    * @method
@@ -728,8 +819,23 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   share: function (id, parameters, successCallback, errorCallback) {
-    var data = this.getDataForRequest(this.shareUrl + id + ".json", parameters, 'POST');
-    this.sendTwitterRequest(data, successCallback, errorCallback);
+    var service = this, data,
+      shareTweet = function (id, parameters, successCallback, errorCallback) {
+        data = service.getDataForRequest(service.shareUrl + id + ".json", parameters, 'POST');
+        service.sendTwitterRequest(data, successCallback, errorCallback);
+      },
+      callback = (function (id, parameters, successCallback, errorCallback) {
+        return function (isLoggedIn) {
+          if (isLoggedIn) {
+            shareTweet(id, parameters, successCallback, errorCallback);
+          } else {
+            service.startActionHandler(function () {
+              shareTweet(id, parameters, successCallback, errorCallback);
+            });
+          }
+        };
+      })(id, parameters, successCallback, errorCallback);
+    service.checkUserLoggedIn(callback);
   },
   /**
    * @method

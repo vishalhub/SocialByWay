@@ -200,16 +200,16 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         type: 'GET',
         crossDomain: true,
         success: function (response) {
-          var jsonResp = SBW.Singletons.utils.getJSONFromQueryParams(response), user;
+          var jsonResp = SBW.Singletons.utils.getJSONFromQueryParams(response);
           service.accessObject.id = decodeURIComponent(jsonResp.user_nsid);
           service.accessObject.access_token = jsonResp.oauth_token;
           service.accessObject.tokenSecret = jsonResp.oauth_token_secret;
-          user = new SBW.Models.User({
+          service.user = new SBW.Models.User({
             name: jsonResp.username,
             id: decodeURIComponent(jsonResp.user_nsid),
             userImage:'http://flickr.com/buddyicons/' + decodeURIComponent(jsonResp.user_nsid) + '.jpg'
           });
-          service.populateUserInformation.call(service, user);
+          service.populateUserInformation.call(service, service.user);
           service.isUserLoggingIn = true;
           callback(response);
         }

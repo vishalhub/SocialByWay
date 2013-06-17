@@ -78,7 +78,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
         service.isUserLoggingIn = false;
       }
     };
-    if (service.authWindowReference == null || service.authWindowReference.closed) {
+    if (service.authWindowReference === null || service.authWindowReference.closed || service.authWindowReference === undefined) {
       service.authWindowReference = window.open('', 'Twitter' + new Date().getTime(), service.getPopupWindowParams({
         height: 500,
         width: 400
@@ -151,8 +151,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} callback - callback function to be called after fetching the access token.
    */
   getAccessToken: function (callback) {
-    var service = this;
-    var twitterVerifier = service.getCookie('twitterToken');
+    var service = this,
+      twitterVerifier = service.getCookie('twitterToken');
     if (twitterVerifier) {
       var message = {
         action: this.accessTokenUrl,
@@ -161,8 +161,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           oauth_token: service.accessObject.access_token,
           oauth_verifier: twitterVerifier
         }
-      };
-      var url = service.signAndReturnUrl(this.accessTokenUrl, message);
+      },
+        url = service.signAndReturnUrl(this.accessTokenUrl, message);
       this.sendTwitterRequest({
         url: url,
         returnType: 'text'
@@ -193,7 +193,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     var service = this;
     service.accessObject.access_token = null;
     service.accessObject.nsid = null;
-    service.successLogoutHandler(callback);
   },
   /**
    * @method
@@ -366,18 +365,18 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    * @param {callback} errorCallback Function to be executed in case of error response from twitter.
    */
   searchTweets: function (parameters, successCallback, errorCallback) {
-    var key, querystring = '';
+    var key, queryString = '';
     if (parameters) {
       for (key in parameters) {
         if (parameters.hasOwnProperty(key)) {
           parameters[key] = encodeURIComponent(parameters[key]);
-          querystring += key + '=' + parameters[key] + '&';
+          queryString += key + '=' + parameters[key] + '&';
         }
       }
-      querystring = querystring.slice(0, querystring.lastIndexOf('&'));
+      queryString = queryString.slice(0, queryString.lastIndexOf('&'));
     }
     var data = {
-      url: 'https://search.twitter.com/search.json' + '?' + querystring,
+      url: 'https://search.twitter.com/search.json' + '?' + queryString,
       type: 'GET',
       header: '',
       parameters: ''
@@ -512,6 +511,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     service.checkUserLoggedIn(callback);
   },
   /**
+   * implement it when twitter supports get favorites count for a tweet
    * @method
    * @desc Function to get a post corresponding to an id.
    * @param {String} objectId Id of the object.
@@ -527,7 +527,6 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
       rawData: ''
     };
     successCallback(likesObject);
-    // todo implement it when twitter supports get favorites count for a tweet
   },
   /**
    * @method
@@ -543,6 +542,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
     } else {
       errorCallback(null);
     }
+    // todo authentication required
   },
   /**
    * @method
@@ -582,7 +582,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
           contentType: false
         },
         success = function (jsonResponse) {
-          var uploadStatus = new Array();
+          var uploadStatus = [];
           uploadStatus.push(new SBW.Models.UploadStatus({
             id: jsonResponse.id,
             serviceName: 'twitter',
@@ -714,7 +714,8 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
    */
   checkFollowStatus: function (targetScreenName, successCallback, errorCallback) {
     var service = this,
-      data, checkFollowStatusCallback = function (targetScreenName, successCallback, errorCallback) {
+      data,
+      checkFollowStatusCallback = function (targetScreenName, successCallback, errorCallback) {
         data = service.getDataForRequest(service.followStatusUrl, {
           source_screen_name: service.user.screenName,
           target_screen_name: targetScreenName

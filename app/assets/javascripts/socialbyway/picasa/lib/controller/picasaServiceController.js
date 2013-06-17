@@ -653,10 +653,10 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
                 if (uploadStatus.length === mediaDataLength) {
                   successCallback(uploadStatus);
                 }
-              }, function() {
+              }, function(response) {
                 uploadStatus.push(new SBW.Models.Error({
                   serviceName: 'picasa',
-                  rawData: value
+                  rawData: response
                 }));
                 if (uploadStatus.length === mediaData.length) {
                   errorCallback(uploadStatus);

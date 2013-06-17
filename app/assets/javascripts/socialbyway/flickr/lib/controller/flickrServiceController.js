@@ -26,7 +26,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
   /**
    * @property {Array} content {@link SBW.Models.AssetCollection Asset Collections} container for Flickr.
    */
-  
+
   content: [],
   /**
    * @method
@@ -148,29 +148,29 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     return link;
   },
 
-    /**
-     * @method
-     * @desc uploads raw image     
-     * @param {Array} mediaData array of image meta data objects
-     * @param {Function} successCallback  Callback to be executed on successful logging out.
-     * @param {Function} errorCallback  Callback to be executed on logging out error.
-     */
-    uploadRawImage: function(mediaData, successCallback,errorCallback){
-     var service = this; 
-    var tempMedia = JSON.parse(JSON.stringify(mediaData));
-     tempMedia.forEach(function(fileData){
-          var photo = fileData["file"];
-          var length = photo.length;
-          var arrayBuffer = new ArrayBuffer(length);
-          var unit8Array = new Uint8Array(arrayBuffer);
-          for(var i=0; i<length; i++){
-              unit8Array[i] = photo.charCodeAt(i);
-          }        
-        fileData["file"] = new Blob([arrayBuffer], {"type":"image/jpeg"});
-     }); 
+  /**
+   * @method
+   * @desc uploads raw image
+   * @param {Array} mediaData array of image meta data objects
+   * @param {Function} successCallback  Callback to be executed on successful logging out.
+   * @param {Function} errorCallback  Callback to be executed on logging out error.
+   */
+  uploadRawImage: function (mediaData, successCallback, errorCallback) {
+    var service = this,
+      tempMedia = JSON.parse(JSON.stringify(mediaData));
+    tempMedia.forEach(function (fileData) {
+      var photo = fileData["file"],
+        length = photo.length,
+        arrayBuffer = new ArrayBuffer(length),
+        unit8Array = new Uint8Array(arrayBuffer);
+      for (var i = 0; i < length; i++) {
+        unit8Array[i] = photo.charCodeAt(i);
+      }
+      fileData["file"] = new Blob([arrayBuffer], {"type": "image/jpeg"});
+    });
 
-      service.uploadPhoto(tempMedia, successCallback, errorCallback);
-    },
+    service.uploadPhoto(tempMedia, successCallback, errorCallback);
+  },
 
 
   /**
@@ -207,7 +207,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
           service.user = new SBW.Models.User({
             name: jsonResp.username,
             id: decodeURIComponent(jsonResp.user_nsid),
-            userImage:'http://flickr.com/buddyicons/' + decodeURIComponent(jsonResp.user_nsid) + '.jpg'
+            userImage: 'http://flickr.com/buddyicons/' + decodeURIComponent(jsonResp.user_nsid) + '.jpg'
           });
           service.populateUserInformation.call(service, service.user);
           service.isUserLoggingIn = true;
@@ -791,22 +791,22 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         nojsoncallback: 1
       }
     };
-    var commentSuccess = function(result) {
-            var commentsData = [];
-            for (var i = 0; i < result.comments.comment.length; i++) {
-              commentsData[i] = new SBW.Models.Comment({
-                createdTime: result.comments.comment[i].datecreate,
-                fromUser: result.comments.comment[i].authorname,
-                likeCount: null,
-                text: result.comments.comment[i]._content,
-                rawData: result.comments.comment[i],
-                serviceName: "flickr",
-                id: result.comments.comment[i].id,
-                userImage: 'http://flickr.com/buddyicons/' + result.comments.comment[i].author + '.jpg'
-              });
-            }
-            successCallback(commentsData);
-          };
+    var commentSuccess = function (result) {
+      var commentsData = [];
+      for (var i = 0; i < result.comments.comment.length; i++) {
+        commentsData[i] = new SBW.Models.Comment({
+          createdTime: result.comments.comment[i].datecreate,
+          fromUser: result.comments.comment[i].authorname,
+          likeCount: null,
+          text: result.comments.comment[i]._content,
+          rawData: result.comments.comment[i],
+          serviceName: "flickr",
+          id: result.comments.comment[i].id,
+          userImage: 'http://flickr.com/buddyicons/' + result.comments.comment[i].author + '.jpg'
+        });
+      }
+      successCallback(commentsData);
+    };
     var url = service.signAndReturnUrl(service.flickrApiUrl, message);
     SBW.Singletons.utils.ajax({
         url: url,
@@ -903,7 +903,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
                 rawData: response,
                 code: response.code
               });
-              errorCallback(errorObject)  ;
+              errorCallback(errorObject);
             } else {
               var albums = response.photosets.photoset;
               albums.forEach(function (album) {

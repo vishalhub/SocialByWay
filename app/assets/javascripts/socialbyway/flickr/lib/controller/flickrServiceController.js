@@ -159,19 +159,24 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
     var service = this,
       tempMedia = JSON.parse(JSON.stringify(mediaData));
     tempMedia.forEach(function (fileData) {
-      var photo = fileData["file"],
-        length = photo.length,
-        arrayBuffer = new ArrayBuffer(length),
-        unit8Array = new Uint8Array(arrayBuffer);
-      for (var i = 0; i < length; i++) {
-        unit8Array[i] = photo.charCodeAt(i);
-      }
-      fileData["file"] = new Blob([arrayBuffer], {"type": "image/jpeg"});
+      var url = service.proxyUrl + "?url=" + fileData.file,
+        sendRequest = function (response) {
+          if(response.length) {
+            var length = response.length,
+              arrayBuffer = new ArrayBuffer(length),
+              unit8Array = new Uint8Array(arrayBuffer);
+            for (var i = 0; i < length; i++) {
+              unit8Array[i] = response.charCodeAt(i);
+            }
+            fileData["file"] = new Blob([arrayBuffer], {"type": "image/jpeg"});
+            service.uploadPhoto([fileData], successCallback, errorCallback);
+          }else{
+            errorCallback(response)
+          }
+        };
+      SBW.Singletons.utils.getRawImage(url,sendRequest);
     });
-
-    service.uploadPhoto(tempMedia, successCallback, errorCallback);
   },
-
 
   /**
    * @method

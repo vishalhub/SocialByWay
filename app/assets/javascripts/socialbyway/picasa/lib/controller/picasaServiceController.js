@@ -635,10 +635,10 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
           uploadStatus = [];
           $.each(mediaData, function() {
               var filedata = this;
-
+            var sendRequest = function(binarydata){
               SBW.Singletons.utils.ajax({
                 url: url,
-                data: service._generateMultipart(filedata.title, filedata.description, filedata.file, "image/jpeg", true),
+                data: service._generateMultipart(filedata.title, filedata.description, binarydata, "image/jpeg", true),
                 contentType: 'multipart/related; boundary="END_OF_PART"',
                 crossDomain: false,
                 type: "POST",
@@ -661,8 +661,10 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
                 if (uploadStatus.length === mediaData.length) {
                   errorCallback(uploadStatus);
                 }
-              });
-        });
+              }); };
+            var imageUrl = SBW.Singletons.config.proxyURL + "?url=" + filedata.file;
+              SBW.Singletons.utils.getRawImage(imageUrl,sendRequest);
+          });
       },
       callback = (function(mediaData, successCallback, errorCallback) {
         return function(isLoggedIn) {

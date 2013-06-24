@@ -885,6 +885,9 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   getAlbums: function(successCallback, errorCallback) {
     var service = this,
       getAlbumsCallback = function(successCallback, errorCallback) {
+        if(service.content.length>0){
+          successCallback(service.content)
+        } else {
         FB.api('/me/albums?access_token=' + service.accessObject['token'], 'get', function(response) {
           if (response && !response.error) {
             var collection = null,
@@ -942,6 +945,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
 
         });
+        }
       },
       callback = (function(successCallback, errorCallback) {
         return function(isLoggedIn) {

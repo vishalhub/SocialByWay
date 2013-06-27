@@ -10,6 +10,7 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   isPhotoSetSupported: false,
 
   authWindowReference: null,
+  content:[],
 
   init: function () {
     var clientID = SBW.Singletons.config.services.Instagram.apiKey,
@@ -293,112 +294,116 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
   getMedia: function (userId, successCallback, errorCallback) {
     var service = this,
       publish = function (userId, successCallback, errorCallback) {
-        SBW.Singletons.utils.ajax({
-            url: service.apiUrl + '/users/' + userId + '/media/recent',
-            data: {access_token: service.accessObject.access_token},
-            type: 'GET',
-            dataType: 'jsonp'
-          },
-          function (response) {
-            if (response.meta.code === 200) {
-              var content = new Array(),
-                assets = response.data;
-              assets.forEach(function (asset) {
-                var collection = new SBW.Models.ImageAsset({
-                    id: '',
-                    src: asset.images.standard_resolution.url,
-                    title: asset.caption === null ? null : asset.caption.text,
-                    createdTime: new Date.getTime(),
-                    serviceName: 'instagram',
-                    rawData: asset,
-                    status: 'private',
-                    imgSizes: {
-                      t: asset.images.thumbnail.url,
-                      s: asset.images.thumbnail.url,
-                      m: asset.images.low_resolution.url,
-                      l: asset.images.standard_resolution.url
-                    },
-                    metadata: {
-                      caption: asset.caption,
-                      type: asset.type,
-                      dateTaken: new Date(asset.created_time * 1000).toDateString(),
-                      dateUpdated: null,
-                      dateUploaded: null,
-                      comments: null,
-                      size: null,
-                      assetId: asset.id,
-                      assetCollectionId: null,
-                      height: asset.images.standard_resolution.height,
-                      width: asset.images.standard_resolution.width,
-                      commentCount: asset.comments.count,
-                      category: null,
-                      exifMake: null,
-                      exifModel: null,
-                      iptcKeywords: null,
-                      orientation: null,
-                      tags: asset.tags,
-                      downloadUrl: asset.images.standard_resolution.url,
-                      originalFormat: null,
-                      fileName: null,
-                      version: null,
-                      description: asset.caption,
-                      thumbnail: asset.images.thumbnail.url,
-                      previewUrl: asset.images.standard_resolution.url,
-                      author: new SBW.Models.User({
-                        name: asset.user.full_name,
-                        id: asset.user.id,
-                        userImage: asset.user.profile_picture
-                      }),
-                      authorAvatar: null,
-                      likeCount: asset.likes.count,
-                      likes: asset.likes.data
-                    }
-                  }),
-                  comments = asset.comments.data,
-                  commentsArray = new Array(),
-                  likes = asset.likes.data,
-                  likesArray = new Array();
-                collection.id = collection.getID();
-                comments.forEach(function (comment) {
-                  var commentObject = new SBW.Models.Comment({
-                    text: comment.text,
-                    id: comment.id,
-                    createdTime: comment.created_time,
-                    fromUser: comment.from.full_name,
-                    likeCount: null,
-                    profilePic: comment.from.profile_picture,
-                    rawData: comment,
-                    serviceName: 'instagram'
-                  });
-                  commentsArray.push(commentObject);
-                });
-                collection.metadata.comments = commentsArray;
-                likes.forEach(function (like) {
-                  var likeObject = new SBW.Models.Like({
-                    user: new SBW.Models.User({
-                      name: like.full_name,
-                      id: like.id,
-                      userImage: like.profile_picture
+        if(service.content.length>0){
+          successCallback(service.content[0].assets);
+        }else{
+          SBW.Singletons.utils.ajax({
+              url: service.apiUrl + '/users/' + userId + '/media/recent',
+              data: {access_token: service.accessObject.access_token},
+              type: 'GET',
+              dataType: 'jsonp'
+            },
+            function (response) {
+              if (response.meta.code === 200) {
+                var content = new Array(),
+                  assets = response.data;
+                assets.forEach(function (asset) {
+                  var collection = new SBW.Models.ImageAsset({
+                      id: '',
+                      src: asset.images.standard_resolution.url,
+                      title: asset.caption === null ? null : asset.caption.text,
+                      createdTime: new Date().getTime(),
+                      serviceName: 'instagram',
+                      rawData: asset,
+                      status: 'private',
+                      imgSizes: {
+                        t: asset.images.thumbnail.url,
+                        s: asset.images.thumbnail.url,
+                        m: asset.images.low_resolution.url,
+                        l: asset.images.standard_resolution.url
+                      },
+                      metadata: {
+                        caption: asset.caption,
+                        type: asset.type,
+                        dateTaken: new Date(asset.created_time * 1000).toDateString(),
+                        dateUpdated: null,
+                        dateUploaded: null,
+                        comments: null,
+                        size: null,
+                        assetId: asset.id,
+                        assetCollectionId: null,
+                        height: asset.images.standard_resolution.height,
+                        width: asset.images.standard_resolution.width,
+                        commentCount: asset.comments.count,
+                        category: null,
+                        exifMake: null,
+                        exifModel: null,
+                        iptcKeywords: null,
+                        orientation: null,
+                        tags: asset.tags,
+                        downloadUrl: asset.images.standard_resolution.url,
+                        originalFormat: null,
+                        fileName: null,
+                        version: null,
+                        description: asset.caption,
+                        thumbnail: asset.images.thumbnail.url,
+                        previewUrl: asset.images.standard_resolution.url,
+                        author: new SBW.Models.User({
+                          name: asset.user.full_name,
+                          id: asset.user.id,
+                          userImage: asset.user.profile_picture
+                        }),
+                        authorAvatar: null,
+                        likeCount: asset.likes.count,
+                        likes: asset.likes.data
+                      }
                     }),
-                    rawData: like
+                    comments = asset.comments.data,
+                    commentsArray = new Array(),
+                    likes = asset.likes.data,
+                    likesArray = new Array();
+                  collection.id = collection.getID();
+                  comments.forEach(function (comment) {
+                    var commentObject = new SBW.Models.Comment({
+                      text: comment.text,
+                      id: comment.id,
+                      createdTime: comment.created_time,
+                      fromUser: comment.from.full_name,
+                      likeCount: null,
+                      userImage: comment.from.profile_picture,
+                      rawData: comment,
+                      serviceName: 'instagram'
+                    });
+                    commentsArray.push(commentObject);
                   });
-                  likesArray.push(likeObject);
+                  collection.metadata.comments = commentsArray;
+                  likes.forEach(function (like) {
+                    var likeObject = new SBW.Models.Like({
+                      user: new SBW.Models.User({
+                        name: like.full_name,
+                        id: like.id,
+                        userImage: like.profile_picture
+                      }),
+                      rawData: like
+                    });
+                    likesArray.push(likeObject);
+                  });
+                  collection.metadata.likes = likesArray;
+                  content.push(collection);
                 });
-                collection.metadata.likes = likesArray;
-                content.push(collection);
-              });
-              successCallback(content);
-            } else {
-              var errorObject = new SBW.Models.Error({
-                message: response.meta.error_message,
-                serviceName: 'instagram',
-                rawData: response,
-                code: response.meta.code
-              });
-              errorCallback(errorObject);
-            }
-          }, errorCallback
-        );
+                successCallback(content);
+              } else {
+                var errorObject = new SBW.Models.Error({
+                  message: response.meta.error_message,
+                  serviceName: 'instagram',
+                  rawData: response,
+                  code: response.meta.code
+                });
+                errorCallback(errorObject);
+              }
+            }, errorCallback
+          );
+        }
       },
       callback = (function (userId, successCallback, errorCallback) {
         return function (isLoggedIn) {
@@ -412,5 +417,51 @@ SBW.Controllers.Services.Instagram = SBW.Controllers.Services.ServiceController.
         };
       })(userId, successCallback, errorCallback);
     service.checkUserLoggedIn(callback);
+  },
+  /**
+   * @method
+   * @desc To get albums from a logged in user through flickr API service
+   * The method doesn't require any authentication
+   * @param {String} userId
+   * @param {Callback} successCallback
+   * @param {Callback} errorCallback
+   */
+  getAlbums: function (successCallback, errorCallback, userId) {
+    var user = userId || 'self', service = this,
+      createPseudoAlbum = function(imageAssets){
+       var collection = new SBW.Models.AssetCollection({
+          title: '',
+          createdTime: new Date().getTime(),
+          serviceName: 'instagram',
+          assets:imageAssets,
+          metadata: {
+            numAssets:imageAssets.length,
+            assetCollectionId: '',
+            thumbnail: imageAssets[0].metadata.thumbnail || '',
+            author: imageAssets[0].metadata.author.name
+          }
+        });
+        collection.id = collection.getID();
+        service.content.push(collection);
+        successCallback(service.content);
+      };
+    if(service.content.length>0){
+     successCallback(service.content);
+    }else{
+      service.getMedia(user, createPseudoAlbum, errorCallback);
+    }
+  },
+  /**
+   * @method
+   * @desc To get albums from a logged in user through flickr API service
+   * The method doesn't require any authentication
+   * @param {String} userId
+   * @param {Callback} successCallback
+   * @param {Callback} errorCallback
+   */
+  getPhotosFromAlbum: function (userId, successCallback, errorCallback) {
+    var user = userId || 'self'
+    this.getMedia(user, successCallback, errorCallback);
   }
+
 });

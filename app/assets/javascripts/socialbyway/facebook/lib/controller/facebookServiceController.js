@@ -885,6 +885,9 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
   getAlbums: function(successCallback, errorCallback) {
     var service = this,
       getAlbumsCallback = function(successCallback, errorCallback) {
+        if(service.content.length>0){
+          successCallback(service.content)
+        } else {
         FB.api('/me/albums?access_token=' + service.accessObject['token'], 'get', function(response) {
           if (response && !response.error) {
             var collection = null,
@@ -914,7 +917,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   createdTime: value.created_time,
                   fromUser: value.from.name,
                   likeCount: value.like_count,
-                  profilePic: '',
+                  userImage: '',
                   serviceName: 'facebook',
                   rawData: value
                 });
@@ -942,6 +945,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
           }
 
         });
+        }
       },
       callback = (function(successCallback, errorCallback) {
         return function(isLoggedIn) {
@@ -1009,7 +1013,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
                   createdTime: value.created_time,
                   fromUser: value.from.name || 'unknownn',
                   likeCount: value.like_count,
-                  profilePic: null,
+                  userImage: null,
                   serviceName: 'facebook',
                   rawData: value
                 });
@@ -1120,6 +1124,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               commentsData[i] = new SBW.Models.Comment({
                 createdTime: result[i].created_time,
                 fromUser: result[i].from.name,
+                fromUserId : result[i].from.id,
                 likeCount: result[i].like_count,
                 text: result[i].message,
                 rawData: result[i],
@@ -1532,21 +1537,27 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
      * @param {Function} successCallback  Callback to be executed on successful logging out.
      * @param {Function} errorCallback  Callback to be executed on logging out error.
      */
-    uploadRawImage: function(mediaData, successCallback,errorCallback){
-     var service = this; 
-    var tempMedia = JSON.parse(JSON.stringify(mediaData));
-     tempMedia.forEach(function(fileData){
-          var photo = fileData["file"];
-          var length = photo.length;
-          var arrayBuffer = new ArrayBuffer(length);
-          var unit8Array = new Uint8Array(arrayBuffer);
-          for(var i=0; i<length; i++){
-              unit8Array[i] = photo.charCodeAt(i);
-          }        
-        fileData["file"] = new Blob([arrayBuffer], {"type":"image/jpeg"});
-     }); 
-
-      service.uploadPhoto(tempMedia, successCallback, errorCallback);
+    uploadRawImage: function (mediaData, successCallback, errorCallback) {
+      var service = this,
+        tempMedia = JSON.parse(JSON.stringify(mediaData));
+      tempMedia.forEach(function (fileData) {
+        var url = SBW.Singletons.config.proxyURL + "?url=" + fileData.file,
+          sendRequest = function (response) {
+            if(response.length) {
+              var length = response.length,
+                arrayBuffer = new ArrayBuffer(length),
+                unit8Array = new Uint8Array(arrayBuffer);
+              for (var i = 0; i < length; i++) {
+                unit8Array[i] = response.charCodeAt(i);
+              }
+              fileData["file"] = new Blob([arrayBuffer], {"type": "image/jpeg"});
+              service.uploadPhoto([fileData], successCallback, errorCallback);
+            }else{
+              errorCallback(response)
+            }
+          };
+        SBW.Singletons.utils.getRawImage(url,sendRequest);
+      });
     },
 
   /**
@@ -1568,7 +1579,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               fromUser: value['from']['name'],
               likeCount: value['like_count'],
               text: value['message'],
-              picUrl: picResponse,
+              userImage: picResponse,
               rawData: value,
               serviceName: "facebook"
             });

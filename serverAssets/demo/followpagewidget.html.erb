@@ -15,7 +15,10 @@
     	/* Initialize socialbyway with the config and a callback function to be called after loading socialbyway library*/
         SBW.init('../config/config.json', function () {
         /* Initialize follow page widget in the callback. */
-          $('#follow-page-widget').FollowPageWidget({userDetails: {twitter: 'ndtv'}, services: ['facebook', 'twitter']});
+          $('#follow-page-widget').FollowPageWidget({userDetails: {twitter: 'socialbyway', /*username of the page*/
+                                                                   linkedin: '13084'},/*company id of the company page*/
+                                                     services: ['facebook', 'twitter']
+                                                    });
         });
     });
 </script>

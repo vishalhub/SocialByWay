@@ -8,7 +8,7 @@
  * @property {String} createTime  Time in string format
  * @property {String} fromUser User name
  * @property {String} likeCount Number of likes for the comment
- * @property {String} profilePic Url of the porfile picture of the user
+ * @property {String} userImage Url of the User Image
  * @property {Object} rawData Raw data from the serivce(eg. facebook, twitter)
  * @property {String} serviceName  Name of the service(eg. facebook, twitter)
  * @constructor
@@ -19,7 +19,8 @@ SBW.Models.Comment = SBW.Object.extend(/** @lends SBW.Models.Comment# */{
   createdTime: null,
   fromUser: "",
   likeCount: null,
-  profilePic: "",
+  userImage: "",
   rawData: null,
-  serviceName: ''
+  serviceName: '',
+  fromUserId:''
 });

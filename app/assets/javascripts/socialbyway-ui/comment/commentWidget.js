@@ -1,4 +1,4 @@
-(function($) { /*jslint nomen: true*/
+(function ($) { /*jslint nomen: true*/
   /*jslint plusplus: true */
   /*global console, SBW*/
   /**
@@ -11,47 +11,27 @@
    */
   "use strict";
   $.widget("ui.CommentWidget", /** @lends CommentWidget.prototype */ {
-    _create: function() {
+    _create: function () {
       var self = this;
       self.serviceFactory = SBW.Singletons.serviceFactory;
       // Tabs UI
       self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-comment-widget-" + self.options.class);
+      self.$commentsContainer = $('<div/>').attr('class', "comments-container");
       self.$textBox = $('<textarea/>', {
         name: 'comment',
         'class': 'comment-box',
         maxlength: 5000,
         cols: 62,
-        rows: 8,
         placeholder: self.options.labelPlaceholder || "Enter your comment..."
       });
-      self.$actionStrip = $('<div/>', {
-        'class': "actions-strip"
-      });
 
-      self.$tabsDiv.on('click', '.service-box input', function(e) {
-        var that = this,
-          value = that.value;
-        if ($(that).is(":checked")) {
-          $(that).prop('checked', false);
-          self.serviceFactory.getService(value).startActionHandler(function() {
-            $(that).prop('checked', true);
-            self.$actionStrip.find(".service-container." + value).addClass('selected');
-          });
-        } else {
-          self.$actionStrip.find(".service-container." + value).removeClass('selected');
-        }
-      });
-
-      self.options.services.forEach(function(value) {
-        self.$actionStrip.append("<div class='service-box'> <input type='checkbox' name='service' value='" + value + "'/> <div class='service-container " + value + "'></div></div>");
-      });
       self.$postBtn = $('<button/>').addClass('post-comment').text(self.options.buttonText || "Comment");
 
       self.$postBtn.on("click", this, this._addPost);
 
-      self.$actionStrip.append(self.$postBtn).append('<div class="clear"></div>');
-      self.$tabsDiv.append(self.$textBox).append(self.$actionStrip);
+      self.$tabsDiv.append(self.$commentsContainer, self.$textBox, self.$postBtn);
       self.element.append(self.$tabsDiv);
+      self._populateComments(self);
     },
     /**
      * @desc Options for the widget.
@@ -68,29 +48,33 @@
      */
     options: {
       successMessage: '',
-      services: ['facebook'],
-      limit: 10,
+      service: 'facebook',
       offset: 0,
       class: "default",
       labelPlaceholder: "Enter text..",
-      buttonText: "comment",
+      buttonText: "Comment",
       title: "Comment",
-      postId: null
+      postIdObject: {assetId : '5893334424993468098',
+                     assetCollectionId : '5837300989591115521'},
+      displayResponse: false,
+      displayComments: true,
+      displayImage: true,
+      displayPost: false
     },
     /**
      * @method
      * @desc Sets the Post Id for comment widget instace
      * $param id Id of the Post.
      */
-    setPostId: function(id) {
+    setPostId: function (postIdObject) {
       var self = this;
-      self.options.postId = id;
+      self.options.postIdObject = postIdObject;
     },
     /**
      * @method
      * @desc Removes the widget from display
      */
-    destroy: function() {
+    destroy: function () {
       this.$tabsDiv.remove();
       $.Widget.prototype.destroy.call(this);
     },
@@ -100,33 +84,62 @@
      * @param e
      * @private
      */
-    _addPost: function(e) {
+    _populateComments: function (context) {
+      var self = context,
+        populateComments = function (comments) {
+          var temp = [];
+          comments.forEach(function (comment) {
+            if(!self.options.displayImage){
+              temp.push("<div class='comment'><span class='frmuser'>" + comment.fromUser + ' : ' + "</span><span class='msg'>" + comment.text + "</span></div>");
+            } else {
+              var populateCommentsWithImage = function(profilePicUrl){
+                temp.push('<div class="comment"><img class="comment-image" src="' + profilePicUrl + '"><span class="frmuser">' + comment.fromUser + ' : ' + "</span><span class='msg'>" + comment.text + "</span></div>");
+              }
+               SBW.api.getProfilePic(self.options.service,comment.fromUserId, populateCommentsWithImage, function(resp){console.log(resp)});
+            }
+          });
+          self.$commentsContainer.empty();
+          self.$commentsContainer.append(temp);
+        },
+        failureCallback = function () {
+          self.$commentsContainer.append("<p>Unable to fetch Comments from" + self.options.service + "</p>");
+        };
+      SBW.api.getComments(self.options.service, self.options.postIdObject , populateComments, failureCallback);
+    },
+    /**
+     * @method
+     * @memberof CommentWidget
+     * @param e
+     * @private
+     */
+    _addPost: function (e) {
       var self = e.data,
         postText = self.$textBox.val(),
-        serviceArr = [],
-        successCallback = function(response) {
-          var elem = self.$tabsDiv.find(".sbw-success-message");
-          if (elem.length !== 0) {
-            elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.serviceName + ".");
-          } else {
-            self.$tabsDiv.append('<span class="sbw-success-message">Successfully posted on ' + response.serviceName + '.</span>');
+        successCallback = function (response) {
+          if (self.displayResponse) {
+            var elem = self.$tabsDiv.find(".sbw-success-message");
+            if (elem.length !== 0) {
+              elem.html(elem.text().substr(0, elem.text().length - 1) + ", " + response.serviceName + ".");
+            } else {
+              self.$tabsDiv.append('<span class="sbw-success-message">Successfully posted on ' + response.serviceName + '.</span>');
+            }
+          }
+          if (self.options.displayComments) {
+            self._populateComments(self);
           }
         },
-        failureCallback = function(response) {
-          self.$tabsDiv.append('<span class="sbw-error-message">Some problem in posting with ' + response.serviceName + '.</span>');
+        failureCallback = function (response) {
+          if (self.displayResponse) {
+            self.$tabsDiv.append('<span class="sbw-error-message">Some problem in posting with ' + response.serviceName + '.</span>');
+          }
         };
-      self.$actionStrip.find("input:checked").each(function() {
-        serviceArr.push(this.value);
-        if (this.value === 'twitter') {
-          postText = postText.substring(0, 140); //twitter character limit
-        }
-      });
-      self.$tabsDiv.find(".sbw-success-message").remove();
-      self.$tabsDiv.find(".sbw-error-message").remove();
+      self.$textBox.val('');
+      if (self.displayResponse) {
+        self.$tabsDiv.find(".sbw-success-message").remove();
+        self.$tabsDiv.find(".sbw-error-message").remove();
+      }
 
-      SBW.api.postComment(serviceArr, {
-        assetId: self.options.postId
-      }, postText, successCallback, failureCallback);
+      SBW.api.postComment(self.options.service, self.options.postIdObject, postText, successCallback, failureCallback);
 
     }
   });

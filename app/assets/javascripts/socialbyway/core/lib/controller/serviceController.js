@@ -147,11 +147,12 @@
      */
     publishMessage: function (serviceArr, message, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).publishMessage(message, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).publishMessage(message, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).publishMessage(message, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the publishMessage method.
@@ -174,11 +175,12 @@
      */
     postShare: function (serviceArr, postObject, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).postShare(postObject, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).postShare(postObject, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).postShare(postObject, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the postShare method.
@@ -222,11 +224,12 @@
      */
     publishLink: function (serviceArr, type, name, caption, message, link, description, picture, icon, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).publishLink(type, name, caption, message, link, description, picture, icon, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).publishLink(type, name, caption, message, link, description, picture, icon, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).publishLink(type, name, caption, message, link, description, picture, icon, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the publishLink method.
@@ -250,11 +253,12 @@
      */
     publishEvent: function (serviceArr, name, startTime, endTime, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).publishEvent(name, startTime, endTime, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).publishEvent(name, startTime, endTime, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).publishEvent(name, startTime, endTime, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the publishEvent method.
@@ -317,13 +321,14 @@
      * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~postComment-successCallback Callback} to be executed on successful comment posting.
      * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~postComment-errorCallback Callback} to be executed on comment posting error.
      */
-		postComment: function(serviceArr, idObject, comment, successCallback, errorCallback) {
-			if (!(serviceArr instanceof Array)) {
-				serviceArr = [];
-			} // create an empty array if not passed
-			serviceArr.forEach(function(serviceName, index, serviceArr) {
-				SBW.Singletons.serviceFactory.getService(serviceName).postComment(idObject, comment, successCallback, errorCallback);
-			});
+    postComment: function (serviceArr, idObject, comment, successCallback, errorCallback) {
+      if (!(serviceArr instanceof Array)) {
+        SBW.Singletons.serviceFactory.getService(serviceArr).postComment(idObject, comment, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (serviceName, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(serviceName).postComment(idObject, comment, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the postComment method.
@@ -441,6 +446,26 @@
      **/
     /**
      * @method
+     * @desc get albums for the logged in user from the specified service.
+     * @param {String} serviceName  Name of the registered service.
+     * @param {Function} successCallback  {@link SBW.Controllers.Services.ServiceController~getPhotos-successCallback Callback} to be executed on successful retrieval of albums.
+     * @param {Function} errorCallback  {@link SBW.Controllers.Services.ServiceController~getPhotos-errorCallback Callback} to be executed on error while retrieving albums.
+     */
+    getPhotos: function (serviceName, successCallback, errorCallback) {
+      SBW.Singletons.serviceFactory.getService(serviceName).getPhotos(successCallback, errorCallback);
+    },
+    /**
+     * This callback is displayed as part of the getAlbums method.
+     * @callback SBW.Controllers.Services.ServiceController~getAlbums-successCallback
+     * @param {Array} response
+     **/
+    /**
+     * This callback is displayed as part of the getAlbums method.
+     * @callback SBW.Controllers.Services.ServiceController~getAlbums-errorCallback
+     * @param {SBW.Models.Error} response JSON response from the service
+     **/
+    /**
+     * @method
      * @desc Fetch photo details from album for the specified service.
      * @param {String} serviceName  Name of the registered service.
      * @param {String}   albumId Album Id from which to fetch the photo details.
@@ -479,11 +504,12 @@
      */
     getCommentsForUrl: function (serviceArr, options, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).getCommentsForUrl(options, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).getCommentsForUrl(options, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).getCommentsForUrl(options, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the getCommentsForUrl method.
@@ -597,11 +623,12 @@
      */
     getShareCount: function (serviceArr, url, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).getShareCount(url, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).getShareCount(url, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).getShareCount(url, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the getShareCount method.
@@ -666,11 +693,12 @@
      */
     publishNotes: function (serviceArr, subject, message, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).publishNotes(subject, message, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).publishNotes(subject, message, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).publishNotes(subject, message, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the publishNotes method.
@@ -801,11 +829,12 @@
      */
     uploadVideo: function (serviceArr, fileData, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).uploadVideo(fileData, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).uploadVideo(fileData, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the uploadVideo method.
@@ -827,11 +856,12 @@
      */
     uploadPhoto: function (serviceArr, fileData, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
-        serviceArr = [];
-      } // create an empty array if not passed
-      serviceArr.forEach(function (data, index, serviceArr) {
-        SBW.Singletons.serviceFactory.getService(data).uploadPhoto(fileData, successCallback, errorCallback);
-      });
+        SBW.Singletons.serviceFactory.getService(serviceArr).uploadPhoto(fileData, successCallback, errorCallback);
+      } else {
+        serviceArr.forEach(function (data, index, serviceArr) {
+          SBW.Singletons.serviceFactory.getService(data).uploadPhoto(fileData, successCallback, errorCallback);
+        });
+      }
     },
     /**
      * This callback is displayed as part of the uploadPhoto method.
@@ -981,7 +1011,7 @@
     postUpload: function (serviceArr, returnValue, successCallback, errorCallback) {
       if (!(serviceArr instanceof Array)) {
         SBW.Singletons.serviceFactory.getService(serviceArr).postUpload(returnValue, successCallback, errorCallback);
-      } else { // create an empty array if not passed
+      } else {
         serviceArr.forEach(function (data, index, serviceArr) {
           SBW.Singletons.serviceFactory.getService(data).postUpload(returnValue, successCallback, errorCallback);
         });

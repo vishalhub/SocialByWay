@@ -335,7 +335,16 @@ SBW.Controllers.Services.LinkedIn = SBW.Controllers.Services.ServiceController.e
           .result(function (result) {
             var commentsData = [], comments = result.values;
             for (var i = 0; i < comments.length; i++) {
-              commentsData[i] = {"comment": comments[i].comment, "id": comments[i].id, "fromName": comments[i].person.firstName + ' ' + comments[i].person.lastName, "fromId": comments[i].person.id, "fromUrl": comments[i].person.pictureUrl, "time": comments[i].timestamp, "isLikable": false };
+              commentsData[i] = new SBW.Models.Comment({
+                createdTime: comments[i].timestamp,
+                fromUser: comments[i].person.firstName + ' ' + comments[i].person.lastName,
+                likeCount: null,
+                text: comments[i].comment,
+                rawData: comments[i],
+                serviceName: "linkedin",
+                id: comments[i].id,
+                userImage: comments[i].person.pictureUrl
+              });
             }
             successCallback(commentsData);
           })

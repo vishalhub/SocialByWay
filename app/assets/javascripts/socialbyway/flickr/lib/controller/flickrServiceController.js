@@ -802,6 +802,7 @@ SBW.Controllers.Services.Flickr = SBW.Controllers.Services.ServiceController.ext
         commentsData[i] = new SBW.Models.Comment({
           createdTime: result.comments.comment[i].datecreate,
           fromUser: result.comments.comment[i].authorname,
+          fromUserId: result.comments.comment[i].author,
           likeCount: null,
           text: result.comments.comment[i]._content,
           rawData: result.comments.comment[i],

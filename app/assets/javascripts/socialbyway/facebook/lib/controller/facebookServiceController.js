@@ -1124,6 +1124,7 @@ SBW.Controllers.Services.Facebook = SBW.Controllers.Services.ServiceController.e
               commentsData[i] = new SBW.Models.Comment({
                 createdTime: result[i].created_time,
                 fromUser: result[i].from.name,
+                fromUserId : result[i].from.id,
                 likeCount: result[i].like_count,
                 text: result[i].message,
                 rawData: result[i],

@@ -399,6 +399,7 @@ SBW.Controllers.Services.Picasa = SBW.Controllers.Services.ServiceController.ext
                 comment.text = value.content.$t;
                 comment.createdTime = value.updated.$t;
                 comment.fromUser = value.author[0].name.$t;
+                comment.fromUserId = value.author[0].gphoto$user.$t;
                 commentsArray.push(comment);
               });
               service._populateComments(idObject.assetCollectionId, idObject.assetId, commentsArray);

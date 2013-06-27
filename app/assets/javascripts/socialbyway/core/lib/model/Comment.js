@@ -21,5 +21,6 @@ SBW.Models.Comment = SBW.Object.extend(/** @lends SBW.Models.Comment# */{
   likeCount: null,
   userImage: "",
   rawData: null,
-  serviceName: ''
+  serviceName: '',
+  fromUserId:''
 });

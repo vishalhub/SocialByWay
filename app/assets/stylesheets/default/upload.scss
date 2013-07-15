@@ -24,6 +24,10 @@
       .file-display {
         display: inline-block;
         margin-left: 15px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 12em;
+        overflow: hidden;
       }
     }
     >input {

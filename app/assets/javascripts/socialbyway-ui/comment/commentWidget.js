@@ -15,21 +15,20 @@
       var self = this;
       self.serviceFactory = SBW.Singletons.serviceFactory;
       // Tabs UI
-      self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-comment-widget-" + self.options.class);
+      self.$tabsDiv = $('<div/>').attr('class', "sbw-widget sbw-comment-widget-" + self.options.theme);
       self.$commentsContainer = $('<div/>').attr('class', "comments-container");
       self.$textBox = $('<textarea/>', {
         name: 'comment',
         'class': 'comment-box',
-        maxlength: 5000,
-        cols: 62,
         placeholder: self.options.labelPlaceholder || "Enter your comment..."
       });
 
       self.$postBtn = $('<button/>').addClass('post-comment').text(self.options.buttonText || "Comment");
 
       self.$postBtn.on("click", this, this._addPost);
-
-      self.$tabsDiv.append(self.$commentsContainer, self.$textBox, self.$postBtn);
+      self.$actionContainer = $('<div/>').attr('class', "action-container");
+      self.$actionContainer.append(self.$textBox, self.$postBtn);
+      self.$tabsDiv.append(self.$commentsContainer,self.$actionContainer);
       self.element.append(self.$tabsDiv);
       self._populateComments(self);
     },
@@ -38,24 +37,28 @@
      * @inner
      * @type {Object}
      * @property {String} successMessage The success message to be displayed.
-     * @property {String[]} services Name of the registered services.
-     * @property {Number} limit The widget post limit.
+     * @property {String[]} service Name of the registered service.
      * @property {Number} offset The offset for the widget.
      * @property {String} theme The theme for the widget.
      * @property {String} labelPlaceholder Text for the Input placeholder.
      * @property {String} buttonText Text for post button.
      * @property {String} title Header for the widget.
+     * @property {Object} Id object of the post
+     * @property {Boolean} displayResponse success message and error message display on the screen.
+     * @property {Boolean} displayComments to display the comments of the post.
+     * @property {Boolean} displayImage to display the image of the user of the respective comment.
+     * @property {Boolean} displayPost to display the post.
      */
     options: {
       successMessage: '',
-      service: 'facebook',
+      service: '',
       offset: 0,
-      class: "default",
+      theme: "default",
       labelPlaceholder: "Enter text..",
       buttonText: "Comment",
       title: "Comment",
-      postIdObject: {assetId : '5893334424993468098',
-                     assetCollectionId : '5837300989591115521'},
+      postIdObject: {assetId : '',
+                     assetCollectionId : ''},
       displayResponse: false,
       displayComments: true,
       displayImage: true,
@@ -81,7 +84,7 @@
     /**
      * @method
      * @memberof CommentWidget
-     * @param e
+     * @param context
      * @private
      */
     _populateComments: function (context) {
@@ -89,17 +92,20 @@
         populateComments = function (comments) {
           var temp = [];
           comments.forEach(function (comment) {
-            if(!self.options.displayImage){
+            if(!self.options.displayImage) {
               temp.push("<div class='comment'><span class='frmuser'>" + comment.fromUser + ' : ' + "</span><span class='msg'>" + comment.text + "</span></div>");
+              self.$commentsContainer.empty();
+              self.$commentsContainer.append(temp);
             } else {
               var populateCommentsWithImage = function(profilePicUrl){
                 temp.push('<div class="comment"><img class="comment-image" src="' + profilePicUrl + '"><span class="frmuser">' + comment.fromUser + ' : ' + "</span><span class='msg'>" + comment.text + "</span></div>");
-              }
+                self.$commentsContainer.empty();
+                self.$commentsContainer.append(temp);
+              };
                SBW.api.getProfilePic(self.options.service,comment.fromUserId, populateCommentsWithImage, function(resp){console.log(resp)});
             }
           });
-          self.$commentsContainer.empty();
-          self.$commentsContainer.append(temp);
+
         },
         failureCallback = function () {
           self.$commentsContainer.append("<p>Unable to fetch Comments from" + self.options.service + "</p>");

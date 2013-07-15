@@ -20,16 +20,15 @@
       self.$textBox = $('<textarea/>', {
         name: 'comment',
         'class': 'comment-box',
-        maxlength: 5000,
-        cols: 62,
         placeholder: self.options.labelPlaceholder || "Enter your comment..."
       });
 
       self.$postBtn = $('<button/>').addClass('post-comment').text(self.options.buttonText || "Comment");
 
       self.$postBtn.on("click", this, this._addPost);
-
-      self.$tabsDiv.append(self.$commentsContainer, self.$textBox, self.$postBtn);
+      self.$actionContainer = $('<div/>').attr('class', "action-container");
+      self.$actionContainer.append(self.$textBox, self.$postBtn);
+      self.$tabsDiv.append(self.$commentsContainer,self.$actionContainer);
       self.element.append(self.$tabsDiv);
       self._populateComments(self);
     },
@@ -95,15 +94,18 @@
           comments.forEach(function (comment) {
             if(!self.options.displayImage) {
               temp.push("<div class='comment'><span class='frmuser'>" + comment.fromUser + ' : ' + "</span><span class='msg'>" + comment.text + "</span></div>");
+              self.$commentsContainer.empty();
+              self.$commentsContainer.append(temp);
             } else {
               var populateCommentsWithImage = function(profilePicUrl){
                 temp.push('<div class="comment"><img class="comment-image" src="' + profilePicUrl + '"><span class="frmuser">' + comment.fromUser + ' : ' + "</span><span class='msg'>" + comment.text + "</span></div>");
-              }
+                self.$commentsContainer.empty();
+                self.$commentsContainer.append(temp);
+              };
                SBW.api.getProfilePic(self.options.service,comment.fromUserId, populateCommentsWithImage, function(resp){console.log(resp)});
             }
           });
-          self.$commentsContainer.empty();
-          self.$commentsContainer.append(temp);
+
         },
         failureCallback = function () {
           self.$commentsContainer.append("<p>Unable to fetch Comments from" + self.options.service + "</p>");

@@ -1,0 +1,417 @@
+/* CSS Document */
+/* =Reset default browser CSS. Based on work by Eric Meyer: http://meyerweb.com/eric/tools/css/reset/index.html --------------------- */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+body {
+    overflow-y: scroll;
+    font-size: 1em;
+    font-family: Georgia, Trebuchet MS, Arial, sans-serif;
+    color: #666;
+}
+p, li{
+    line-height: 1.5em;
+}
+
+table{
+    border:0;
+    color: #999;
+    margin:0;
+}
+table tr td{
+    border-bottom:1px #eee dotted;
+    padding:5px 5px;
+    margin:0;
+}
+table tr th{
+    border-bottom:2px #999 solid;
+    padding:5px 5px;
+    text-align: left;
+    font-weight: bold;
+    margin:0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    clear: both;
+    font-weight: normal;
+    line-height: 1.5em;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+blockquote {
+    quotes: none;
+}
+
+del {
+    text-decoration: none;
+}
+
+a {
+    text-decoration: none;
+    color: #ff417e;
+}
+
+a:hover {
+    color: #aa2f4b;
+}
+
+/*
+ * Clearfix: contain floats
+ *
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    `contenteditable` attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that receive the `clearfix` class.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+
+.clearfix:before,
+.clearfix:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.clearfix:after {
+    clear: both;
+}
+/***********************************header style*******************************************/
+.header {
+    min-width: 800px;
+    background-repeat: repeat-x;
+    height: 90px;
+    display: table;
+    width: 100%;
+    position: relative;
+}
+
+.header .logo {
+    background: transparent url('images/logo.png') no-repeat;
+    height: 87px;
+    float: left;
+    width: 170px;
+    margin-left: 6.5%;
+    display: table-cell;
+}
+
+.header .button {
+    cursor: pointer;
+    height: 48px;
+    width: 48px;
+    display: table-cell;
+    position: relative;
+    padding-right: 1em;
+}
+
+.header .button .icon {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    bottom: 48px;
+    left: 9px;
+}
+
+.header .top-nav {
+    padding-top: 1.5em;
+    float: right;
+    display: table-cell;
+    position: relative;
+}
+
+.header .top-nav li {
+    text-align: right;
+    background: transparent;
+    display: inline-block;
+    margin: 0 1.5em;
+}
+
+.header .top-nav li a {
+    font-family: Segoe UI, Trebuchet MS, Arial, sans-serif;
+    font-size: 1.3em;
+    text-decoration: none;
+    color: #333;
+}
+
+.header .top-nav li a.selected {
+    color: #ff417e;
+}
+
+.header .top-nav li a:hover {
+    color: #aa2f4b;
+}
+
+/***********************************content style*******************************************/
+.top-message {
+    min-width: 800px;
+    position: relative;
+    font-style: italic;
+    font-size: 1.5em;
+    text-align: center;
+    color: #161616;
+}
+
+.top-message {
+    padding-top: 3%;
+    line-height: 150%;
+}
+
+.top-message .highlight {
+    color: #ff417e;
+}
+
+/***********************************slideshow style*******************************************/
+#slides {
+    display: table;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.slides_container {
+    width: 800px;
+    height: 600px;
+    overflow: hidden;
+    background: transparent;
+    position: relative;
+    text-align: center;
+    margin: 0 auto;
+}
+
+#slides .next, #slides .prev {
+    z-index: 10;
+}
+
+/******************************************Pagination**********************************************/
+.pagination {
+    position: relative;
+    margin: 0.5em auto 0;
+    width: 7em;
+}
+
+.pagination li {
+    float: left;
+    margin: 0 3px;
+    list-style: none;
+    position: relative;
+}
+
+.pagination li a {
+    display: block;
+    width: 25px;
+    height: 6px;
+    padding-top: 1em;
+    background-image: url(images/pagination.png);
+    background-position: 0 0;
+    float: left;
+    overflow: hidden;
+}
+
+.pagination li.current a {
+    background-position: 0 -25px;
+}
+
+/***********************************footer style*******************************************/
+.footer {
+    padding-top: 2em;
+    text-align: center;
+    clear: both;
+    width: 100%;
+}
+
+.footer p {
+    padding: 1em 0;
+}
+
+.footer ul {
+    font-size: 0.9em;
+    color: #999;
+}
+
+.footer ul li {
+    display: inline;
+}
+
+
+/*************************************content style****************************************/
+.content {
+    min-width: 800px;
+    margin: 0 auto;
+}
+.inner-content{ margin: 0 10%;}
+.content h1 {
+    font-size: 1.3em;
+    font-style: italic;
+    border-bottom: 1px dashed #bdbdbd;
+    padding: 2.0em 1.5em 0 0;
+    color: #ff417e;
+}
+
+.content h4 {
+    font-size: 1.3em;
+    color: #ff417e;
+}
+
+.content p {
+    margin: 1em 0;
+}
+
+.content .sub-content-row {
+    border-bottom: 1px dashed #bdbdbd;
+    clear: both;
+    position: relative;
+    width: 100%;
+    padding: 2em 0;
+}
+
+.content .sub-content-row .sub-content {
+    display: table;
+}
+
+.content .sub-content-row .sub-content .number {
+    width: 3em;
+    height: 3em;
+    font-size: 4em;
+    background: #eee;
+    text-align: center;
+    line-height: 3em;
+    color: #999;
+    font-style: italic;
+    font-weight: bold;
+    -webkit-border-radius: 5em;
+    -moz-border-radius: 5em;
+    border-radius: 5em;
+    -webkit-box-shadow: #ccc 0.1em 0.1em 0.1em inset;
+    -moz-box-shadow: #ccc 0.1em 0.1em 0.1em inset;
+    box-shadow: #ccc 0.1em 0.1em 0.1em inset;
+}
+
+.content .sub-content-row .sub-content .description {
+    display: table-cell;
+    padding: 2em;
+    vertical-align: top;
+}
+
+
+.content .sub-content-row .sub-content .description dd{
+    margin-left: 25px;
+}
+
+.content .sub-content-row .sub-content .description ul{
+   color: #999999;
+   list-style: decimal outside none;
+}
+
+.content .sub-content-row .sub-content .description ul li{
+    margin: 0.8em 0;
+}
+
+.loader {
+    background: url("images/loading.gif") no-repeat scroll center center transparent;
+    display: block;
+    height: 395px;
+    width: 767px;
+}
+
+
+/********************************pretty print style***********************************************/
+.prettyprint {
+    background: #fff;
+    color: #888;
+}
+
+.prettyprint ol.linenums {
+    line-height: 1em;
+}
+
+.prettyprint ol.linenums li {
+    list-style-type: decimal;
+    border-left: 1px dashed #bdbdbd;
+    background-color: #fff;
+    color: #666;
+    margin-left: 32px;
+}
+
+/********************************widget style***********************************************/
+.widget-content {
+    margin: 5% 0;
+}
+
+.widget-content h2 span {
+    color: #FF417E;
+    font-style: italic;
+}
+#widget-list{
+    display:table-cell;
+    width:200px;
+    vertical-align:top;
+}
+
+#widget-list li {
+    margin: 0.3em;
+    font-size: 1.3em;
+    padding: 10px;
+    padding-left: 51px;
+}
+
+#widget-list li:hover {
+    color: #FF417E;
+    background-color: #f1f1f1;
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    border-radius: 1em;
+	cursor: pointer;
+}
+
+#widget-list .selected {
+    color: #FF417E;
+    background-color: #f1f1f1;
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    border-radius: 1em;
+}
+#widget-sample{
+    display:table-cell;
+    vertical-align:top;
+}
+.widget-content h4, p {
+    color: #999999;
+}
+
+.widget-content .content-container {
+    padding:1em;
+}
+
+
+.widget-content h2, .widget-content h3, .widget-content h4 {
+    display: inline;
+}
+
+#preview-container {
+    margin-bottom: 0.8em;
+}
+
+#preview-container > div {
+    display: none;
+}
+#code-container {
+	border: 1px solid #ddd;
+	max-width:765px;
+	overflow:auto;
+	margin-top: 0.8em;
+}
+
+/**************************************************************************************/

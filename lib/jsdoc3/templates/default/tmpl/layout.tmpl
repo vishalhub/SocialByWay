@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>SocialByWay: <?js= title ?></title>
-    
+
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
     <!--[if lt IE 9]>
@@ -11,49 +11,132 @@
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+    <!-- SlidesJS Required (if responsive): Sets the page width to the device width. -->
+    <meta name="viewport" content="width=device-width">
+    <!-- End SlidesJS Required -->
+
+
+    <!-- CSS for website -->
+    <link rel="stylesheet" type="text/css" href="styles/boilerplate.css" >
+    <link rel="stylesheet" type="text/css" href="styles/styles.css" >
+    <!-- END CSS for website -->
+
+
+
+
 </head>
 
 <body>
-<header class="header">
-    <div class="logo"></div>
-    <div class="top-nav">
-        <ul>
-            <li><a href="http://www.socialbyway.com/index.html">About</a></li>
-            <li><a href="http://www.socialbyway.com/widget.html">Widgets</a></li>
-            <li><a href="http://www.socialbyway.com/document.html">Docs</a></li>
-            <li><a href="http://www.socialbyway.com/api.html" class="selected">API</a></li>
-            <li><a href="http://blog.socialbyway.com">Blogs</a></li>
-            <li><a href="https://github.com/Imaginea/SocialByWay">Fork@Github</a></li>
-        </ul>
-    </div>
 
-</header>
-<div class="content">
-<div class="inner-content">
-<nav>
-    <?js= this.nav ?>
-</nav>
-<div id="main">
-<h1 class="page-title"><?js= title ?></h1>
-<?js= content ?>
+
+<div class="gridContainer clearfix">
+  <header id="header" class="fluid">
+    <figure id="logo" class="fluid"> <a href="../../index"><img src="images/logo.jpg"  alt="SocialByWay" title="SocialByWay"/></a> </figure>
+    <div id="header-links-container" class="fluid">
+
+	<div class="center">
+
+        <select id="nav-iphone" name="nav-iphone" onchange="if (this.value) window.location.href = this.value;">
+          <option>Where do you want to go?</option>
+          <option value="../../index">Home</option>
+          <!-- <option value="../../about">About</option> -->
+          <option value="../../widgets">Widgets</option>
+          <option value="../../document">Docs</option>
+          <option value="../../api">API</option>
+          <option value="http://blog.socialbyway.com/">Blog</option>
+        </select>
+
+	</div>
+      <div id="nav-header-links" class="fluid">
+        <ul id="list-header-links" class="fluid fluidList">
+
+        <li>&nbsp;</li>
+        <li>&nbsp;</li>
+          <li><a href="../../widgets" title="Widgets">Widgets</a></li>
+          <li><a href="../../document" title="Docs">Docs</a></li>
+          <li><a href="../../api" title="API">API</a></li>
+          <li><a href="http://blog.socialbyway.com/" title="Blog">Blog</a></li>
+        </ul>
+      </div>
+      <a href="https://github.com/Imaginea/SocialByWay" class="button-green fork-github">
+      <div class="fork">&nbsp;</div>
+      Fork@Github</a> </div>
+    <!-- #header-links-container -->
+  </header>
 </div>
-<br clear="both">
+<!-- .gridContainer-->
+
+
+<section id="page-heading" class="fluid">
+  <div class="gridContainer clearfix">
+    <h1>API - Documentation</h1>
+  </div>
+  <!-- .gridContainer-->
+</section>
+<!-- #page-heading -->
+
+<div class="gridContainer clearfix">
+  <section class="fluid main-content-full">
+
+
+  <div class="content">
+  <div class="inner-content">
+  <nav>
+      <?js= this.nav ?>
+  </nav>
+  <div id="main">
+  <h1 class="page-title"><?js= title ?></h1>
+  <?js= content ?>
+  </div>
+  <br clear="both">
+  </div>
+  </div>
+
+
+  </section>
+<div class="clearfix"></div>
+  <!-- .clearfix-->
+
 </div>
-</div>
-<footer>
-<!--footer comes here-->
-    <div class="footer">
-      <ul>
-        <li><a target="_blank" href="http://blog.socialbyway.com">Blog</a> | </li>
-        <li><a target="_blank" href="http://www.twitter.com/socialbyway">@socialbyway</a> | </li>
-        <li><a href="http://www.socialbyway.com/site/faq.html">FAQ</a> | </li>
-        <li><a href="http://www.socialbyway.com/site/terms.html">Terms</a> | </li>
-        <li><a href="http://www.socialbyway.com/site/privacy.html">Privacy</a> | </li>
-        <li><a href="http://www.socialbyway.com/site/license.html">License</a> | </li>
-        <li>Mail your feedback and enquiries to <a href="mailto:info@socialbyway.com">info@socialbyway.com</a></li>
+<!-- .gridContainer -->
+
+
+
+
+<footer id="footer" class="fluid">
+  <div class="gridContainer clearfix">
+    <div class="fluid footer-left-col zeroMargin_tablet">
+      <h6>Quicklinks</h6>
+      <ul class="list-footer-links">
+        <li><a href="../../index">Home</a></li>
+        <li><a href="../../widgets">Widgets</a></li>
+        <li><a href="../../document">Docs</a></li>
+        <li><a href="../../api">API</a></li>
+        <li><a href="http://blog.socialbyway.com/">Blog</a></li>
+        <li><a href="https://github.com/Imaginea/SocialByWay">Fork@Github</a></li>
       </ul>
-      <p>Copyright &copy; 2013, Pramati Technologies Private Limited.</p>
     </div>
+    <div class="fluid footer-middle-col">
+      <h6>Stay Connected</h6>
+      <ul class="list-footer-links">
+        <li><a href="http://www.twitter.com/socialbyway">Twitter</a></li>
+        <li><a href="https://www.facebook.com/Socialbyway">Facebook</a></li>
+        <li><a href="http://www.flickr.com/photos/92677088@N05/">Flickr</a></li>
+        <li><a href="http://in.linkedin.com/pub/socialbyway-admin/64/812/bb9">LinkedIn</a></li>
+        <li><a href="http://instagram.com/socialbyway/">Instagram</a></li>
+      </ul>
+    </div>
+    <div class="fluid footer-right-col">
+      <h6>Legal</h6>
+      <ul class="list-footer-links">
+        <li><a href="../../terms">Terms</a></li>
+        <li><a href="../../privacy">Privacy</a></li>
+        <li><a href="../../license">License</a></li>
+      </ul>
+    </div>
+    <div id="copyright" class="fluid">Copyright &copy; 2012, Pramati Technologies Private Limited.</div>
+  </div>
 </footer>
 
 <script> prettyPrint(); </script>

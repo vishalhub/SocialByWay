@@ -353,6 +353,7 @@ SBW.Controllers.Services.Twitter = SBW.Controllers.Services.ServiceController.ex
   /**
    * @method
    * @desc Function to search twitter for a particular search string. No authentication is required for this request.
+   * api deprecated by twitter
    * @param {Object} parameters An object that contains the parameters for the request.
    * @example parameter object
      { q:socialbyway+imaginea   required

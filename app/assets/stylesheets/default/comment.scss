@@ -1,8 +1,8 @@
 .sbw-comment-widget-default{
   font-family: "Segoe UI","Segoe WP","Helvetica Neue",sans-serif;
-  display: inline-block;
   .comments-container{
     .comment{
+      text-align: left;
       background: #fff;
       padding: 3px;
       margin-bottom: 4px;
@@ -21,22 +21,23 @@
     margin-bottom: 0px;
     background: #eee;
  }
-  textarea{
-    resize: none;
-    margin-right: 0px;
-    border: 1px solid rgb(204, 191, 191);
-    border-right: none;
-    padding-left: 5px;
-    margin-top: 2px;
-    height: 38px;
-  }
-  .post-comment{
-    padding: 10px 40px;
-    color: #ff417e;
-    border: 1px solid #ddd;
-    background: #f5f5f5;
-    float: right;
-    margin-left: 0px;
-    margin-top: 2px;
+  .action-container{
+    textarea{
+      resize: none;
+      margin-right: 0px;
+      border: 1px solid rgb(204, 191, 191);
+      border-right: none;
+      padding-left: 5px;
+      margin-top: 2px;
+    }
+    .post-comment{
+      padding: 10px 40px;
+      color: #ff417e;
+      border: 1px solid #ddd;
+      background: #f5f5f5;
+      float: right;
+      margin-left: 0px;
+      margin-top: 2px;
+    }
   }
 }
